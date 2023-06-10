@@ -543,17 +543,141 @@ public class EcoreNodeProcessorFactory extends Reflector {
 		return new EEnumLiteralNodeProcessor(config, context, getPrototypeProvider(config));
 	}	
 	
-	// --- TODO ~~~
-	
 	@EObjectNodeProcessor(type = ETypeParameter.class)
-	public ETypeParameterNodeProcessor createETypeParameterNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createETypeParameterNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
+				.stream()
+				.filter(aer -> aer.test(config.getElement()))
+				.filter(aer -> {
+					ETypeParameterNodeProcessorFactory ann = aer.getAnnotation(ETypeParameterNodeProcessorFactory.class);
+					if (ann == null) {
+						return false;
+					}					
+					ETypeParameter target = (ETypeParameter) ((EObjectNode) config.getElement()).getTarget();
+					if (!target.getName().equals(ann.name())) {
+						return false;
+					}
+					if (ann.operationID() == -1) {
+						if (!(target.eContainer() instanceof EClassifier)) {
+							return false;
+						}
+					} else {
+						if (!(target.eContainer() instanceof EOperation)) {
+							return false;
+						}
+						
+						if (((EOperation) target.eContainer()).getOperationID() != ann.operationID()) {
+							return false;
+						}
+					}
+					
+					String eClassName = ann.eClassifier();
+					EClassifier eClassifier = target.eContainer() instanceof EOperation ? ((EOperation) target.eContainer()).getEContainingClass() : (EClassifier) target.eContainer();  
+					if (!Util.isBlank(eClassName) && !eClassName.equals(eClassifier.getName())) {
+						return false;
+					}
+					
+					String nsURI = ann.nsURI();
+					return Util.isBlank(nsURI) || nsURI.equals(eClassifier.getEPackage().getNsURI());
+				}).findFirst();
+		
+		if (fo.isPresent()) {
+			AnnotatedElementRecord annotatedElementRecord = fo.get();
+			ETypeParameterNodeProcessorFactory ann = annotatedElementRecord.getAnnotation(ETypeParameterNodeProcessorFactory.class);
+			return annotatedElementRecord.invoke(
+					config, 
+					getPrototypeProvider(
+							config, 
+							annotatedElementRecord.getBaseURI(),
+							ann.actionPrototype(), 
+							ann.actionPrototypeRef(),
+							ann.documentation(),
+							progressMonitor),
+					getLabelConfigurator(
+							ann.label(),
+							ann.icon(), 
+							ann.description(),
+							progressMonitor),
+					progressMonitor);
+		}
+		
 		return new ETypeParameterNodeProcessor(config, context, getPrototypeProvider(config));
 	}	
 	
 	@EObjectNodeProcessor(type = EGenericType.class)
-	public EGenericTypeNodeProcessor createEGenericTypeNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEGenericTypeNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
+				.stream()
+				.filter(aer -> aer.test(config.getElement()))
+				.filter(aer -> {
+					ETypeParameterBoundNodeProcessorFactory ann = aer.getAnnotation(ETypeParameterBoundNodeProcessorFactory.class);
+					if (ann == null) {
+						return false;
+					}
+					
+					EGenericType target = (EGenericType) ((EObjectNode) config.getElement()).getTarget();
+					EObject targetContainer = target.eContainer();
+					if (!(targetContainer instanceof ETypeParameter)) {
+						return false;
+					}
+					int index = ((List<?>) targetContainer.eGet(target.eContainmentFeature())).indexOf(target);					
+					if (index == -1 || index != ann.index()) {
+						return false;
+					}
+					ETypeParameter eTypeParameter = (ETypeParameter) targetContainer; 					
+					
+					if (!eTypeParameter.getName().equals(ann.typeParameterName())) {
+						return false;
+					}
+					EObject typeParameterContainer = eTypeParameter.eContainer();
+					if (ann.operationID() == -1) {
+						if (!(typeParameterContainer instanceof EClassifier)) {
+							return false;
+						}
+					} else {
+						if (!(typeParameterContainer instanceof EOperation)) {
+							return false;
+						}
+						
+						if (((EOperation) typeParameterContainer).getOperationID() != ann.operationID()) {
+							return false;
+						}
+					}
+					
+					String eClassName = ann.eClassifier();
+					EClassifier eClassifier = typeParameterContainer instanceof EOperation ? ((EOperation) typeParameterContainer).getEContainingClass() : (EClassifier) typeParameterContainer;  
+					if (!Util.isBlank(eClassName) && !eClassName.equals(eClassifier.getName())) {
+						return false;
+					}
+					
+					String nsURI = ann.nsURI();
+					return Util.isBlank(nsURI) || nsURI.equals(eClassifier.getEPackage().getNsURI());
+				}).findFirst();
+		
+		if (fo.isPresent()) {
+			AnnotatedElementRecord annotatedElementRecord = fo.get();
+			ETypeParameterBoundNodeProcessorFactory ann = annotatedElementRecord.getAnnotation(ETypeParameterBoundNodeProcessorFactory.class);
+			return annotatedElementRecord.invoke(
+					config, 
+					getPrototypeProvider(
+							config, 
+							annotatedElementRecord.getBaseURI(),
+							ann.actionPrototype(), 
+							ann.actionPrototypeRef(),
+							ann.documentation(),
+							progressMonitor),
+					getLabelConfigurator(
+							ann.label(),
+							ann.icon(), 
+							ann.description(),
+							progressMonitor),
+					progressMonitor);
+		}
+		
 		return new EGenericTypeNodeProcessor(config, context, getPrototypeProvider(config));
 	}	
+	
+	// --- TODO ~~~
 	
 	@EObjectNodeProcessor(type = EAnnotation.class)
 	public EAnnotationNodeProcessor createEAnnotationNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {

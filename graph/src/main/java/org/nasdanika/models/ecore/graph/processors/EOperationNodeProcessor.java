@@ -38,6 +38,9 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		if (eReference == EcorePackage.Literals.EOPERATION__EPARAMETERS) {
 			return true;
 		}
+		if (eReference == EcorePackage.Literals.EOPERATION__ETYPE_PARAMETERS) {
+			return true;
+		}
 		return super.isCallOutgoingReferenceLabelsSuppliers(eReference);
 	}	
 	
@@ -59,7 +62,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 	
 	@OutgoingEndpoint("reference.name == 'eTypeParameters'")
 	public final void setETypeParameterEndpoint(EReferenceConnection connection, WidgetFactory eTypeParameterWidgetFactory) {
-		eParametersWidgetFactories.put(connection.getIndex(), eTypeParameterWidgetFactory);
+		eTypeParametersWidgetFactories.put(connection.getIndex(), eTypeParameterWidgetFactory);
 	}	
 	
 	private Map<Integer,WidgetFactory> eGenericExceptionsWidgetFactories = new TreeMap<>(); // TODO - a record for value with generic type for reified type
@@ -84,7 +87,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 			.orElseGet(() -> {
 				Action parametersAction = AppFactory.eINSTANCE.createAction();
 				parametersAction.setText("Parameters");
-				parametersAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika/html@master/ecore.gen/web-resources/icons/EParameter.gif");
+				parametersAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EParameter.gif");
 				parametersAction.setLocation("parameters.html");
 				pAction.getNavigation().add(parametersAction);
 				return parametersAction;
@@ -112,7 +115,52 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				}
 			}
 		}
-	}			
+	}	
+	
+	/**
+	 * Returns attributes action, creates if necessary. Matches by location.
+	 * @param parent
+	 * @return
+	 */
+	protected Action getTypeParametersAction(Action parent) {
+		Action pAction = (Action) parent;
+		return pAction.getNavigation()
+			.stream()
+			.filter(e -> e instanceof Action && "type-parameters.html".equals(((Action) e).getLocation()))
+			.findFirst()
+			.map(Action.class::cast)
+			.orElseGet(() -> {
+				Action typeParametersAction = AppFactory.eINSTANCE.createAction();
+				typeParametersAction.setText("Type Parameters");
+				typeParametersAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/ETypeParameter.gif");
+				typeParametersAction.setLocation("type-parameters.html");
+				pAction.getNavigation().add(typeParametersAction);
+				return typeParametersAction;
+			});
+	}
+	
+	@OutgoingReferenceBuilder(EcorePackage.EOPERATION__ETYPE_PARAMETERS)
+	public void buildETypeParametersOutgoingReference(
+			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
+			Collection<Label> labels,
+			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
+			ProgressMonitor progressMonitor) {
+		
+		// Own parameters 
+		for (Label tLabel: labels) {
+			if (tLabel instanceof Action) {
+				Action parametersAction = getTypeParametersAction((Action) tLabel);
+				EList<Action> tAnonymous = parametersAction.getAnonymous();
+				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet()) {
+					for (Label childLabel: re.getValue()) {
+						if (childLabel instanceof Action && !((Action) childLabel).getContent().isEmpty()) {
+							tAnonymous.add((Action) childLabel);
+						}
+					}
+				}
+			}
+		}
+	}					
 		
 	@Override
 	public Object createWidget(Object selector, URI base, ProgressMonitor progressMonitor) {

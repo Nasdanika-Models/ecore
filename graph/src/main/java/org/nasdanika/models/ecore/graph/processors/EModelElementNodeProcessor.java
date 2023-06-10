@@ -70,7 +70,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	protected void configureLabel(EObject eObject, Label label, ProgressMonitor progressMonitor) {
 		if (eObject instanceof EModelElement) {
 			if (Util.isBlank(label.getIcon())) {
-				String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika/html@master/ecore.gen/web-resources/icons/" + eObject.eClass().getName() + ".gif";
+				String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/" + eObject.eClass().getName() + ".gif";
 				label.setIcon(NcoreUtil.getNasdanikaAnnotationDetail((EModelElement) eObject, "icon", defaultIcon));
 			}
 			if (Util.isBlank(label.getTooltip())) {

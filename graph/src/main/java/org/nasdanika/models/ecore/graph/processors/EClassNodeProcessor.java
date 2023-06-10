@@ -134,7 +134,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			.orElseGet(() -> {
 				Action attributesAction = AppFactory.eINSTANCE.createAction();
 				attributesAction.setText("Attributes");
-				attributesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika/html@master/ecore.gen/web-resources/icons/EAttribute.gif");
+				attributesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EAttribute.gif");
 				attributesAction.setLocation("attributes.html");
 				pAction.getNavigation().add(attributesAction);
 				return attributesAction;
@@ -213,7 +213,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			.orElseGet(() -> {
 				Action referencesAction = AppFactory.eINSTANCE.createAction();
 				referencesAction.setText("References");
-				referencesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika/html@master/ecore.gen/web-resources/icons/EReference.gif");
+				referencesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EReference.gif");
 				referencesAction.setLocation("references.html");
 				pAction.getNavigation().add(referencesAction);
 				return referencesAction;
@@ -294,7 +294,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			.orElseGet(() -> {
 				Action operationsAction = AppFactory.eINSTANCE.createAction();
 				operationsAction.setText("Operations");
-				operationsAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika/html@master/ecore.gen/web-resources/icons/EOperation.gif");
+				operationsAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EOperation.gif");
 				operationsAction.setLocation("operations.html");
 				pAction.getNavigation().add(operationsAction);
 				return operationsAction;
@@ -375,7 +375,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			.orElseGet(() -> {
 				Action inheritanceAction = AppFactory.eINSTANCE.createAction();
 				inheritanceAction.setText("Inheritance");
-				inheritanceAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika/html@master/ecore.gen/web-resources/icons/EGenericSuperType.gif");
+				inheritanceAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EGenericSuperType.gif");
 				inheritanceAction.setLocation("inheritance.html");
 				pAction.getNavigation().add(inheritanceAction);
 				return inheritanceAction;

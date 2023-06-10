@@ -12,6 +12,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.ETypeParameter;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.model.app.Action;
@@ -20,6 +21,7 @@ import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
 /**
+ * Annotation for customizing {@link EGenericTypeNodeProcessor} for {@link ETypeParameter} bound.
  * Annotated method shall have the following signature: 
  * <PRE>
  * {@link NodeProcessorConfig}&lt;Object, {@link WidgetFactory}, {@link WidgetFactory}, {@link Registry}&lt;{@link URI}&gt;&gt; config, 
@@ -32,7 +34,7 @@ import org.nasdanika.html.model.app.graph.WidgetFactory;
  */
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface ETypeParameterNodeProcessorFactory {
+public @interface ETypeParameterBoundNodeProcessorFactory {
 	
 	// Selector
 	
@@ -58,7 +60,13 @@ public @interface ETypeParameterNodeProcessorFactory {
 	 * Parameter name.
 	 * @return
 	 */
-	String name();
+	String typeParameterName();
+	
+	/**
+	 * Bound index. Defaults to 0.
+	 * @return
+	 */
+	int index() default 0;
 	
 	// Action prototype
 
