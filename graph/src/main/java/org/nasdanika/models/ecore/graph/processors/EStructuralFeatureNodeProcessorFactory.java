@@ -43,10 +43,10 @@ public @interface EStructuralFeatureNodeProcessorFactory {
 	String nsURI() default "";
 	
 	/**
-	 * Name of the containing {@link EClass}. 
+	 * {@link EClass} ID as specified in the generated {@link EPackage} constants
 	 * @return
 	 */
-	String eClass() default "";
+	int classID() default -1;
 		
 	/**
 	 * {@link EStructuralFeature} ID as specified in the generated {@link EPackage} constants.

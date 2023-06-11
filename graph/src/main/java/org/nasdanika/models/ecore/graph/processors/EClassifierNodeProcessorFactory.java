@@ -46,10 +46,10 @@ public @interface EClassifierNodeProcessorFactory {
 	String nsURI() default "";
 	
 	/**
-	 * {@link EClassifier} name. On a method is inherited from the declaring class.
+	 * {@link EClassifier} ID as specified in the generated {@link EPackage} constants
 	 * @return
 	 */
-	String name() default "";
+	int classifierID() default -1;
 	
 	// Action prototype
 

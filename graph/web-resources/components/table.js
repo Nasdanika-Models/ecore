@@ -128,7 +128,7 @@ Vue.component('nsd-ecore-doc-table', {
 				<b-col cols="2">
 					<table>
 						<tr>
-							<td>
+							<td v-if="transitiveLabel">
 							    <b-form-checkbox
 							      id="transitive-checkbox"
 							      v-model="transitive"

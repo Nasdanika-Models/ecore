@@ -16,9 +16,9 @@ import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
-import org.nasdanika.html.model.app.graph.Registry;
 
 public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 

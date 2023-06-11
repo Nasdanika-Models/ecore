@@ -43,10 +43,10 @@ public @interface EParameterNodeProcessorFactory {
 	String nsURI() default "";
 	
 	/**
-	 * Name of the containing {@link EClass}. 
+	 * {@link EClass} ID as specified in the generated {@link EPackage} constants
 	 * @return
 	 */
-	String eClass() default "";
+	int classID() default -1;
 	
 	/**
 	 * {@link EOperation} ID as specified in the generated {@link EPackage} constants.

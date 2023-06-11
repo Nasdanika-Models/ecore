@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.nasdanika.common.ProgressMonitor;
@@ -43,10 +43,10 @@ public @interface ETypeParameterNodeProcessorFactory {
 	String nsURI() default "";
 	
 	/**
-	 * Name of the containing {@link EClass}. 
+	 * {@link EClassifier} ID as specified in the generated {@link EPackage} constants
 	 * @return
 	 */
-	String eClassifier() default "";
+	int classifierID() default -1;
 	
 	/**
 	 * For {@link EOperation} type parameters - operation ID as specified in the generated {@link EPackage} constants.

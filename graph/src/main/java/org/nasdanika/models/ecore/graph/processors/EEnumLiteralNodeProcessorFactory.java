@@ -44,10 +44,10 @@ public @interface EEnumLiteralNodeProcessorFactory {
 	String nsURI() default "";
 	
 	/**
-	 * Name of the containing {@link EEnum}. 
+	 * {@link EEnum} ID as specified in the generated {@link EPackage} constants
 	 * @return
 	 */
-	String eEnum() default "";
+	int enumID() default -1;
 		
 	/**
 	 * {@link EEnumLiteral} literal as specified in the generated {@link Enumerator} constants.

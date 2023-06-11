@@ -168,7 +168,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (!Util.isBlank(cnfa.nsURI()) && !cnfa.nsURI().equals(eClassifier.getEPackage().getNsURI())) {
 						return false;
 					}
-					if (!Util.isBlank(cnfa.name()) && !cnfa.name().equals(eClassifier.getName())) {
+					if (cnfa.classifierID() != -1 && cnfa.classifierID() != eClassifier.getClassifierID()) {
 						return false;
 					}
 				}				
@@ -301,12 +301,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						return false;
 					}
 					EClassifier target = (EClassifier) ((EObjectNode) config.getElement()).getTarget();
-					String name = ann.name();
-					if (!Util.isBlank(name) && !name.equals(target.getName())) {
+					int id = ann.classifierID();
+					if (id != -1 && id != target.getClassifierID()) {
 						return false;
 					}
 					String nsURI = ann.nsURI();
-					return Util.isBlank(nsURI) || nsURI.equals(target.getEPackage().getNsURI()) && ann.name().equals(target.getName());
+					return Util.isBlank(nsURI) || nsURI.equals(target.getEPackage().getNsURI());
 				}).findFirst();
 		
 		if (fo.isEmpty()) {
@@ -360,8 +360,8 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (target.getFeatureID() != ann.featureID()) {
 						return false;
 					}
-					String eClassName = ann.eClass();
-					if (!Util.isBlank(eClassName) && !eClassName.equals(target.getEContainingClass().getName())) {
+					int classID = ann.classID();
+					if (classID != -1  &&  classID != target.getEContainingClass().getClassifierID()) {
 						return false;
 					}
 					
@@ -416,8 +416,8 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (target.getOperationID() != ann.operationID()) {
 						return false;
 					}
-					String eClassName = ann.eClass();
-					if (!Util.isBlank(eClassName) && !eClassName.equals(target.getEContainingClass().getName())) {
+					int classID = ann.classID();
+					if (classID != -1 && classID != target.getEContainingClass().getClassifierID()) {
 						return false;
 					}
 					
@@ -465,8 +465,8 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (target.getEOperation().getOperationID() != ann.operationID()) {
 						return false;
 					}
-					String eClassName = ann.eClass();
-					if (!Util.isBlank(eClassName) && !eClassName.equals(target.getEOperation().getEContainingClass().getName())) {
+					int classID = ann.classID();
+					if (classID != -1 && classID != target.getEOperation().getEContainingClass().getClassifierID()) {
 						return false;
 					}
 					
@@ -511,8 +511,8 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (!ann.literal().equals(target.getLiteral())) {
 						return false;
 					}
-					String eEnumName = ann.eEnum();
-					if (!Util.isBlank(eEnumName) && !eEnumName.equals(target.getEEnum().getName())) {
+					int enumID = ann.enumID();
+					if (enumID != -1 && enumID != target.getEEnum().getClassifierID()) {
 						return false;
 					}
 					
@@ -571,9 +571,9 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						}
 					}
 					
-					String eClassName = ann.eClassifier();
+					int classifierID = ann.classifierID();
 					EClassifier eClassifier = target.eContainer() instanceof EOperation ? ((EOperation) target.eContainer()).getEContainingClass() : (EClassifier) target.eContainer();  
-					if (!Util.isBlank(eClassName) && !eClassName.equals(eClassifier.getName())) {
+					if (classifierID != -1 && classifierID != eClassifier.getClassifierID()) {
 						return false;
 					}
 					
@@ -644,9 +644,9 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						}
 					}
 					
-					String eClassName = ann.eClassifier();
+					int classifierID = ann.classifierID();
 					EClassifier eClassifier = typeParameterContainer instanceof EOperation ? ((EOperation) typeParameterContainer).getEContainingClass() : (EClassifier) typeParameterContainer;  
-					if (!Util.isBlank(eClassName) && !eClassName.equals(eClassifier.getName())) {
+					if (classifierID != -1 && classifierID != eClassifier.getClassifierID()) {
 						return false;
 					}
 					

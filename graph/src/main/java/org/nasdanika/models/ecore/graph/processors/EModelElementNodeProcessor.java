@@ -269,4 +269,22 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 //		isVolatile()		
 	}
 	
+	/**
+	 * Builds columns for {@link ETypedElement} including {@link ENamedElement} columns
+	 * @param tableBuilder
+	 * @param progressMonitor
+	 */
+	protected void buildClassifierColumns(DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> tableBuilder, ProgressMonitor progressMonitor) {
+		buildNamedElementColumns(tableBuilder, progressMonitor);
+
+// TODO
+//		getClassifierID()
+//		getDefaultValue()
+//		getEPackage()
+//		getETypeParameters()
+//		getInstanceClass()
+//		getInstanceClassName()
+//		getInstanceTypeName()
+	}
+	
 }

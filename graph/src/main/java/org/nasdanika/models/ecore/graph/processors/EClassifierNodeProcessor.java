@@ -3,8 +3,8 @@ package org.nasdanika.models.ecore.graph.processors;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -19,9 +19,9 @@ import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
-import org.nasdanika.html.model.app.graph.Registry;
 
 public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> {
 
