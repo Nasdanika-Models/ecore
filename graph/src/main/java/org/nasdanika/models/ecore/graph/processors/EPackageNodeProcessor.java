@@ -38,24 +38,6 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		return super.createLabelsSupplier().then(this::sortLabels);
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.EPACKAGE__ECLASSIFIERS)
-	public void buildOutgoingReference(
-			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
-			Collection<Label> labels,
-			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
-			ProgressMonitor progressMonitor) {
-		
-		List<Entry<EReferenceConnection, Collection<Label>>> sorted = outgoingLabels.entrySet().stream()
-				.sorted((a,b) -> ((ENamedElement) a.getKey().getTarget().getTarget()).getName().compareTo(((ENamedElement) b.getKey().getTarget().getTarget()).getName()))
-				.collect(Collectors.toList());		
-
-			for (Label tLabel: labels) {
-				for (Entry<EReferenceConnection, Collection<Label>> re: sorted) {
-					tLabel.getChildren().addAll(re.getValue());
-				}
-			}
-	}
-	
 	protected Collection<Label> sortLabels(Collection<Label> labels) {
 		return labels
 			.stream()
@@ -130,9 +112,15 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
 			ProgressMonitor progressMonitor) {
 
-		// A page with a dynamic classifiers table and links to classifier pages.
-		for (Label label: labels) {
-			if (label instanceof Action) {										
+		List<Entry<EReferenceConnection, Collection<Label>>> sorted = outgoingLabels.entrySet().stream()
+				.sorted((a,b) -> ((ENamedElement) a.getKey().getTarget().getTarget()).getName().compareTo(((ENamedElement) b.getKey().getTarget().getTarget()).getName()))
+				.collect(Collectors.toList());		
+
+		for (Label tLabel: labels) {
+			for (Entry<EReferenceConnection, Collection<Label>> re: sorted) {
+				tLabel.getChildren().addAll(re.getValue());
+			}
+			if (tLabel instanceof Action) {										
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> classifiersTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				buildClassifierColumns(classifiersTableBuilder, progressMonitor);
 				
@@ -145,10 +133,10 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 						"epackage-classifiers", 
 						"classifiers-table", 
 						progressMonitor);
-				getClassifiersAction((Action) label).getContent().add(attributesTable);
+				getClassifiersAction((Action) tLabel).getContent().add(attributesTable);
 			}
 		}
-	}	
+	}
 	
 	@OutgoingReferenceBuilder(EcorePackage.EPACKAGE__ESUBPACKAGES)
 	public void buildESubPackagesOutgoingReference(

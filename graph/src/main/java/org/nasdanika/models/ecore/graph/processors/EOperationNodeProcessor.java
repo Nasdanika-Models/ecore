@@ -20,6 +20,7 @@ import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
@@ -95,7 +96,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 	}
 	
 	@OutgoingReferenceBuilder(EcorePackage.EOPERATION__EPARAMETERS)
-	public void buildEParametersOutgoingReference(
+	public void buildParametersOutgoingReference(
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
@@ -113,6 +114,16 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 						}
 					}
 				}
+				
+				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> parametersTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+				buildTypedElementColumns(parametersTableBuilder, progressMonitor);
+				
+				org.nasdanika.html.model.html.Tag operationsTable = parametersTableBuilder.build(
+						referenceOutgoingEndpoints,  
+						"eoperation-parameters", 
+						"parameters-table", 
+						progressMonitor);
+				parametersAction.getContent().add(operationsTable);				
 			}
 		}
 	}	
@@ -146,11 +157,10 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
 			ProgressMonitor progressMonitor) {
 		
-		// Own parameters 
 		for (Label tLabel: labels) {
 			if (tLabel instanceof Action) {
-				Action parametersAction = getTypeParametersAction((Action) tLabel);
-				EList<Action> tAnonymous = parametersAction.getAnonymous();
+				Action typeParametersAction = getTypeParametersAction((Action) tLabel);
+				EList<Action> tAnonymous = typeParametersAction.getAnonymous();
 				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet()) {
 					for (Label childLabel: re.getValue()) {
 						if (childLabel instanceof Action && !((Action) childLabel).getContent().isEmpty()) {
@@ -158,6 +168,17 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 						}
 					}
 				}
+				
+				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> typeParametersTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+				buildNamedElementColumns(typeParametersTableBuilder, progressMonitor);
+				// TODO - bounds
+				
+				org.nasdanika.html.model.html.Tag operationsTable = typeParametersTableBuilder.build(
+						referenceOutgoingEndpoints,  
+						"eoperation-type-parameters", 
+						"type-parameters-table", 
+						progressMonitor);
+				typeParametersAction.getContent().add(operationsTable);
 			}
 		}
 	}					
