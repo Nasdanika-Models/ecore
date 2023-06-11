@@ -40,6 +40,17 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 				(source, genericType, nFactory) -> createReifiedTypeConnection(source, genericType, nFactory, progressMonitor),
 				progressMonitor);
 	}
+	
+	@NodeFactory(type = EOperation.class)
+	public EOperationNode createEOperationNode(EObject eObject, BiFunction<EObject, ProgressMonitor, ResultRecord> nodeFactory, ProgressMonitor progressMonitor) {
+		return new EOperationNode(
+				(EOperation) eObject, 
+				nodeFactory,
+				this::createReferenceConnection, 
+				this::createOperationConnections,
+				(source, genericType, nFactory) -> createReifiedTypeConnection(source, genericType, nFactory, progressMonitor),
+				progressMonitor);
+	}
 
 	@Override
 	protected String referencePath(EObjectNode source, EObjectNode target, EReference reference, int index) {
@@ -82,5 +93,5 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 			new ReifiedTypeConnection(source, reifiedTypeRecord.node(), -1, null, genericType, reifiedTypeRecord.isNew());
 		}
 	}	
-
+	
 }
