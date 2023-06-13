@@ -19,6 +19,7 @@ import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
@@ -89,6 +90,18 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 						}
 					}
 				}
+				
+				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> boundsTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+				boundsTableBuilder
+					.addStringColumnBuilder("bound", true, false, "Bound", endpoint -> targetNameLink(endpoint.getKey(), endpoint.getValue(), progressMonitor)) 
+					.addStringColumnBuilder("description", true, false, "Description", endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
+				
+				org.nasdanika.html.model.html.Tag attributesTable = boundsTableBuilder.build(
+						referenceOutgoingEndpoints,  
+						"etypeparameter-bounds", 
+						"type-parameter-bounds-table", 
+						progressMonitor);
+				getBoundsAction((Action) tLabel).getContent().add(attributesTable);
 			}
 		}
 	}				
