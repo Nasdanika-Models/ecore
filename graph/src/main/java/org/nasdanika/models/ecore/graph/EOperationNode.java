@@ -1,6 +1,7 @@
 package org.nasdanika.models.ecore.graph;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -59,12 +60,19 @@ public class EOperationNode extends EObjectNode {
 				}
 				return a.getOperationID() - b.getOperationID();				
 			}).forEach(op -> {
-				for (EOperation io: inheritedOperations) {
-					if (io.isOverrideOf(op)) {
-						return;
-					}
+				boolean isOverridden = false;
+				Iterator<EOperation> iit = inheritedOperations.iterator();
+				while (iit.hasNext()) {
+					EOperation iop = iit.next();
+					if (op.isOverrideOf(iop)) {
+						iit.remove();
+					} else if (iop.isOverrideOf(op)) {
+						isOverridden = true;
+					}							
 				}
-				inheritedOperations.add(op);				
+				if (!isOverridden) {
+					inheritedOperations.add(op);
+				}
 			});
 			
 		for (EOperation io: inheritedOperations) {

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EModelElement;
@@ -70,12 +71,13 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	protected void configureLabel(EObject eObject, Label label, ProgressMonitor progressMonitor) {
 		if (eObject instanceof EModelElement) {
 			if (Util.isBlank(label.getIcon())) {
-				String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/" + eObject.eClass().getName() + ".gif";
+				boolean isInterface = eObject instanceof EClass && ((EClass) eObject).isInterface();
+				String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/" + (isInterface ? "EInterface" : eObject.eClass().getName()) + ".gif";
 				label.setIcon(NcoreUtil.getNasdanikaAnnotationDetail((EModelElement) eObject, "icon", defaultIcon));
 			}
 			if (Util.isBlank(label.getTooltip())) {
 				label.setTooltip(NcoreUtil.getNasdanikaAnnotationDetail((EModelElement) eObject, "description", null));
-			}			
+			}									
 		}
 		super.configureLabel(eObject, label, progressMonitor);
 	}
@@ -187,6 +189,8 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 			isDirect = ((EStructuralFeature) tt).getEContainingClass() == getTarget();
 		} else if (tt instanceof EOperation) {
 			isDirect = ((EOperation) tt).getEContainingClass() == getTarget();
+		} else if (tt instanceof EGenericType) {
+			isDirect = tt.eContainer() == getTarget();			
 		}
 		String linkStr = widgetFactory.createLinkString(progressMonitor);
 		String name = Util.isBlank(linkStr) ? ((ENamedElement) connection.getTarget().getTarget()).getName() : linkStr;

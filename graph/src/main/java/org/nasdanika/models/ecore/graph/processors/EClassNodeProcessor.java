@@ -1,7 +1,9 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +15,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.ENamedElement;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -344,12 +347,35 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				// TODO - overrides, not visible by default and not sortable
 				
+				
+				
+				List<Entry<EReferenceConnection, WidgetFactory>> sorted = new ArrayList<>();
+				
+				referenceOutgoingEndpoints
+					.stream().sorted((a,b) -> {
+						ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
+						ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
+						return ane.getName().compareTo(bne.getName());
+					})
+					.forEach(e -> {
+						EOperation eop = (EOperation) e.getKey().getTarget().getTarget();
+						Iterator<Entry<EReferenceConnection, WidgetFactory>> sit = sorted.iterator();
+						boolean isOverridden = false;
+						while (sit.hasNext()) {
+							EOperation fop = (EOperation) sit.next().getKey().getTarget().getTarget();
+							if (eop.isOverrideOf(fop)) {
+								sit.remove();
+							} else if (fop.isOverrideOf(eop)) {
+								isOverridden = true;
+							}							
+						}
+						if (!isOverridden) {
+							sorted.add(e);
+						}
+					});
+				
 				org.nasdanika.html.model.html.Tag operationsTable = operationsTableBuilder.build(
-						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
-							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
-							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
-							return ane.getName().compareTo(bne.getName());
-						}).collect(Collectors.toList()),  
+						sorted,  
 						"eclass-operations", 
 						"operations-table", 
 						progressMonitor);
@@ -401,8 +427,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				org.nasdanika.html.model.html.Tag superTypesTable = superTypesTableBuilder.build(
 						referenceOutgoingEndpoints,  
-						"eclass-operations", 
-						"operations-table", 
+						"eclass-supertypes", 
+						"supertypes-table", 
 						progressMonitor);
 				
 				Action superTypesSection = AppFactory.eINSTANCE.createAction();
