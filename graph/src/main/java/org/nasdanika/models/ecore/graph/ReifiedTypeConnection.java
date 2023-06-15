@@ -13,7 +13,7 @@ import org.nasdanika.graph.emf.Connection;
 import org.nasdanika.graph.emf.EObjectNode;
 
 /**
- * Connection from a EClass node to a generic type qualified by a typed element for which its type is reified in the context of the source EClass.
+ * Connection from an {@link EClassNode} to a generic type qualified by a typed element for which its type is reified in the context of the source EClass.
  * 
  * @author Pavel
  *

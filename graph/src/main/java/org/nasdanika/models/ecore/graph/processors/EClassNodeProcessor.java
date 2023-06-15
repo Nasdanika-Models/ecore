@@ -25,12 +25,14 @@ import org.nasdanika.graph.emf.EOperationConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
+import org.nasdanika.html.TagName;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.html.model.app.graph.emf.IncomingReferenceBuilder;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 import org.nasdanika.models.ecore.graph.ReifiedTypeConnection;
 
@@ -113,7 +115,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	private Map<EGenericType,WidgetFactory> reifiedTypesWidgetFactories = new HashMap<>();
 	
 	@OutgoingEndpoint
-	public final void setRefiedTypeEndpoint(ReifiedTypeConnection connection, WidgetFactory reifiedTypeWidgetFactory) {
+	public final void setReifiedTypeEndpoint(ReifiedTypeConnection connection, WidgetFactory reifiedTypeWidgetFactory) {
 		reifiedTypesWidgetFactories.put(connection.getGenericType(), reifiedTypeWidgetFactory);
 	}	
 	
@@ -414,16 +416,14 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
 			ProgressMonitor progressMonitor) {
-		// A section with a dynamic super table and links to operations pages for operations with documentation. 
+
 		for (Label label: labels) {
 			if (label instanceof Action) {					
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> superTypesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				superTypesTableBuilder.setProperty("transitive-label", "All");
 				superTypesTableBuilder
-					.addStringColumnBuilder("name", true, false, "Name", endpoint -> targetNameLink(endpoint.getKey(), endpoint.getValue(), progressMonitor)) // TODO - bold for immediate supertypes  
+					.addStringColumnBuilder("name", true, false, "Name", endpoint -> targetNameLink(endpoint.getKey(), endpoint.getValue(), progressMonitor))   
 					.addStringColumnBuilder("description", true, false, "Description", endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
-				
-				// TODO - other things.
 				
 				org.nasdanika.html.model.html.Tag superTypesTable = superTypesTableBuilder.build(
 						referenceOutgoingEndpoints,  
@@ -439,5 +439,85 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			}
 		}			
 	}
+	
+	@IncomingReferenceBuilder(EcorePackage.EGENERIC_TYPE__ECLASSIFIER)
+	public void buildEGenericTypeClassifierIncomingReference(
+			List<Entry<EReferenceConnection, WidgetFactory>> referenceIncomingEndpoints, 
+			Collection<Label> labels,
+			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
+			ProgressMonitor progressMonitor) {
+		
+		for (Label label : labels) {
+			if (label instanceof Action) {
+				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> subTypesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+//				superTypesTableBuilder.setProperty("transitive-label", "All");
+				subTypesTableBuilder.addStringColumnBuilder("name", true, false, "Name", endpoint -> {
+					boolean isDirect = false;
+//					EObject tt = connection.getTarget().getTarget();
+//					if (tt instanceof EStructuralFeature) {
+//						isDirect = ((EStructuralFeature) tt).getEContainingClass() == getTarget();
+//					} else if (tt instanceof EOperation) {
+//						isDirect = ((EOperation) tt).getEContainingClass() == getTarget();
+//					} else if (tt instanceof EGenericType) {
+//						isDirect = tt.eContainer() == getTarget();			
+//					}
+					String linkStr = endpoint.getValue().createLinkString(progressMonitor);
+					return isDirect ? TagName.b.create(linkStr).toString() : linkStr;
+				}).addStringColumnBuilder("description", true, false, "Description",
+						endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
+
+				org.nasdanika.html.model.html.Tag superTypesTable = subTypesTableBuilder.build(referenceIncomingEndpoints, "eclass-subtypes", "subtypes-table", progressMonitor);
+
+				Action subTypesSection = AppFactory.eINSTANCE.createAction();
+				subTypesSection.setText("Subtypes");
+				subTypesSection.getContent().add(superTypesTable);
+
+				getInheritanceAction((Action) label).getSections().add(subTypesSection);
+			}
+		}
+	}	
+	
+//	
+//	@IncomingReferenceBuilder(EcorePackage.ECLASS__EALL_GENERIC_SUPER_TYPES)
+//	public void buildEAllGenericSuperTypesIncomingReference(
+//			List<Entry<EReferenceConnection, WidgetFactory>> referenceIncomingEndpoints, 
+//			Collection<Label> labels,
+//			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
+//			ProgressMonitor progressMonitor) {
+//
+//		for (Label label: labels) {
+//			if (label instanceof Action) {					
+//				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> superTypesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+//				superTypesTableBuilder.setProperty("transitive-label", "All");
+//				superTypesTableBuilder
+//					.addStringColumnBuilder("name", true, false, "Name", endpoint -> {
+//						boolean isDirect = false;
+////						EObject tt = connection.getTarget().getTarget();
+////						if (tt instanceof EStructuralFeature) {
+////							isDirect = ((EStructuralFeature) tt).getEContainingClass() == getTarget();
+////						} else if (tt instanceof EOperation) {
+////							isDirect = ((EOperation) tt).getEContainingClass() == getTarget();
+////						} else if (tt instanceof EGenericType) {
+////							isDirect = tt.eContainer() == getTarget();			
+////						}
+//						String linkStr = endpoint.getValue().createLinkString(progressMonitor);
+//						return isDirect ? TagName.b.create(linkStr).toString() : linkStr;
+//					})   
+//					.addStringColumnBuilder("description", true, false, "Description", endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
+//				
+//				org.nasdanika.html.model.html.Tag superTypesTable = superTypesTableBuilder.build(
+//						referenceIncomingEndpoints,  
+//						"eclass-subtypes", 
+//						"subtypes-table", 
+//						progressMonitor);
+//				
+//				Action subTypesSection = AppFactory.eINSTANCE.createAction();
+//				subTypesSection.setText("Subtypes");
+//				subTypesSection.getContent().add(superTypesTable);
+//									
+//				getInheritanceAction((Action) label).getSections().add(subTypesSection);
+//			}
+//		}			
+//	}
 	
 }

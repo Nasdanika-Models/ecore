@@ -86,7 +86,18 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 		return super.argumentToPathSegment(parameter, argument);
 	};
 		
-	protected void createReifiedTypeConnection(EClassNode source, EGenericType genericType, BiFunction<EObject, ProgressMonitor, EObjectNode.ResultRecord> nodeFactory, ProgressMonitor progressMonitor) {
+	/**
+	 * Creates a connection from the source {@link EClassNode} to reified {@link EGenericType} node. The connection is qualified by the original EGenericType
+	 * @param source Source (context) EClass
+	 * @param genericType Generic type to be reified. Available via {@link ReifiedTypeConnection}.getGenericType() method.
+	 * @param nodeFactory Node factory for connections.
+	 * @param progressMonitor Progress monitor.
+	 */
+	protected void createReifiedTypeConnection(
+			EClassNode source, 
+			EGenericType genericType, 
+			BiFunction<EObject, ProgressMonitor, EObjectNode.ResultRecord> nodeFactory, 
+			ProgressMonitor progressMonitor) {
 		EGenericType reifiedType = EcoreUtil.getReifiedType(source.getTarget(), genericType);
 		if (reifiedType != null && !Objects.equals(reifiedType, genericType)) {
 			EObjectNode.ResultRecord reifiedTypeRecord = nodeFactory.apply(reifiedType, progressMonitor);

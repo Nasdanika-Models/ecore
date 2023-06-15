@@ -32,7 +32,10 @@ public class EClassNode extends EObjectNode {
 				for (EGenericType ge: eOperation.getEGenericExceptions()) {
 					reifiedTypeConnectionFactory.create(this, ge, nodeFactory);										
 				}
-			}		
+			}	
+			for (EGenericType gst: target.getEAllGenericSuperTypes()) {
+				reifiedTypeConnectionFactory.create(this, gst, nodeFactory);														
+			}
 		}		
 	}
 
