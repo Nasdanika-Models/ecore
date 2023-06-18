@@ -21,11 +21,12 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.graph.Connection;
+import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.emf.EOperationConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
-import org.nasdanika.html.TagName;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
@@ -440,42 +441,106 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}			
 	}
 	
-	@IncomingReferenceBuilder(EcorePackage.EGENERIC_TYPE__ECLASSIFIER)
+	protected record SubtypeRecord(EClass subType, Object subTypeLink, EGenericType genericSuperType, WidgetFactory genericSuperTypeWidgetFactory, boolean isDirect) {};
+	
+	/**
+	 * {@link Selector} method to collect all subtype records
+	 * @param genericTypeWidgetFactory
+	 * @param base
+	 * @param progressMonitor
+	 * @return
+	 */
+	protected List<SubtypeRecord> collectAllSubtypeRecords(WidgetFactory genericTypeWidgetFactory, URI base, ProgressMonitor progressMonitor) {
+		List<SubtypeRecord> records = new ArrayList<>();
+		
+		EGenericTypeNodeProcessor processor = (EGenericTypeNodeProcessor) genericTypeWidgetFactory;
+		for (Entry<EClass, WidgetFactory> subtypeWidgetFactoryEntry: processor.getSubTypeWidgetFactories().entrySet()) {
+			System.out.println(subtypeWidgetFactoryEntry.getKey());
+		}
+		
+		return records;
+	}
+	
+	/**
+	 * Building generic sub-types table. Sub-type {@link EClass} *-all generic supertypes-> {@link EGenericType} -eClassifier-> Super-type.  
+	 * @param referenceIncomingEndpoints
+	 * @param labels
+	 * @param incomingLabels
+	 * @param progressMonitor
+	 */
+	@IncomingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI, 
+			classID = EcorePackage.EGENERIC_TYPE, 
+			referenceID = EcorePackage.EGENERIC_TYPE__ECLASSIFIER)
 	public void buildEGenericTypeClassifierIncomingReference(
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceIncomingEndpoints, 
 			Collection<Label> labels,
-			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
+			Map<EReferenceConnection, Collection<Label>> incomingLabels, 
 			ProgressMonitor progressMonitor) {
 		
 		for (Label label : labels) {
 			if (label instanceof Action) {
-				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> subTypesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
-//				superTypesTableBuilder.setProperty("transitive-label", "All");
-				subTypesTableBuilder.addStringColumnBuilder("name", true, false, "Name", endpoint -> {
-					boolean isDirect = false;
-//					EObject tt = connection.getTarget().getTarget();
-//					if (tt instanceof EStructuralFeature) {
-//						isDirect = ((EStructuralFeature) tt).getEContainingClass() == getTarget();
-//					} else if (tt instanceof EOperation) {
-//						isDirect = ((EOperation) tt).getEContainingClass() == getTarget();
-//					} else if (tt instanceof EGenericType) {
-//						isDirect = tt.eContainer() == getTarget();			
-//					}
-					String linkStr = endpoint.getValue().createLinkString(progressMonitor);
-					return isDirect ? TagName.b.create(linkStr).toString() : linkStr;
-				}).addStringColumnBuilder("description", true, false, "Description",
-						endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
-
-				org.nasdanika.html.model.html.Tag superTypesTable = subTypesTableBuilder.build(referenceIncomingEndpoints, "eclass-subtypes", "subtypes-table", progressMonitor);
-
-				Action subTypesSection = AppFactory.eINSTANCE.createAction();
-				subTypesSection.setText("Subtypes");
-				subTypesSection.getContent().add(superTypesTable);
-
-				getInheritanceAction((Action) label).getSections().add(subTypesSection);
+				// TODO - collect subtypes into a record/class which would then build columns?
+//				List<SubtypeRecord> subtypes = new ArrayList<>();
+				
+				for (Entry<EReferenceConnection, WidgetFactory> incomingEndpoint: referenceIncomingEndpoints) {
+					EGenericType genericSuperType = (EGenericType) ((EObjectNode) incomingEndpoint.getKey().getSource()).getTarget();
+					WidgetFactory genericSuperTypeWidgetFactory = incomingEndpoint.getValue();
+					Object records = genericSuperTypeWidgetFactory.createWidget((Selector) this::collectAllSubtypeRecords, progressMonitor);
+					System.out.println(records);
+//					for (Connection sourceIncomingConnection: incomingEndpoint.getKey().getSource().getIncomingConnections()) {
+//						if (sourceIncomingConnection instanceof EReferenceConnection && ((EReferenceConnection) sourceIncomingConnection).getReference() == EcorePackage.Literals.ECLASS__EALL_GENERIC_SUPER_TYPES) {
+//							EClass subType = (EClass) ((EObjectNode) sourceIncomingConnection.getSource()).getTarget();
+//							Object subTypeLink = genericSuperTypeWidgetFactory.createWidget(incomingLabels, progressMonitor); 
+//							boolean isDirect = false; // Just for now
+////							subtypes.add(new SubtypeRecord(subType, genericSuperType, genericSuperTypeWidgetFactory, isDirect));
+//						}
+//					}					
+				}
+//				
+//				List<Entry<EReferenceConnection, WidgetFactory>> allGenericSuperTypesIncomingEndpoints = referenceIncomingEndpoints
+//					.stream()
+//					.filter(e -> e.getKey().getSource().getIncomingConnections()
+//							.stream()
+//							.filter(EReferenceConnection.class::isInstance)
+//							.map(EReferenceConnection.class::cast)
+//							.filter(c -> c.getReference() == EcorePackage.Literals.ECLASS__EALL_GENERIC_SUPER_TYPES)
+//							.count() > 0)
+//					.collect(Collectors.toList());
+//				
+//				
+//				
+//				if (!allGenericSuperTypesIncomingEndpoints.isEmpty()) {				
+//					DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> subTypesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+//	//				superTypesTableBuilder.setProperty("transitive-label", "All");
+//					subTypesTableBuilder.addStringColumnBuilder("name", true, false, "Name", endpoint -> {
+//						boolean isDirect = false;
+//	//					EObject tt = connection.getTarget().getTarget();
+//	//					if (tt instanceof EStructuralFeature) {
+//	//						isDirect = ((EStructuralFeature) tt).getEContainingClass() == getTarget();
+//	//					} else if (tt instanceof EOperation) {
+//	//						isDirect = ((EOperation) tt).getEContainingClass() == getTarget();
+//	//					} else if (tt instanceof EGenericType) {
+//	//						isDirect = tt.eContainer() == getTarget();			
+//	//					}
+//						String linkStr = endpoint.getValue().createWidgetString(EcorePackage.Literals.ECLASS__EGENERIC_SUPER_TYPES, progressMonitor);
+//						return isDirect ? TagName.b.create(linkStr).toString() : linkStr;
+//					}).addStringColumnBuilder("description", true, false, "Description",
+//							endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
+//	
+//					org.nasdanika.html.model.html.Tag superTypesTable = subTypesTableBuilder.build(allGenericSuperTypesIncomingEndpoints, "eclass-subtypes", "subtypes-table", progressMonitor);
+//	
+//					Action subTypesSection = AppFactory.eINSTANCE.createAction();
+//					subTypesSection.setText("Subtypes");
+//					subTypesSection.getContent().add(superTypesTable);
+//	
+//					getInheritanceAction((Action) label).getSections().add(subTypesSection);
+//				}
 			}
 		}
 	}	
+	
+	
 	
 //	
 //	@IncomingReferenceBuilder(EcorePackage.ECLASS__EALL_GENERIC_SUPER_TYPES)

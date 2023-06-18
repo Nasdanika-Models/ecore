@@ -1,16 +1,19 @@
 package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.graph.emf.EReferenceConnection;
+import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
@@ -19,6 +22,8 @@ import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 
 public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType> {
+	
+	public record SubtypeSelector(EClass subType) {};
 
 	public EGenericTypeNodeProcessor(
 			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
@@ -65,6 +70,18 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	@OutgoingEndpoint("reference.name == 'eUpperBound'")
 	public final void setEUpperBoundEndpoint(WidgetFactory eUpperBoundWidgetFactory) {
 		this.eUpperBoundWidgetFactory = eUpperBoundWidgetFactory;
+	}
+	
+	// EClass.getEGenericSupertypes()
+	private Map<EClass,WidgetFactory> subTypeWidgetFactories = new HashMap<>();
+	
+	@IncomingEndpoint("reference.name == 'eAllGenericSuperTypes'")
+	public final void setEAllGenericSuperTypesIncomingEndpoint(EReferenceConnection connection, WidgetFactory subtypeWidgetFactory) {
+		subTypeWidgetFactories.put((EClass) connection.getSource().getTarget(), subtypeWidgetFactory);
+	}	
+	
+	public Map<EClass, WidgetFactory> getSubTypeWidgetFactories() {
+		return subTypeWidgetFactories;
 	}
 
 	@Override
