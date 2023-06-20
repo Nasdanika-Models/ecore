@@ -16,6 +16,7 @@ import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
@@ -38,7 +39,7 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 	}	
 
 	@OutgoingReferenceBuilder(EcorePackage.EENUM__ELITERALS)
-	public void buildEParametersOutgoingReference(
+	public void buildELiteralsOutgoingReference(
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
@@ -55,9 +56,28 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 						}
 					}
 				}
+				
+				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> literalsTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
+				buildNamedElementColumns(literalsTableBuilder, progressMonitor);
+				literalsTableBuilder.addStringColumnBuilder("literal", true, false, "Literal", endpoint -> endpoint.getValue().createWidgetString((Selector<String>) this::getLiteral, progressMonitor));
+				literalsTableBuilder.addStringColumnBuilder("value", true, false, "Value", endpoint -> endpoint.getValue().createWidgetString((Selector<String>) this::getValue, progressMonitor));
+				
+				org.nasdanika.html.model.html.Tag operationsTable = literalsTableBuilder.build(
+						referenceOutgoingEndpoints,  
+						"eenum-literals", 
+						"literals-table", 
+						progressMonitor);
+				action.getContent().add(operationsTable);				
 			}
 		}
-	}			
+	}	
 	
+	protected String getLiteral(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
+		return ((EEnumLiteralNodeProcessor) widgetFactory).getTarget().getLiteral();
+	}
+	
+	protected String getValue(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
+		return String.valueOf(((EEnumLiteralNodeProcessor) widgetFactory).getTarget().getLiteral());		
+	}
 	
 }

@@ -107,19 +107,6 @@ public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedEleme
 	
 	// TODO - type references in structural features, operation and parameter types, generic types?
 	
-	
-	@Override
-	protected void buildIncomingReference(
-			EReference eReference,
-			List<Entry<EReferenceConnection, WidgetFactory>> referenceIncomingEndpoints, Collection<Label> labels,
-			Map<EReferenceConnection, Collection<Label>> incomingLabels, ProgressMonitor progressMonitor) {
-		
-		System.out.println("*** " + eReference.getEContainingClass().getName() + "." + eReference.getName());
-		
-		// TODO Auto-generated method stub
-		super.buildIncomingReference(eReference, referenceIncomingEndpoints, labels, incomingLabels, progressMonitor);
-	}	
- 
 	@Override
 	protected boolean isCreateActionForUndocumented() {
 		return true;

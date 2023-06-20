@@ -100,84 +100,86 @@ Vue.component('nsd-ecore-doc-table', {
       }				
 	}, 
 	template: `
-		<b-container fluid>		
-			<b-row class="my-1">
-				<b-col cols="10">
-					<b-form-group
-			          label="Filter"
-			          label-for="filter-input"
-			          label-cols-sm="3"
-			          label-align-sm="right"
-			          label-size="sm"
-			          class="mb-0"
-			        >
-			          <b-input-group size="sm">
-			            <b-form-input
-			              id="filter-input"
-			              v-model="filter"
-			              type="search"
-			              placeholder="Type to Search"
-			            ></b-form-input>
-			
-			            <b-input-group-append>
-			              <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-			            </b-input-group-append>
-			          </b-input-group>
-			        </b-form-group>				
-				</b-col>
-				<b-col cols="2">
-					<table>
-						<tr>
-							<td v-if="transitiveLabel">
-							    <b-form-checkbox
-							      id="transitive-checkbox"
-							      v-model="transitive"
-							      name="transitive-checkbox"
-							      value="true"
-							    >
-							      {{transitiveLabel}}
-							    </b-form-checkbox>							
-							</td>
-							<td style="padding-left:1em">
-								<b-button title="Configuration" size="sm" @click="configModal">
-									<i class="fas fa-cog"></i>
-			        			</b-button>							
-							</td>
-						</tr>
-					</table>		
-				    			        				
- 					<b-modal id="config-modal" size="lg" scrollable title="Table configuration" @ok="saveConfig">
-						<b-table striped hover :items="config.items" :fields="config.columns">
-							<template #cell(field)="data">
-								<span v-html="data.value"></span>
-				      		</template>
-							<template #cell(visible)="data">
-								<input type="checkbox" :value="data.item.key" v-model="config.visibleFields">
-				      		</template>
-						</b-table>	    					
-  					</b-modal>        			
-				</b-col>
-			</b-row>
-			<b-row>
-				<b-col>
-					<b-table 
-						striped 
-						hover
-						:items="filteredItems"
-						:fields="fields"
-						@filtered="onFiltered"
-						:filter="filter"
-      					:filter-included-fields="filterOn">
-      					
-						<template #head()="data">
-							<span v-html="data.label"></span>
-			      		</template>
-						<template #cell()="data">
-							<span v-html="data.value"></span>
-			      		</template>
-					</b-table>
-				</b-row>
-			</b-col>
-		</b-container>
+		<div>
+			<b-form>
+				<b-container fluid>		
+					<b-row class="my-1">
+						<b-col cols="10">
+							<b-form-group
+					          label="Filter"
+					          label-for="filter-input"
+					          label-cols-sm="3"
+					          label-align-sm="right"
+					          label-size="sm"
+					          class="mb-0"
+					        >
+					          <b-input-group size="sm">
+					            <b-form-input
+					              id="filter-input"
+					              v-model="filter"
+					              type="search"
+					              placeholder="Type to Search"
+					            ></b-form-input>
+					
+					            <b-input-group-append>
+					              <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+					            </b-input-group-append>
+					          </b-input-group>
+					        </b-form-group>				
+						</b-col>
+						<b-col cols="2">
+							<table>
+								<tr>
+									<td v-if="transitiveLabel">									    
+								        <b-form-checkbox-group
+								          v-model="transitive"
+								          id="checkboxes-4"
+								        >
+								          <b-form-checkbox value="true">{{transitiveLabel}}</b-form-checkbox>
+								        </b-form-checkbox-group>
+									</td>
+									<td style="padding-left:1em">
+										<b-button title="Configuration" size="sm" @click="configModal">
+											<i class="fas fa-cog"></i>
+					        			</b-button>							
+									</td>
+								</tr>
+							</table>		
+						    			        				
+		 					<b-modal id="config-modal" size="lg" scrollable title="Table configuration" @ok="saveConfig">
+								<b-table striped hover :items="config.items" :fields="config.columns">
+									<template #cell(field)="data">
+										<span v-html="data.value"></span>
+						      		</template>
+									<template #cell(visible)="data">
+										<input type="checkbox" :value="data.item.key" v-model="config.visibleFields">
+						      		</template>
+								</b-table>	    					
+		  					</b-modal>        			
+						</b-col>
+					</b-row>
+					<b-row>
+						<b-col>
+							<b-table 
+								striped 
+								hover
+								:items="filteredItems"
+								:fields="fields"
+								@filtered="onFiltered"
+								:filter="filter"
+		      					:filter-included-fields="filterOn">
+		      					
+								<template #head()="data">
+									<span v-html="data.label"></span>
+					      		</template>
+								<template #cell()="data">
+									<span v-html="data.value"></span>
+					      		</template>
+							</b-table>
+						</b-row>
+					</b-col>
+				</b-container>
+			</b-form>
+		</div>	
 	`
 });
