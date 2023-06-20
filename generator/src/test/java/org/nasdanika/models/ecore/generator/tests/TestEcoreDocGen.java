@@ -110,7 +110,7 @@ public class TestEcoreDocGen {
 		URI baseActionURI = URI.createURI("tmp-https://test.nasdanika.org/");
 		
 		Map<EPackage, URI> packageURIMap = Map.ofEntries(
-			Map.entry(EcorePackage.eINSTANCE, URI.createURI("test/").resolve(baseActionURI))
+			Map.entry(EcorePackage.eINSTANCE, baseActionURI)
 		);
 		
 		for (EPackage topLevelPackage: ePackages) {
