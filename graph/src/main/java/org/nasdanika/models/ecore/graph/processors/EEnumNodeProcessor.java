@@ -77,7 +77,7 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 	}
 	
 	protected String getValue(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
-		return String.valueOf(((EEnumLiteralNodeProcessor) widgetFactory).getTarget().getLiteral());		
+		return String.valueOf(((EEnumLiteralNodeProcessor) widgetFactory).getTarget().getValue());		
 	}
 	
 }

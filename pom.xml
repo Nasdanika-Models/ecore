@@ -10,7 +10,7 @@
 	<properties>
 		<core.version>2023.4.1</core.version>
 		<html.version>2023.4.1</html.version>
-		<jacoco.version>0.8.8</jacoco.version>
+		<jacoco.version>0.8.10</jacoco.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>	
@@ -32,7 +32,7 @@
 	      <extension>
 	        <groupId>org.apache.maven.wagon</groupId>
 	         <artifactId>wagon-ssh</artifactId>
-	         <version>3.4.3</version>
+	         <version>3.5.3</version>
 	      </extension>
 	    </extensions>
 	
@@ -40,12 +40,12 @@
 		        <plugin>
 		            <groupId>org.apache.maven.plugins</groupId>
 		            <artifactId>maven-surefire-plugin</artifactId>
-		            <version>3.0.0-M7</version>
+		            <version>3.1.2</version>
 		            <dependencies>
 		                <dependency>
 		                    <groupId>org.junit.jupiter</groupId>
 		                    <artifactId>junit-jupiter-engine</artifactId>
-		                    <version>5.9.1</version>
+		                    <version>5.10.0-M1</version>
 		                </dependency>
 		            </dependencies>
 		        </plugin>
@@ -66,7 +66,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.1</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -79,7 +79,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.4.1</version>
+				<version>3.5.0</version>
 			
 				<executions>
 					<execution>
@@ -126,7 +126,7 @@
 		<dependency>
 		    <groupId>org.junit.jupiter</groupId>
 		    <artifactId>junit-jupiter-api</artifactId>
-		    <version>5.9.1</version>
+		    <version>5.10.0-M1</version>
 		    <scope>test</scope>
 		</dependency>		
 	</dependencies>
@@ -161,7 +161,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>3.0.1</version>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
