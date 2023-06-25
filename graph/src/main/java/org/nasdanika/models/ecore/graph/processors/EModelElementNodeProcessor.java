@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Util;
@@ -70,14 +71,26 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	@Override
 	protected void configureLabel(EObject eObject, Label label, ProgressMonitor progressMonitor) {
 		if (eObject instanceof EModelElement) {
+			EModelElement modelElement = (EModelElement) eObject;
 			if (Util.isBlank(label.getIcon())) {
 				boolean isInterface = eObject instanceof EClass && ((EClass) eObject).isInterface();
 				String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/" + (isInterface ? "EInterface" : eObject.eClass().getName()) + ".gif";
-				label.setIcon(NcoreUtil.getNasdanikaAnnotationDetail((EModelElement) eObject, "icon", defaultIcon));
+				label.setIcon(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "icon", defaultIcon));
 			}
 			if (Util.isBlank(label.getTooltip())) {
-				label.setTooltip(NcoreUtil.getNasdanikaAnnotationDetail((EModelElement) eObject, "description", null));
-			}									
+				label.setTooltip(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "description", null));
+			}
+			if (Util.isBlank(label.getTooltip())) {
+				String modelDoc = EcoreUtil.getDocumentation(modelElement);
+				if (!Util.isBlank(modelDoc))
+				label.setTooltip(modelDoc);
+			}
+			if (Util.isBlank(label.getText())) {
+				label.setText(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "label", null));
+			}		
+			if (modelElement instanceof ENamedElement && Util.isBlank(label.getText())) {
+				label.setText(((ENamedElement) modelElement).getName());
+			}
 		}
 		super.configureLabel(eObject, label, progressMonitor);
 	}
@@ -85,9 +98,6 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	@Override
 	protected Action newAction(EObject eObject, ProgressMonitor progressMonitor) {
 		Action newAction = super.newAction(eObject, progressMonitor);
-		if (eObject instanceof EModelElement && Util.isBlank(newAction.getText())) {
-			newAction.setText(NcoreUtil.getNasdanikaAnnotationDetail((EModelElement) eObject, "label", null));
-		}		
 		return newAction;
 	}
 	
