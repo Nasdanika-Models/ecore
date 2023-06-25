@@ -38,6 +38,7 @@ import org.nasdanika.exec.content.ContentFactory;
 import org.nasdanika.exec.content.Interpolator;
 import org.nasdanika.exec.content.Markdown;
 import org.nasdanika.exec.content.Text;
+import org.nasdanika.graph.Node;
 import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.emf.EObjectNodeProcessor;
@@ -315,6 +316,14 @@ public class EcoreNodeProcessorFactory extends Reflector {
 		
 		AnnotatedElementRecord annotatedElementRecord = fo.get();
 		EClassifierNodeProcessorFactory ann = annotatedElementRecord.getAnnotation(EClassifierNodeProcessorFactory.class);
+		String label = ann.label();
+		Node node = config.getElement();
+		if (node instanceof EObjectNode) {
+			EObject target = ((EObjectNode) node).getTarget();
+			if (target instanceof EClass && ((EClass) target).isAbstract()) {
+				label = "<i>" + label + "</i>";
+			}
+		}
 		return annotatedElementRecord.invoke(
 				config, 
 				getPrototypeProvider(
@@ -325,7 +334,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						ann.documentation(),
 						progressMonitor),
 				getLabelConfigurator(
-						ann.label(),
+						label,
 						ann.icon(), 
 						ann.description(),
 						progressMonitor),
