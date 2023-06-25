@@ -11,7 +11,7 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
-public class EStructuralFeatureNodeProcessor<T extends EStructuralFeature> extends ETypedElementNodeProcessor<T> {
+public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeature> extends ETypedElementNodeProcessor<T> {
 
 	public EStructuralFeatureNodeProcessor(
 			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
@@ -33,6 +33,6 @@ public class EStructuralFeatureNodeProcessor<T extends EStructuralFeature> exten
 			return declaringClassWidgetFactory.createLink(base, progressMonitor);
 		}
 		return super.createWidget(selector, base, progressMonitor);
-	}	
+	}
 	
 }

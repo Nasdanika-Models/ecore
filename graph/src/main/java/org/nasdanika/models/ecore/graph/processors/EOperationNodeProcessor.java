@@ -260,6 +260,6 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		}
 		
 		return super.createWidget(selector, base, progressMonitor);
-	}	
+	}
 
 }
