@@ -23,8 +23,9 @@ public class EOperationNode extends EObjectNode {
 			EReferenceConnection.Factory referenceConnectionFactory,
 			EOperationConnection.Factory operationConnectionFactory,
 			ReifiedTypeConnection.Factory reifiedTypeConnectionFactory,
+			boolean parallelAccept,
 			ProgressMonitor progressMonitor) {
-		super(target, nodeFactory, referenceConnectionFactory, operationConnectionFactory, progressMonitor);
+		super(target, nodeFactory, referenceConnectionFactory, operationConnectionFactory, parallelAccept, progressMonitor);
 	}
 
 	@Override

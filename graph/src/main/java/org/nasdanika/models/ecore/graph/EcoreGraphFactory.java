@@ -30,6 +30,10 @@ import org.nasdanika.graph.emf.NodeFactory;
  */
 public class EcoreGraphFactory extends EObjectGraphFactory {
 	
+	public EcoreGraphFactory(boolean parallelAccept) {
+		super(parallelAccept);
+	}
+
 	@NodeFactory(type = EClass.class)
 	public EClassNode createEClassNode(EObject eObject, BiFunction<EObject, ProgressMonitor, ResultRecord> nodeFactory, ProgressMonitor progressMonitor) {
 		return new EClassNode(
@@ -38,6 +42,7 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 				this::createReferenceConnection, 
 				this::createOperationConnections,
 				(source, genericType, nFactory) -> createReifiedTypeConnection(source, genericType, nFactory, progressMonitor),
+				parallelAccept,
 				progressMonitor);
 	}
 	
@@ -49,6 +54,7 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 				this::createReferenceConnection, 
 				this::createOperationConnections,
 				(source, genericType, nFactory) -> createReifiedTypeConnection(source, genericType, nFactory, progressMonitor),
+				parallelAccept,
 				progressMonitor);
 	}
 

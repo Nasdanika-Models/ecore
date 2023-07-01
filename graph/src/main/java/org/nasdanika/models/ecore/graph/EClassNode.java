@@ -20,8 +20,9 @@ public class EClassNode extends EObjectNode {
 			EReferenceConnection.Factory referenceConnectionFactory,
 			EOperationConnection.Factory operationConnectionFactory,
 			ReifiedTypeConnection.Factory reifiedTypeConnectionFactory,
+			boolean parallelAccept,
 			ProgressMonitor progressMonitor) {
-		super(target, nodeFactory, referenceConnectionFactory, operationConnectionFactory, progressMonitor);
+		super(target, nodeFactory, referenceConnectionFactory, operationConnectionFactory, parallelAccept, progressMonitor);
 
 		if (reifiedTypeConnectionFactory != null) {
 			for (EOperation eOperation: target.getEAllOperations()) {
