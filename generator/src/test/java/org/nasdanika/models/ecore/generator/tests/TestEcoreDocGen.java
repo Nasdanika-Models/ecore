@@ -55,7 +55,7 @@ public class TestEcoreDocGen {
 	@Test
 	public void testGraphEcoreDoc() throws IOException, DiagnosticException {
 		List<EPackage> ePackages = Arrays.asList(EcorePackage.eINSTANCE);
-		EObjectGraphFactory graphFactory = new EcoreGraphFactory(false); // TODO - test with true, solve concurrent modification exception. Also seems to be a deadlock.
+		EObjectGraphFactory graphFactory = new EcoreGraphFactory(true); 
 		ProgressMonitor progressMonitor = new NullProgressMonitor(); // new PrintStreamProgressMonitor();
 		List<EObjectNode> nodes = graphFactory.createGraph(ePackages, progressMonitor);
 		
