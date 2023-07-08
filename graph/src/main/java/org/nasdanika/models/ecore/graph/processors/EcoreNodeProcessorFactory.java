@@ -324,6 +324,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 				label = "<i>" + label + "</i>";
 			}
 		}
+		
 		return annotatedElementRecord.invoke(
 				config, 
 				getPrototypeProvider(

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -23,6 +22,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.emf.EOperationConnection;
@@ -560,12 +560,12 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		Action loadSpecificationAction = AppFactory.eINSTANCE.createAction();
 		loadSpecificationAction.setText("Load specification");
 		loadSpecificationAction.setLocation("load-specification.html");
+				
+		EModelElementDocumentation loadDoc = getLoadDocumentation();
+		if (loadDoc != null) {
+			loadSpecificationAction.getContent().add(interpolatedMarkdown(loadDoc.documentation(), loadDoc.location(), progressMonitor));
+		}
 		
-//		
-//		EModelElementDocumentation loadDoc = EmfUtil.getLoadDocumentation(eObject);
-//		if (loadDoc != null) {
-//			loadSpecificationAction.getContent().add(interpolatedMarkdown(loadDoc.documentation(), loadDoc.location(), progressMonitor));
-//		}
 //		
 //		List<EStructuralFeature> sortedFeatures = eObject.getEAllStructuralFeatures().stream().filter(predicate.and(elementPredicate)).sorted(namedElementComparator).collect(Collectors.toList());
 		
@@ -577,7 +577,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 					key = "<b>" + key + "</b>";
 				}
 				if (featureWidgetFactory.hasLoadSpecificationAction()) {
-					// TODO - link to feature's load-specification.html
+					URI loadSpecURI = featureWidgetFactory.getLoadSpecRef(uri);
+					key = "<a href=\"" + loadSpecURI + "\">" + key + "</a>";
 				}
 				return key;
 			});
@@ -593,7 +594,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 //				return sb.toString();
 //			})
 //			.addStringColumnBuilder("cardinality", true, false, "Cardinality", EModelElementActionSupplier::cardinality)
-//			.addBooleanColumnBuilder("homogenous", true, false, "Homogenous", homogenousPredicate)
+//			.addBooleanColumnBuilder("Homogeneous", true, false, "Homogeneous", HomogeneousPredicate)
 //			.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", strictContainmentPredicate)
 //			.addStringColumnBuilder("exclusive-with", true, false, "Exclusive With", sf -> {
 //				Object[] exclusiveWith = exclusiveWithExtractor.apply(sf);
@@ -612,6 +613,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		org.nasdanika.html.model.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(
 				featureWidgetFactories
 					.stream()
+					.filter(FeatureWidgetFactory::isLoadable)
 					.sorted((a, b) -> a.getLoadKey(getTarget()).compareTo(b.getLoadKey(getTarget())))
 					.collect(Collectors.toList()), 
 				getTarget().getEPackage().getNsURI().hashCode() + "-" + getTarget().getName() + "-load-specification", 
@@ -638,9 +640,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 //				ETypedElementActionSupplier.addRow(table, "Default").add("true");				
 //			}
 //			
-//			boolean isHomogenous = homogenousPredicate.test(sf);
-//			if (isHomogenous) {
-//				ETypedElementActionSupplier.addRow(table, "Homogenous").add("true");									
+//			boolean isHomogeneous = HomogeneousPredicate.test(sf);
+//			if (isHomogeneous) {
+//				ETypedElementActionSupplier.addRow(table, "Homogeneous").add("true");									
 //			}
 //			
 //			boolean isStrictContainment = strictContainmentPredicate.test(sf);			
@@ -689,8 +691,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 //		if (!eObject.isAbstract() && "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(eObject, EObjectLoader.IS_LOADABLE, "true"))) {
 //			
 //			Function<EStructuralFeature, String> keyExtractor = sf -> NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.LOAD_KEY, NcoreUtil.getFeatureKey(eObject, sf));
-//			Predicate<EStructuralFeature> homogenousPredicate = sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_HOMOGENOUS)) || NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.REFERENCE_TYPE) != null;
-//			Predicate<EStructuralFeature> strictContainmentPredicate = homogenousPredicate.and(sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_STRICT_CONTAINMENT)));
+//			Predicate<EStructuralFeature> HomogeneousPredicate = sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_Homogeneous)) || NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.REFERENCE_TYPE) != null;
+//			Predicate<EStructuralFeature> strictContainmentPredicate = HomogeneousPredicate.and(sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_STRICT_CONTAINMENT)));
 //			Function<EStructuralFeature, Object[]> exclusiveWithExtractor = sf -> EObjectLoader.getExclusiveWith(eObject, sf, EObjectLoader.LOAD_KEY_PROVIDER);
 //			
 //	}

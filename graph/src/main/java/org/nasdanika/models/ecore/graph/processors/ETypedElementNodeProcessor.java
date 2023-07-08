@@ -7,10 +7,13 @@ import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
+import org.nasdanika.html.model.app.AppFactory;
+import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.ncore.util.NcoreUtil;
@@ -77,7 +80,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 
 	@Override
 	public boolean hasLoadSpecificationAction() {
-		return false;
+		return getLoadDocumentation() != null;
 	}
 
 	@Override
@@ -85,7 +88,46 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		return "TODO!";
 	}	
 	
+	@Override
+	public URI getLoadSpecRef(URI base) {
+		if (uri == null) {
+			return null;
+		}
+		URI loadSpecRef = URI.createURI("load-specification.html").resolve(uri);
+		return base == null ? loadSpecRef : loadSpecRef.deresolve(base, true, true, true);
+	}
+	
+	@Override
+	public boolean isLoadable() {
+		return "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), EObjectLoader.IS_LOADABLE, "true"));
+	}	
+	
+	@Override
+	protected Label createAction(ProgressMonitor progressMonitor) {
+		Label action = super.createAction(progressMonitor);
+		if (isLoadable()) {
+			Action loadSpecificationAction = createLoadSpecificationAction(action, progressMonitor);
+			if (loadSpecificationAction != null && action instanceof Action) {
+				((Action) action).getNavigation().add(loadSpecificationAction);
+			}
+		}
+		
+		return action;
+	}
 
+	protected Action createLoadSpecificationAction(Label action, ProgressMonitor progressMonitor) {
+		EModelElementDocumentation loadDoc = getLoadDocumentation();
+		if (loadDoc == null) {
+			return null;
+		}
+		Action loadSpecificationAction = AppFactory.eINSTANCE.createAction();
+		loadSpecificationAction.setText("Load specification");
+		loadSpecificationAction.setLocation("load-specification.html");
+				
+		loadSpecificationAction.getContent().add(interpolatedMarkdown(loadDoc.documentation(), loadDoc.location(), progressMonitor));
+		return loadSpecificationAction;
+	}
+	
 }
 
 
@@ -110,8 +152,8 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 //		List<EStructuralFeature> sortedFeatures = eObject.getEAllStructuralFeatures().stream().filter(predicate.and(elementPredicate)).sorted(namedElementComparator).collect(Collectors.toList());
 //		
 //		Function<EStructuralFeature, String> keyExtractor = sf -> NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.LOAD_KEY, NcoreUtil.getFeatureKey(eObject, sf));
-//		Predicate<EStructuralFeature> homogenousPredicate = sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_HOMOGENOUS)) || NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.REFERENCE_TYPE) != null;
-//		Predicate<EStructuralFeature> strictContainmentPredicate = homogenousPredicate.and(sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_STRICT_CONTAINMENT)));
+//		Predicate<EStructuralFeature> HomogeneousPredicate = sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_Homogeneous)) || NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.REFERENCE_TYPE) != null;
+//		Predicate<EStructuralFeature> strictContainmentPredicate = HomogeneousPredicate.and(sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_STRICT_CONTAINMENT)));
 //		Function<EStructuralFeature, Object[]> exclusiveWithExtractor = sf -> EObjectLoader.getExclusiveWith(eObject, sf, EObjectLoader.LOAD_KEY_PROVIDER);
 //		
 //		DynamicTableBuilder<EStructuralFeature> loadSpecificationTableBuilder = new DynamicTableBuilder<>();
@@ -130,7 +172,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 //				return sb.toString();
 //			})
 //			.addStringColumnBuilder("cardinality", true, false, "Cardinality", EModelElementActionSupplier::cardinality)
-//			.addBooleanColumnBuilder("homogenous", true, false, "Homogenous", homogenousPredicate)
+//			.addBooleanColumnBuilder("Homogeneous", true, false, "Homogeneous", HomogeneousPredicate)
 //			.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", strictContainmentPredicate)
 //			.addStringColumnBuilder("exclusive-with", true, false, "Exclusive With", sf -> {
 //				Object[] exclusiveWith = exclusiveWithExtractor.apply(sf);
@@ -168,9 +210,9 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 //				ETypedElementActionSupplier.addRow(table, "Default").add("true");				
 //			}
 //			
-//			boolean isHomogenous = homogenousPredicate.test(sf);
-//			if (isHomogenous) {
-//				ETypedElementActionSupplier.addRow(table, "Homogenous").add("true");									
+//			boolean isHomogeneous = HomogeneousPredicate.test(sf);
+//			if (isHomogeneous) {
+//				ETypedElementActionSupplier.addRow(table, "Homogeneous").add("true");									
 //			}
 //			
 //			boolean isStrictContainment = strictContainmentPredicate.test(sf);			

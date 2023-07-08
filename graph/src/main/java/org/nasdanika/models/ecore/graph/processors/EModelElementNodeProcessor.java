@@ -301,4 +301,12 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 //		getInstanceTypeName()
 	}
 	
+	/**
+	 * Loads documentation from Ecore model annotations. Override to return documentation from annotations.
+	 * @return
+	 */
+	protected EModelElementDocumentation getLoadDocumentation() {
+		return EmfUtil.getLoadDocumentation(getTarget());
+	}
+	
 }

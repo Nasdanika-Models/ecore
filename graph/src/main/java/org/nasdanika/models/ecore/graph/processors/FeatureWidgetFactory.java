@@ -1,5 +1,6 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -18,6 +19,8 @@ public interface FeatureWidgetFactory extends WidgetFactory {
 	boolean isLoadable();
 	
 	boolean hasLoadSpecificationAction();
+	
+	URI getLoadSpecRef(URI base);
 	
 	String getLoadDescription();
 

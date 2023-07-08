@@ -34,10 +34,5 @@ public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParamet
 		}
 		return super.createWidget(selector, base, progressMonitor);
 	}	
-	
-	@Override
-	public boolean isLoadable() {
-		throw new UnsupportedOperationException();
-	}
 
 }

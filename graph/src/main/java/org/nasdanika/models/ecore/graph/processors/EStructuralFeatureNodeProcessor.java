@@ -5,13 +5,11 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.ncore.util.NcoreUtil;
 
 public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeature> extends ETypedElementNodeProcessor<T> {
 
@@ -35,11 +33,6 @@ public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeatu
 			return declaringClassWidgetFactory.createLink(base, progressMonitor);
 		}
 		return super.createWidget(selector, base, progressMonitor);
-	}
-
-	@Override
-	public boolean isLoadable() {
-		return getTarget().isChangeable() && "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), EObjectLoader.IS_LOADABLE, "true"));
 	}
 	
 }
