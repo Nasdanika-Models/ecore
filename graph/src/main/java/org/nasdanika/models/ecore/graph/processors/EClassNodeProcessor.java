@@ -20,10 +20,13 @@ import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.nasdanika.common.Consumer;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.common.Supplier;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
+import org.nasdanika.graph.emf.Connection;
 import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.emf.EOperationConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
@@ -89,7 +92,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	/**
 	 * Effective generic type for structural features
 	 */
-	protected String typeLink(EReferenceConnection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
+	protected String typeLink(Connection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
 		EObject tt = connection.getTarget().getTarget();
 		if (tt instanceof EStructuralFeature) {
 			EStructuralFeature feature = (EStructuralFeature) tt;
@@ -522,10 +525,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			label.setText("<i>" + label.getText() + "</i>");
 		}
 	}
-	
+		
 	// --- Load specification ---
 		
-	private List<FeatureWidgetFactory> featureWidgetFactories = new ArrayList<>();
+	private List<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> featureWidgetFactories = Collections.synchronizedList(new ArrayList<>());
 	
 	protected FeatureWidgetFactory getFeatureWidgetFactory(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
 		return (FeatureWidgetFactory) widgetFactory;
@@ -534,8 +537,25 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	@OutgoingEndpoint("reference.name == 'eAllOperations'")
 	public final void setEOperationEndpoint(EReferenceConnection connection, WidgetFactory eOperationWidgetFactory, ProgressMonitor progressMonitor) {
 		FeatureWidgetFactory featureWidgetFactory = eOperationWidgetFactory.createWidget((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
-		if (featureWidgetFactory.isLoadable()) {
-			featureWidgetFactories.add(featureWidgetFactory);
+		EOperation eOp = (EOperation) connection.getTarget().getTarget();
+		synchronized (featureWidgetFactories) {
+			Iterator<Entry<EReferenceConnection, FeatureWidgetFactory>> it = featureWidgetFactories.iterator();
+			while (it.hasNext()) {
+				Entry<EReferenceConnection, FeatureWidgetFactory> next = it.next();
+				EObject nextTarget = next.getKey().getTarget().getTarget();
+				if (nextTarget instanceof EOperation) {
+					EOperation nextEOp = (EOperation) nextTarget;
+					if (nextEOp.isOverrideOf(eOp)) {
+						return;
+					}
+					if (eOp.isOverrideOf(nextEOp)) {
+						it.remove();
+					}
+				}
+			}
+			if (featureWidgetFactory.isLoadable()) {
+				featureWidgetFactories.add(Map.entry(connection, featureWidgetFactory));
+			}
 		}
 	}	
 	
@@ -543,9 +563,31 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	public final void setEStructuralFeatureEndpoint(EReferenceConnection connection, WidgetFactory eStructuralFeatureWidgetFactory, ProgressMonitor progressMonitor) {
 		FeatureWidgetFactory featureWidgetFactory = eStructuralFeatureWidgetFactory.createWidget((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
 		if (featureWidgetFactory.isLoadable()) {
-			featureWidgetFactories.add(featureWidgetFactory);
+			featureWidgetFactories.add(Map.entry(connection, featureWidgetFactory));
 		}
 	}	
+	
+	protected Object parameterTypes(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
+		EOperationNodeProcessor eOperationNodeProcessor = (EOperationNodeProcessor) widgetFactory;
+		Map<EReferenceConnection, WidgetFactory> eParameterWidgetFactories = eOperationNodeProcessor.getEParameterWidgetFactories();
+		ReifiedTypeSelector reifiedTypeSelector = new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EPARAMETERS);
+		if (eParameterWidgetFactories.size() == 1) {
+			WidgetFactory pwf = eParameterWidgetFactories.values().iterator().next();
+			return pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor);
+		}
+		
+		List<Object> ret = new ArrayList<>();
+		ret.add("<ol>");
+		for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).collect(Collectors.toList())) {
+			ret.add("<li>");
+			ret.add(pwf.createLink(base, progressMonitor));
+			ret.add(" : ");
+			ret.add(pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
+			ret.add("</li>");
+		}						
+		ret.add("</ol>");
+		return ret;
+	}
 	
 	/**
 	 * Returns attributes action, creates if necessary. Matches by location.
@@ -569,8 +611,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 //		
 //		List<EStructuralFeature> sortedFeatures = eObject.getEAllStructuralFeatures().stream().filter(predicate.and(elementPredicate)).sorted(namedElementComparator).collect(Collectors.toList());
 		
-		DynamicTableBuilder<FeatureWidgetFactory> loadSpecificationTableBuilder = new DynamicTableBuilder<>();
-		loadSpecificationTableBuilder.addStringColumnBuilder("key", true, true, "Key", featureWidgetFactory -> {
+		DynamicTableBuilder<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> loadSpecificationTableBuilder = new DynamicTableBuilder<>();
+		loadSpecificationTableBuilder.addStringColumnBuilder("key", true, true, "Key", featureWidgetFactoryEntry -> {
+				FeatureWidgetFactory featureWidgetFactory = featureWidgetFactoryEntry.getValue();
 				String key = featureWidgetFactory.getLoadKey(getTarget());
 				// TODO - link if there is a feature spec detail
 				if (featureWidgetFactory.isDefaultFeature(getTarget())) {
@@ -582,6 +625,15 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				}
 				return key;
 			});
+		
+		loadSpecificationTableBuilder.addStringColumnBuilder("type", true, true, "Type", featureWidgetFactoryEntry -> {
+			EObject target = featureWidgetFactoryEntry.getKey().getTarget().getTarget();
+			if (target instanceof EOperation) {
+				return featureWidgetFactoryEntry.getValue().createWidgetString((Selector<Object>) this::parameterTypes, progressMonitor);
+			}
+			return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor);
+		});  
+
 		
 		
 //			.addStringColumnBuilder("type", true, true, "Type", attr -> {
@@ -610,15 +662,21 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 //			.addStringColumnBuilder("description", true, false, "Description", this::getEStructuralFeatureFirstLoadDocSentence);
 //			// Other things not visible?
 //		
+		
+		List<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> fwf;		
+		synchronized (featureWidgetFactories) {
+			fwf = new ArrayList<>(featureWidgetFactories);
+		}
+		
 		org.nasdanika.html.model.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(
-				featureWidgetFactories
+				fwf
 					.stream()
-					.filter(FeatureWidgetFactory::isLoadable)
-					.sorted((a, b) -> a.getLoadKey(getTarget()).compareTo(b.getLoadKey(getTarget())))
+					.filter(e -> e.getValue().isLoadable())
+					.sorted((a, b) -> a.getValue().getLoadKey(getTarget()).compareTo(b.getValue().getLoadKey(getTarget())))
 					.collect(Collectors.toList()), 
 				getTarget().getEPackage().getNsURI().hashCode() + "-" + getTarget().getName() + "-load-specification", 
 				"load-specification-table", 
-				progressMonitor);						
+				progressMonitor);
 //		
 //		for (EStructuralFeature sf: sortedFeatures) {
 //			Action featureAction = AppFactory.eINSTANCE.createAction();
@@ -671,15 +729,40 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		return loadSpecificationAction;
 	}
-	
+
 	@Override
-	protected Label createAction(ProgressMonitor progressMonitor) {
-		Action action = (Action) super.createAction(progressMonitor);
-		Action loadSpecificationAction = createLoadSpecificationAction(action, progressMonitor);
-		if (loadSpecificationAction != null) {
-			action.getNavigation().add(loadSpecificationAction);
+	public Supplier<Collection<Label>> createLabelsSupplier() {
+		@SuppressWarnings("resource")
+		Consumer<Collection<Label>> loadSpecificationConsumer = new Consumer<Collection<Label>>() {
+
+			@Override
+			public double size() {
+				return 1;
+			}
+
+			@Override
+			public String name() {
+				return "Generating load specification";
+			}
+
+			@Override
+			public void execute(Collection<Label> labels, ProgressMonitor progressMonitor) {
+				generateLoadSpecification(labels, progressMonitor);				
+			}
+		}; 
+		return super.createLabelsSupplier().then(loadSpecificationConsumer.asFunction());
+	}
+	
+	protected void generateLoadSpecification(Collection<Label> labels, ProgressMonitor progressMonitor) {
+		for (Label label: labels) {
+			if (label instanceof Action) {
+				Action action = (Action) label;
+				Action loadSpecificationAction = createLoadSpecificationAction(action, progressMonitor);
+				if (loadSpecificationAction != null) {
+					action.getNavigation().add(loadSpecificationAction);
+				}
+			}
 		}
-		return action;
 	}
 		
 //	private void generateLoadSpecification(

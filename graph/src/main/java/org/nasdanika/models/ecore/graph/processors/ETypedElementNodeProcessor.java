@@ -123,6 +123,8 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		Action loadSpecificationAction = AppFactory.eINSTANCE.createAction();
 		loadSpecificationAction.setText("Load specification");
 		loadSpecificationAction.setLocation("load-specification.html");
+		
+		// TODO - properties table: key, type, cardinality, homogeneous, strict containment, exclusive with
 				
 		loadSpecificationAction.getContent().add(interpolatedMarkdown(loadDoc.documentation(), loadDoc.location(), progressMonitor));
 		return loadSpecificationAction;

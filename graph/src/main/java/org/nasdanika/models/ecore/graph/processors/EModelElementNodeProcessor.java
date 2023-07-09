@@ -38,6 +38,7 @@ import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.ncore.util.NcoreUtil;
+import org.nasdanika.graph.emf.Connection;
 
 public class EModelElementNodeProcessor<T extends EModelElement> extends EObjectNodeProcessor<T> {
 	
@@ -169,6 +170,10 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	}
 	
 	// --- Reusable methods ---
+	
+	protected String typeLink(Connection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
+		return typeLink(connection, widgetFactory, null, progressMonitor);
+	}
 
 	/**
 	 * Creates a link to a typed element type. Defaults to typed element name.
@@ -178,16 +183,16 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	 * @param progressMonitor
 	 * @return
 	 */
-	protected String typeLink(EReferenceConnection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {		
+	protected String typeLink(Connection connection, WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {		
 		EGenericType eGenericType = ((ETypedElement) connection.getTarget().getTarget()).getEGenericType();
 		if (eGenericType == null) {
 			return "void";
 		}
 		String typeName = eGenericType.getERawType().getName(); // TODO - as string
 		String typeNameComment = "<!-- " + typeName + "--> ";
-		String linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE, progressMonitor);
+		String linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE, base, progressMonitor);
 		if (linkStr == null) {
-			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ETYPED_ELEMENT__ETYPE, progressMonitor);			
+			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ETYPED_ELEMENT__ETYPE, base, progressMonitor);			
 		}
 		return typeNameComment + (Util.isBlank(linkStr) ? typeName : linkStr);
 	}

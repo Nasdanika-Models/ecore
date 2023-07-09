@@ -2,9 +2,11 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
@@ -52,12 +54,16 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		this.declaringClassWidgetFactory = declaringClassWidgetFactory;
 	}
 	
-	private Map<Integer,WidgetFactory> eParametersWidgetFactories = new TreeMap<>();
+	private Map<EReferenceConnection,WidgetFactory> eParameterWidgetFactories = new LinkedHashMap<>();
 	
 	@OutgoingEndpoint("reference.name == 'eParameters'")
 	public final void setEParameterEndpoint(EReferenceConnection connection, WidgetFactory eParameterWidgetFactory) {
-		eParametersWidgetFactories.put(connection.getIndex(), eParameterWidgetFactory);
+		eParameterWidgetFactories.put(connection, eParameterWidgetFactory);
 	}	
+	
+	public Map<EReferenceConnection, WidgetFactory> getEParameterWidgetFactories() {
+		return eParameterWidgetFactories;
+	}
 	
 	private Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = new TreeMap<>();
 	
@@ -66,11 +72,11 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		eTypeParametersWidgetFactories.put(connection.getIndex(), eTypeParameterWidgetFactory);
 	}	
 	
-	private Map<Integer,WidgetFactory> eGenericExceptionsWidgetFactories = new TreeMap<>(); // TODO - a record for value with generic type for reified type
+	private Map<EReferenceConnection,WidgetFactory> eGenericExceptionsWidgetFactories = new LinkedHashMap<>(); // TODO - a record for value with generic type for reified type
 	
 	@OutgoingEndpoint("reference.name == 'eGenericExceptions'")
 	public final void setEGenericExceptionsEndpoint(EReferenceConnection connection, WidgetFactory eGenericExceptionWidgetFactory) {
-		eParametersWidgetFactories.put(connection.getIndex(), eGenericExceptionWidgetFactory);
+		eGenericExceptionsWidgetFactories.put(connection, eGenericExceptionWidgetFactory);
 	}	
 	
 	/**
@@ -191,13 +197,13 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		if (selector instanceof EClassNodeProcessor.ReifiedTypeSelector) {
 			EClassNodeProcessor.ReifiedTypeSelector reifiedTypeSelector = (EClassNodeProcessor.ReifiedTypeSelector) selector;
 			if (reifiedTypeSelector.getSelector() == EcorePackage.Literals.EOPERATION__EPARAMETERS) {
-				if (eParametersWidgetFactories.isEmpty()) {
+				if (eParameterWidgetFactories.isEmpty()) {
 					return null;
 				}
 				
-				if (eParametersWidgetFactories.size() == 1) {
+				if (eParameterWidgetFactories.size() == 1) {
 					List<Object> ret = new ArrayList<>();
-					WidgetFactory pwf = eParametersWidgetFactories.get(0);
+					WidgetFactory pwf = eParameterWidgetFactories.values().iterator().next();
 					ret.add(pwf.createLink(base, progressMonitor));
 					ret.add(" : ");
 					ret.add(pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
@@ -206,7 +212,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				
 				List<Object> ret = new ArrayList<>();
 				ret.add("<ol>");
-				for (WidgetFactory pwf: eParametersWidgetFactories.values()) {
+				for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).collect(Collectors.toList())) {
 					ret.add("<li>");
 					ret.add(pwf.createLink(base, progressMonitor));
 					ret.add(" : ");
@@ -223,12 +229,12 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				}
 				
 				if (eGenericExceptionsWidgetFactories.size() == 1) {
-					return eGenericExceptionsWidgetFactories.get(0).createLink(base, progressMonitor); // TODO - reifiedType
+					return eGenericExceptionsWidgetFactories.values().iterator().next().createLink(base, progressMonitor); // TODO - reifiedType
 				}
 				
 				List<Object> ret = new ArrayList<>();
 				ret.add("<ol>");
-				for (WidgetFactory gewf: eGenericExceptionsWidgetFactories.values()) {
+				for (WidgetFactory gewf: eGenericExceptionsWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).collect(Collectors.toList())) {
 					ret.add("<li>");
 					ret.add(gewf.createLink(base, progressMonitor)); // TODO - reifiedType
 					ret.add("</li>");
