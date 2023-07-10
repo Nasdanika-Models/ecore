@@ -3,6 +3,7 @@ package org.nasdanika.models.ecore.graph.processors;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
@@ -130,6 +131,22 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		return loadSpecificationAction;
 	}
 	
+	public String getCardinality() {
+		T typedElement = getTarget();
+		int lowerBound = typedElement.getLowerBound();
+		int upperBound = typedElement.getUpperBound();
+		String cardinality;
+		if (lowerBound == upperBound) {
+			cardinality = String.valueOf(lowerBound);
+		} else {
+			cardinality = lowerBound + ".." + (upperBound == -1 ? "*" : String.valueOf(upperBound));
+		}
+		if (typedElement instanceof EReference && ((EReference) typedElement).isContainment()) {
+			cardinality = "<B>"+cardinality+"</B>";
+		}
+		return cardinality;
+	}
+		
 }
 
 

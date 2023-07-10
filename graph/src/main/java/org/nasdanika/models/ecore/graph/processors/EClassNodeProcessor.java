@@ -568,6 +568,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	}	
 	
 	protected Object parameterTypes(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
+		if (base == null) {
+			base = uri;
+		}
 		EOperationNodeProcessor eOperationNodeProcessor = (EOperationNodeProcessor) widgetFactory;
 		Map<EReferenceConnection, WidgetFactory> eParameterWidgetFactories = eOperationNodeProcessor.getEParameterWidgetFactories();
 		ReifiedTypeSelector reifiedTypeSelector = new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EPARAMETERS);
@@ -634,18 +637,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor);
 		});  
 
+		loadSpecificationTableBuilder.addStringColumnBuilder("cardinality", true, false, "Cardinality", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getCardinality());
 		
-		
-//			.addStringColumnBuilder("type", true, true, "Type", attr -> {
-//				EGenericType genericType = attr.getEGenericType(); 
-//				if (genericType == null) {
-//					return null;
-//				}
-//				StringBuilder sb = new StringBuilder();
-//				genericType(genericType, eObject, sb::append, progressMonitor);
-//				return sb.toString();
-//			})
-//			.addStringColumnBuilder("cardinality", true, false, "Cardinality", EModelElementActionSupplier::cardinality)
 //			.addBooleanColumnBuilder("Homogeneous", true, false, "Homogeneous", HomogeneousPredicate)
 //			.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", strictContainmentPredicate)
 //			.addStringColumnBuilder("exclusive-with", true, false, "Exclusive With", sf -> {
