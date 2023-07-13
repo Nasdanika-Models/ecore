@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.DiagnosticException;
 import org.eclipse.emf.common.util.URI;
@@ -55,7 +54,7 @@ public class TestEcoreDocGen {
 	@Test
 	public void testGraphEcoreDoc() throws IOException, DiagnosticException {
 		List<EPackage> ePackages = Arrays.asList(EcorePackage.eINSTANCE);
-		EObjectGraphFactory graphFactory = new EcoreGraphFactory(false); // TODO - true in a separate test to catch concurrency problems 
+		EObjectGraphFactory graphFactory = new EcoreGraphFactory(false); 
 		ProgressMonitor progressMonitor = new NullProgressMonitor(); // new PrintStreamProgressMonitor();
 		List<EObjectNode> nodes = graphFactory.createGraph(ePackages, progressMonitor);
 		
@@ -88,22 +87,7 @@ public class TestEcoreDocGen {
 		
 		EObjectReflectiveProcessorFactory eObjectReflectiveProcessorFactory = new EObjectReflectiveProcessorFactory(eObjectNodeProcessorReflectiveFactory);
 		
-		org.nasdanika.html.model.app.graph.Registry<URI> registry = eObjectReflectiveProcessorFactory.createProcessors(nodes, progressMonitor);
-		
-		List<Throwable> failures = registry
-				.getProcessorInfoMap()
-				.values()
-				.stream()
-				.flatMap(pi -> pi.getFailures().stream())
-				.collect(Collectors.toList());
-		
-		if (!failures.isEmpty()) {
-			NasdanikaException ne = new NasdanikaException("Theres's been " + failures.size() +  " failures during processor creation: " + failures);
-			for (Throwable failure: failures) {
-				ne.addSuppressed(failure);
-			}
-			throw ne;
-		}						
+		org.nasdanika.html.model.app.graph.Registry<URI> registry = eObjectReflectiveProcessorFactory.createProcessors(nodes, false, progressMonitor); 
 		
 		URINodeProcessor testProcessor = null;
 		Collection<Throwable> resolveFailures = new ArrayList<>();		

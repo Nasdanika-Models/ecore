@@ -121,7 +121,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 		} else {
 			specURI = ObjectLoaderResource.encode(spec, "YAML", base, null);
 		}
-		return (Action) AppObjectLoaderSupplier.loadObject(specURI, diagnosticConsumer, context, progressMonitor);
+		return (Action) AppObjectLoaderSupplier.loadObject(specURI, diagnosticConsumer, context, false, progressMonitor);
 	}
 	
 	@Override
