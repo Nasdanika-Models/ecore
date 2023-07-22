@@ -28,22 +28,21 @@ import org.nasdanika.exec.content.ContentFactory;
 import org.nasdanika.exec.content.Interpolator;
 import org.nasdanika.exec.content.Markdown;
 import org.nasdanika.exec.content.Text;
+import org.nasdanika.graph.emf.Connection;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.TagName;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.ncore.util.NcoreUtil;
-import org.nasdanika.graph.emf.Connection;
 
 public class EModelElementNodeProcessor<T extends EModelElement> extends EObjectNodeProcessor<T> {
 	
 	public EModelElementNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, 
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
 			Context context,
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

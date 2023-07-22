@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -20,14 +19,13 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 
 public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> {
 
 	public EClassifierNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EParameter;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.emf.EOperationConnection;
@@ -36,6 +37,9 @@ public class EClassNode extends EObjectNode {
 			}	
 			for (EGenericType gst: target.getEAllGenericSuperTypes()) {
 				reifiedTypeConnectionFactory.create(this, gst, nodeFactory);														
+			}
+			for (EStructuralFeature sf: target.getEAllStructuralFeatures()) {
+				reifiedTypeConnectionFactory.create(this, sf.getEGenericType(), nodeFactory);				
 			}
 		}		
 	}

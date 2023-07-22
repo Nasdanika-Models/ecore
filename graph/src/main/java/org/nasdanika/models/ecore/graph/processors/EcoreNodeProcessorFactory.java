@@ -45,9 +45,8 @@ import org.nasdanika.graph.processor.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectReflectiveProcessorFactory;
+import org.nasdanika.html.model.app.graph.emf.EObjectReflectiveProcessorFactoryProvider;
 import org.nasdanika.html.model.app.util.AppObjectLoaderSupplier;
 import org.nasdanika.ncore.ModelElement;
 import org.nasdanika.ncore.util.NcoreUtil;
@@ -64,7 +63,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	private Consumer<Diagnostic> diagnosticConsumer;
 	private java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider;
 	
-	protected java.util.function.Function<ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config) {
+	protected java.util.function.Function<ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory> config) {
 		return progressMonitor -> {
 			if (prototypeProvider != null) {
 				for (URI identifier: NcoreUtil.getIdentifiers(((EObjectNode) config.getElement()).getTarget())) {
@@ -121,7 +120,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 		} else {
 			specURI = ObjectLoaderResource.encode(spec, "YAML", base, null);
 		}
-		return (Action) AppObjectLoaderSupplier.loadObject(specURI, diagnosticConsumer, context, false, progressMonitor);
+		return (Action) AppObjectLoaderSupplier.loadObject(specURI, diagnosticConsumer, context, progressMonitor);
 	}
 	
 	@Override
@@ -180,7 +179,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}
 	
 	protected Function<ProgressMonitor, Action> getPrototypeProvider(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			URI baseURI,
 			String actionPrototypeSpec,
 			String actionPrototypeRef,
@@ -251,7 +250,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	
 		
 	@EObjectNodeProcessor(type = EPackage.class)
-	public Object createEPackageNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEPackageNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 			.stream()
 			.filter(aer -> aer.test(config.getElement()))
@@ -285,12 +284,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EClass.class)
-	public Object createEClassNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEClassNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		return createEClassifierNodeProcessor(config, () -> new EClassNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);
 	}
 
 	protected Object createEClassifierNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Supplier<Object> fallback,
 			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
@@ -343,19 +342,19 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EDataType.class)
-	public Object createEDataTypeNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEDataTypeNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		return createEClassifierNodeProcessor(config, () -> new EDataTypeNodeProcessor<EDataType>(config, context, getPrototypeProvider(config)), progressMonitor);
 	}
 	
 	@EObjectNodeProcessor(type = EEnum.class)
-	public Object createEEnumNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEEnumNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		return createEClassifierNodeProcessor(config, () -> new EEnumNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);		
 	}	
 
 	// --- EClass members ---
 	
 	protected Object createEStructuralFeatureNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Supplier<Object> fallback,
 			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
@@ -403,17 +402,17 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 		
 	@EObjectNodeProcessor(type = EAttribute.class)
-	public Object createEAttributeNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEAttributeNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		return createEStructuralFeatureNodeProcessor(config, () -> new EAttributeNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);		
 	}	
 	
 	@EObjectNodeProcessor(type = EReference.class)
-	public Object createEReferenceNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEReferenceNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		return createEStructuralFeatureNodeProcessor(config, () -> new EReferenceNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);		
 	}
 	
 	@EObjectNodeProcessor(type = EOperation.class)
-	public Object createEOperationNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEOperationNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -459,7 +458,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EParameter.class)
-	public Object createEParameterNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEParameterNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -508,7 +507,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 
 	@EObjectNodeProcessor(type = EEnumLiteral.class)
-	public Object createEEnumLiteralNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEEnumLiteralNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -554,7 +553,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = ETypeParameter.class)
-	public Object createETypeParameterNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createETypeParameterNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -615,7 +614,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EGenericType.class)
-	public Object createEGenericTypeNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public Object createEGenericTypeNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -690,7 +689,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	// --- TODO ~~~
 	
 	@EObjectNodeProcessor(type = EAnnotation.class)
-	public EAnnotationNodeProcessor createEAnnotationNodeProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, ProgressMonitor progressMonitor) {
+	public EAnnotationNodeProcessor createEAnnotationNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
 		return new EAnnotationNodeProcessor(config, context, getPrototypeProvider(config));
 	}	
 

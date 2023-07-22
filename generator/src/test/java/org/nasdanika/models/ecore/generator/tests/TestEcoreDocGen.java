@@ -27,19 +27,20 @@ import org.nasdanika.common.ExecutionException;
 import org.nasdanika.common.NasdanikaException;
 import org.nasdanika.common.NullProgressMonitor;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.graph.Connection;
 import org.nasdanika.graph.Element;
 import org.nasdanika.graph.emf.EObjectGraphFactory;
 import org.nasdanika.graph.emf.EObjectNode;
+import org.nasdanika.graph.processor.NopEndpointProcessorConfigFactory;
+import org.nasdanika.graph.processor.ProcessorConfig;
 import org.nasdanika.graph.processor.ProcessorInfo;
 import org.nasdanika.graph.processor.emf.EObjectNodeProcessorReflectiveFactory;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.Link;
 import org.nasdanika.html.model.app.gen.ActionSiteGenerator;
-import org.nasdanika.html.model.app.graph.Registry;
-import org.nasdanika.html.model.app.graph.URINodeProcessor;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectReflectiveProcessorFactory;
+import org.nasdanika.html.model.app.graph.emf.EObjectReflectiveProcessorFactoryProvider;
 import org.nasdanika.models.ecore.graph.EcoreGraphFactory;
 import org.nasdanika.models.ecore.graph.processors.EcoreNodeProcessorFactory;
 import org.nasdanika.models.ecore.processors.doc.EcoreDocProcessorFactory;
@@ -58,17 +59,21 @@ public class TestEcoreDocGen {
 		ProgressMonitor progressMonitor = new NullProgressMonitor(); // new PrintStreamProgressMonitor();
 		List<EObjectNode> nodes = graphFactory.createGraph(ePackages, progressMonitor);
 		
+		NopEndpointProcessorConfigFactory<WidgetFactory> configFactory = new NopEndpointProcessorConfigFactory<>() {
+			
+			@Override
+			protected boolean isPassThrough(Connection connection) {
+				return false;
+			}
+			
+		};
+		Map<Element, ProcessorConfig> configs = configFactory.createConfigs(nodes, false, progressMonitor);
+		System.out.println("Configs: " + configs.size());		
+		
 		Context context = Context.EMPTY_CONTEXT;
 		Consumer<Diagnostic> diagnosticConsumer = d -> d.dump(System.out, 0);
-
 		List<Function<URI,Action>> actionProviders = new ArrayList<>();		
-
-//		CoreDocLoader coreDocLoader = new CoreDocLoader(diagnosticConsumer, context, progressMonitor);
-//		actionProviders.add(coreDocLoader::getPrototype);
-		
 		EcoreDocProcessorFactory ecoreDocProcessorFactory = new EcoreDocProcessorFactory();
-		
-		
 		EcoreNodeProcessorFactory ecoreNodeProcessorFactory = new EcoreNodeProcessorFactory(
 				context, 
 				(uri, pm) -> {
@@ -83,13 +88,11 @@ public class TestEcoreDocGen {
 				diagnosticConsumer,
 				ecoreDocProcessorFactory);
 		
-		EObjectNodeProcessorReflectiveFactory<Object, WidgetFactory, WidgetFactory, Registry<URI>> eObjectNodeProcessorReflectiveFactory = new EObjectNodeProcessorReflectiveFactory<>(ecoreNodeProcessorFactory);
+		EObjectNodeProcessorReflectiveFactory<WidgetFactory, WidgetFactory> eObjectNodeProcessorReflectiveFactory = new EObjectNodeProcessorReflectiveFactory<>(ecoreNodeProcessorFactory);
+		EObjectReflectiveProcessorFactoryProvider eObjectReflectiveProcessorFactoryProvider = new EObjectReflectiveProcessorFactoryProvider(eObjectNodeProcessorReflectiveFactory);
+		Map<Element, ProcessorInfo<Object>> registry = eObjectReflectiveProcessorFactoryProvider.getFactory().createProcessors(configs, false, progressMonitor); 
 		
-		EObjectReflectiveProcessorFactory eObjectReflectiveProcessorFactory = new EObjectReflectiveProcessorFactory(eObjectNodeProcessorReflectiveFactory);
-		
-		org.nasdanika.html.model.app.graph.Registry<URI> registry = eObjectReflectiveProcessorFactory.createProcessors(nodes, false, progressMonitor); 
-		
-		URINodeProcessor testProcessor = null;
+		WidgetFactory testProcessor = null;
 		Collection<Throwable> resolveFailures = new ArrayList<>();		
 		URI baseActionURI = URI.createURI("tmp-https://test.nasdanika.org/");
 		
@@ -98,20 +101,20 @@ public class TestEcoreDocGen {
 		);
 		
 		for (EPackage topLevelPackage: ePackages) {
-			for (Entry<Element, ProcessorInfo<Object, Registry<URI>>> re: registry.getProcessorInfoMap().entrySet()) {
+			for (Entry<Element, ProcessorInfo<Object>> re: registry.entrySet()) {
 				Element element = re.getKey();
 				if (element instanceof EObjectNode) {
 					EObjectNode eObjNode = (EObjectNode) element;
 					EObject target = eObjNode.getTarget();
 					if (target == topLevelPackage) {
-						ProcessorInfo<Object, Registry<URI>> info = re.getValue();
+						ProcessorInfo<Object> info = re.getValue();
 						Object processor = info.getProcessor();
-						if (processor instanceof URINodeProcessor) {
-							URINodeProcessor uriNodeProcessor = (URINodeProcessor) processor;
-							uriNodeProcessor.resolve(packageURIMap.get(topLevelPackage), progressMonitor);
+						if (processor instanceof WidgetFactory) {
+							WidgetFactory widgetFactoryNodeProcessor = (WidgetFactory) processor;
+							widgetFactoryNodeProcessor.resolve(packageURIMap.get(topLevelPackage), progressMonitor);
 							
 							if (topLevelPackage == EcorePackage.eINSTANCE) { 							
-								testProcessor = uriNodeProcessor;
+								testProcessor = widgetFactoryNodeProcessor;
 							}
 						}
 					}

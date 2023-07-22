@@ -15,14 +15,13 @@ import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.ncore.util.NcoreUtil;
 
 public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extends ENamedElementNodeProcessor<T> implements FeatureWidgetFactory {
 
 	public ETypedElementNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
@@ -55,12 +54,12 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 			if (reifiedTypeSelector.getSelector() == EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE) {
 				EGenericType genericType = getTarget().getEGenericType();
 				WidgetFactory rwf = reifiedTypeSelector.getReifiedTypeWidgetFactory(genericType);
-				if (rwf == null) {
-					if (genericTypeWidgetFactory != null) {
-						return genericTypeWidgetFactory.createLink(base, progressMonitor);
-					}
+				if (rwf != null) {
+					return rwf.createLink(base, progressMonitor);
 				}
-				return rwf.createLink(base, progressMonitor);
+				if (genericTypeWidgetFactory != null) {
+					return genericTypeWidgetFactory.createLink(base, progressMonitor);
+				} 
 			}
 		}		
 		

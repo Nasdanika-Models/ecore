@@ -17,7 +17,6 @@ import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 
@@ -26,7 +25,7 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	public record SubtypeSelector(EClass subType) {};
 
 	public EGenericTypeNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

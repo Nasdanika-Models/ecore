@@ -8,13 +8,12 @@ import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
 public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeature> extends ETypedElementNodeProcessor<T> {
 
 	public EStructuralFeatureNodeProcessor(
-			NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
@@ -25,6 +24,10 @@ public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeatu
 	@OutgoingEndpoint("reference.name == 'eContainingClass'")
 	public final void setDeclaringClassEndpoint(WidgetFactory declaringClassWidgetFactory) {
 		this.declaringClassWidgetFactory = declaringClassWidgetFactory;
+	}
+	
+	public WidgetFactory getDeclaringClassWidgetFactory() {
+		return declaringClassWidgetFactory;
 	}
 	
 	@Override

@@ -8,7 +8,6 @@ import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.models.ecore.graph.processors.EPackageNodeProcessor;
 import org.nasdanika.models.ecore.graph.processors.EPackageNodeProcessorFactory;
 import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.graph.Registry;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
 /**
