@@ -40,7 +40,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		return labels
 			.stream()
 			.sorted((a,b) -> a.getText().compareTo(b.getText()))
-			.collect(Collectors.toList());		
+			.toList();		
 	}
 	
 	@Override
@@ -112,7 +112,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 
 		List<Entry<EReferenceConnection, Collection<Label>>> sorted = outgoingLabels.entrySet().stream()
 				.sorted((a,b) -> ((ENamedElement) a.getKey().getTarget().getTarget()).getName().compareTo(((ENamedElement) b.getKey().getTarget().getTarget()).getName()))
-				.collect(Collectors.toList());		
+				.toList();		
 
 		for (Label tLabel: labels) {
 			for (Entry<EReferenceConnection, Collection<Label>> re: sorted) {
@@ -127,7 +127,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
 							return ane.getName().compareTo(bne.getName());
-						}).collect(Collectors.toList()),  
+						}).toList(),  
 						"epackage-classifiers", 
 						"classifiers-table", 
 						progressMonitor);
@@ -157,7 +157,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
 							return ane.getName().compareTo(bne.getName());
-						}).collect(Collectors.toList()),  
+						}).toList(),  
 						"epackage-sub-packages", 
 						"sub-packages-table", 
 						progressMonitor);

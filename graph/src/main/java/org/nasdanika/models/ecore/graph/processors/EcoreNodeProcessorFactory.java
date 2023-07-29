@@ -46,7 +46,6 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectReflectiveProcessorFactoryProvider;
 import org.nasdanika.html.model.app.util.AppObjectLoaderSupplier;
 import org.nasdanika.ncore.ModelElement;
 import org.nasdanika.ncore.util.NcoreUtil;
@@ -136,16 +135,25 @@ public class EcoreNodeProcessorFactory extends Reflector {
 				} else if (eObj instanceof EClassifier) {
 					ePackage = ((EClassifier) eObj).getEPackage();
 				} else if (eObj instanceof EStructuralFeature) {
-					ePackage = ((EStructuralFeature) eObj).getEContainingClass().getEPackage();
+					EClass eContainingClass = ((EStructuralFeature) eObj).getEContainingClass();
+					if (eContainingClass != null) {
+						ePackage = eContainingClass.getEPackage();
+					}
 				} else if (eObj instanceof EOperation) {
-					ePackage = ((EOperation) eObj).getEContainingClass().getEPackage();
+					EClass eContainingClass = ((EOperation) eObj).getEContainingClass();
+					if (eContainingClass != null) {
+						ePackage = eContainingClass.getEPackage();
+					}
 				} else if (eObj instanceof EParameter) {
-					ePackage = ((EParameter) eObj).getEOperation().getEContainingClass().getEPackage();
+					EClass eContainingClass = ((EParameter) eObj).getEOperation().getEContainingClass();
+					if (eContainingClass != null) {
+						ePackage = eContainingClass.getEPackage();
+					}
 				} else if (eObj instanceof EEnumLiteral) {
 					ePackage = ((EEnumLiteral) eObj).getEEnum().getEPackage();					
 				}
 								
-				if (ePackage != null && !pnfa.nsURI().equals(ePackage.getNsURI())) {
+				if (ePackage == null || !pnfa.nsURI().equals(ePackage.getNsURI())) {
 					return false;
 				}
 			}
@@ -155,23 +163,28 @@ public class EcoreNodeProcessorFactory extends Reflector {
 				if (eObj instanceof EClassifier) {
 					eClassifier = (EClassifier) eObj;
 				} else if (eObj instanceof EStructuralFeature) {
-					eClassifier = ((EStructuralFeature) eObj).getEContainingClass();
+					EClass eContainingClass2 = ((EStructuralFeature) eObj).getEContainingClass();
+					eClassifier = eContainingClass2;
 				} else if (eObj instanceof EOperation) {
-					eClassifier = ((EOperation) eObj).getEContainingClass();
+					EClass eContainingClass2 = ((EOperation) eObj).getEContainingClass();
+					eClassifier = eContainingClass2;
 				} else if (eObj instanceof EParameter) {
-					eClassifier = ((EParameter) eObj).getEOperation().getEContainingClass();
+					EClass eContainingClass2 = ((EParameter) eObj).getEOperation().getEContainingClass();
+					eClassifier = eContainingClass2;
 				} else if (eObj instanceof EEnumLiteral) {
 					eClassifier = ((EEnumLiteral) eObj).getEEnum();
 				}
 				
-				if (eClassifier != null) {
-					if (!Util.isBlank(cnfa.nsURI()) && !cnfa.nsURI().equals(eClassifier.getEPackage().getNsURI())) {
-						return false;
-					}
-					if (cnfa.classifierID() != -1 && cnfa.classifierID() != eClassifier.getClassifierID()) {
-						return false;
-					}
-				}				
+				if (eClassifier == null) {
+					return false;
+				}
+				
+				if (!Util.isBlank(cnfa.nsURI()) && !cnfa.nsURI().equals(eClassifier.getEPackage().getNsURI())) {
+					return false;
+				}
+				if (cnfa.classifierID() != -1 && cnfa.classifierID() != eClassifier.getClassifierID()) {
+					return false;
+				}
 			}
 			
 			return true;			

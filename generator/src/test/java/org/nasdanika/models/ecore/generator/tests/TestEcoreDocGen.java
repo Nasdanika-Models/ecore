@@ -27,9 +27,9 @@ import org.nasdanika.common.ExecutionException;
 import org.nasdanika.common.NasdanikaException;
 import org.nasdanika.common.NullProgressMonitor;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.common.Transformer;
 import org.nasdanika.graph.Connection;
 import org.nasdanika.graph.Element;
-import org.nasdanika.graph.emf.EObjectGraphFactory;
 import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.processor.NopEndpointProcessorConfigFactory;
 import org.nasdanika.graph.processor.ProcessorConfig;
@@ -55,9 +55,9 @@ public class TestEcoreDocGen {
 	@Test
 	public void testGraphEcoreDoc() throws IOException, DiagnosticException {
 		List<EPackage> ePackages = Arrays.asList(EcorePackage.eINSTANCE);
-		EObjectGraphFactory graphFactory = new EcoreGraphFactory(false); 
 		ProgressMonitor progressMonitor = new NullProgressMonitor(); // new PrintStreamProgressMonitor();
-		List<EObjectNode> nodes = graphFactory.createGraph(ePackages, progressMonitor);
+		Transformer<EObject,Element> graphFactory = new Transformer<>(new EcoreGraphFactory());
+		Map<EObject, Element> graph = graphFactory.transform(ePackages, false, progressMonitor);
 		
 		NopEndpointProcessorConfigFactory<WidgetFactory> configFactory = new NopEndpointProcessorConfigFactory<>() {
 			
@@ -67,7 +67,9 @@ public class TestEcoreDocGen {
 			}
 			
 		};
-		Map<Element, ProcessorConfig> configs = configFactory.createConfigs(nodes, false, progressMonitor);
+		
+		Transformer<Element,ProcessorConfig> processorConfigTransformer = new Transformer<>(configFactory);				
+		Map<Element, ProcessorConfig> configs = processorConfigTransformer.transform(graph.values(), false, progressMonitor);
 		System.out.println("Configs: " + configs.size());		
 		
 		Context context = Context.EMPTY_CONTEXT;
@@ -90,7 +92,7 @@ public class TestEcoreDocGen {
 		
 		EObjectNodeProcessorReflectiveFactory<WidgetFactory, WidgetFactory> eObjectNodeProcessorReflectiveFactory = new EObjectNodeProcessorReflectiveFactory<>(ecoreNodeProcessorFactory);
 		EObjectReflectiveProcessorFactoryProvider eObjectReflectiveProcessorFactoryProvider = new EObjectReflectiveProcessorFactoryProvider(eObjectNodeProcessorReflectiveFactory);
-		Map<Element, ProcessorInfo<Object>> registry = eObjectReflectiveProcessorFactoryProvider.getFactory().createProcessors(configs, false, progressMonitor); 
+		Map<Element, ProcessorInfo<Object>> registry = eObjectReflectiveProcessorFactoryProvider.getFactory().createProcessors(configs.values(), false, progressMonitor); 
 		
 		WidgetFactory testProcessor = null;
 		Collection<Throwable> resolveFailures = new ArrayList<>();		

@@ -3,43 +3,33 @@ package org.nasdanika.models.ecore.graph;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.Map;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.graph.Element;
+import org.nasdanika.graph.emf.EObjectGraphFactory;
 import org.nasdanika.graph.emf.EObjectNode;
-import org.nasdanika.graph.emf.EOperationConnection;
-import org.nasdanika.graph.emf.EReferenceConnection;
-import org.nasdanika.graph.emf.EReferenceConnection.Factory;
 
 public class EOperationNode extends EObjectNode {
-
-	public EOperationNode(
-			EOperation target, 
-			BiFunction<EObject, ProgressMonitor, ResultRecord> nodeFactory, 
-			EReferenceConnection.Factory referenceConnectionFactory,
-			EOperationConnection.Factory operationConnectionFactory,
-			ReifiedTypeConnection.Factory reifiedTypeConnectionFactory,
-			boolean parallelAccept,
-			ProgressMonitor progressMonitor) {
-		super(target, nodeFactory, referenceConnectionFactory, operationConnectionFactory, parallelAccept, progressMonitor);
-	}
-
-	@Override
-	public EOperation getTarget() {
-		return (EOperation) super.getTarget();
-	}
 	
-	@Override
-	protected void resolve(Function<EObject, EObjectNode> registry, Factory referenceConnectionFactory,	ProgressMonitor progressMonitor) {
-		super.resolve(registry, referenceConnectionFactory, progressMonitor);
-				
-		EOperation eOperation = getTarget();
+	public EOperationNode(
+			EOperation target,
+			boolean parallel,
+			Function<EObject, CompletionStage<Element>> elementProvider, 
+			Consumer<CompletionStage<?>> stageConsumer,
+			CompletionStage<Map<EObject, Element>> registry,
+			EObjectGraphFactory factory,
+			ProgressMonitor progressMonitor) {
+		super(target, parallel, elementProvider, stageConsumer, registry, factory, progressMonitor);
+		
 		List<EOperation> inheritedOperations = new ArrayList<>();
-		eOperation
+		target
 			.getEContainingClass()
 			.getEAllSuperTypes()
 			.stream()
@@ -77,13 +67,15 @@ public class EOperationNode extends EObjectNode {
 			});
 			
 		for (EOperation io: inheritedOperations) {
-			if (eOperation.isOverrideOf(io)) {
-				EObjectNode ioNode = registry.apply(io);
-				if (ioNode != null) {
-					new OverridesConnection(this, ioNode);
-				}
+			if (target.isOverrideOf(io)) {
+				stageConsumer.accept(elementProvider.apply(io).thenAccept(ioNode -> new OverridesConnection(this, (EObjectNode) ioNode)));
 			}
-		}
+		}		
+	}
+
+	@Override
+	public EOperation getTarget() {
+		return (EOperation) super.getTarget();
 	}
 	
 }

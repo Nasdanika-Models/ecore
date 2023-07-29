@@ -1,6 +1,9 @@
 package org.nasdanika.models.ecore.graph;
 
-import java.util.function.BiFunction;
+import java.util.Map;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
@@ -9,39 +12,36 @@ import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.graph.Element;
 import org.nasdanika.graph.emf.EObjectNode;
-import org.nasdanika.graph.emf.EOperationConnection;
-import org.nasdanika.graph.emf.EReferenceConnection;
 
 public class EClassNode extends EObjectNode {
 
 	public EClassNode(
-			EClass target, 
-			BiFunction<EObject, ProgressMonitor, ResultRecord> nodeFactory, 
-			EReferenceConnection.Factory referenceConnectionFactory,
-			EOperationConnection.Factory operationConnectionFactory,
-			ReifiedTypeConnection.Factory reifiedTypeConnectionFactory,
-			boolean parallelAccept,
+			EClass target,
+			boolean parallel,
+			Function<EObject, CompletionStage<Element>> elementProvider, 
+			Consumer<CompletionStage<?>> stageConsumer,
+			CompletionStage<Map<EObject, Element>> registry,
+			EcoreGraphFactory factory,
 			ProgressMonitor progressMonitor) {
-		super(target, nodeFactory, referenceConnectionFactory, operationConnectionFactory, parallelAccept, progressMonitor);
+		super(target, parallel, elementProvider, stageConsumer, registry, factory, progressMonitor);
 
-		if (reifiedTypeConnectionFactory != null) {
-			for (EOperation eOperation: target.getEAllOperations()) {
-				reifiedTypeConnectionFactory.create(this, eOperation.getEGenericType(), nodeFactory);
-				for (EParameter eParameter: eOperation.getEParameters()) {
-					reifiedTypeConnectionFactory.create(this, eParameter.getEGenericType(), nodeFactory);					
-				}
-				for (EGenericType ge: eOperation.getEGenericExceptions()) {
-					reifiedTypeConnectionFactory.create(this, ge, nodeFactory);										
-				}
-			}	
-			for (EGenericType gst: target.getEAllGenericSuperTypes()) {
-				reifiedTypeConnectionFactory.create(this, gst, nodeFactory);														
+		for (EOperation eOperation: target.getEAllOperations()) {
+			factory.createReifiedTypeConnection(this, eOperation.getEGenericType(), elementProvider, stageConsumer, progressMonitor);
+			for (EParameter eParameter: eOperation.getEParameters()) {
+				factory.createReifiedTypeConnection(this, eParameter.getEGenericType(), elementProvider, stageConsumer, progressMonitor);
 			}
-			for (EStructuralFeature sf: target.getEAllStructuralFeatures()) {
-				reifiedTypeConnectionFactory.create(this, sf.getEGenericType(), nodeFactory);				
+			for (EGenericType ge: eOperation.getEGenericExceptions()) {
+				factory.createReifiedTypeConnection(this, ge, elementProvider, stageConsumer, progressMonitor);
 			}
-		}		
+		}	
+		for (EGenericType gst: target.getEAllGenericSuperTypes()) {
+			factory.createReifiedTypeConnection(this, gst, elementProvider, stageConsumer, progressMonitor);
+		}
+		for (EStructuralFeature sf: target.getEAllStructuralFeatures()) {
+			factory.createReifiedTypeConnection(this, sf.getEGenericType(), elementProvider, stageConsumer, progressMonitor);
+		}
 	}
 
 	@Override

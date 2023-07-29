@@ -193,7 +193,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
 							return ane.getName().compareTo(bne.getName());
-						}).collect(Collectors.toList()),  
+						}).toList(),  
 						"eclass-attributes", 
 						"attributes-table", 
 						progressMonitor);
@@ -277,7 +277,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
 							return ane.getName().compareTo(bne.getName());
-						}).collect(Collectors.toList()),  
+						}).toList(),  
 						"eclass-references", 
 						"references-table", 
 						progressMonitor);
@@ -580,7 +580,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		List<Object> ret = new ArrayList<>();
 		ret.add("<ol>");
-		for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).collect(Collectors.toList())) {
+		for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).toList()) {
 			ret.add("<li>");
 			ret.add(pwf.createLink(base, progressMonitor));
 			ret.add(" : ");
@@ -611,7 +611,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 		
 //		
-//		List<EStructuralFeature> sortedFeatures = eObject.getEAllStructuralFeatures().stream().filter(predicate.and(elementPredicate)).sorted(namedElementComparator).collect(Collectors.toList());
+//		List<EStructuralFeature> sortedFeatures = eObject.getEAllStructuralFeatures().stream().filter(predicate.and(elementPredicate)).sorted(namedElementComparator).toList();
 		
 		DynamicTableBuilder<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> loadSpecificationTableBuilder = new DynamicTableBuilder<>();
 		loadSpecificationTableBuilder.addStringColumnBuilder("key", true, true, "Key", featureWidgetFactoryEntry -> {
@@ -665,7 +665,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 					.stream()
 					.filter(e -> e.getValue().isLoadable())
 					.sorted((a, b) -> a.getValue().getLoadKey(getTarget()).compareTo(b.getValue().getLoadKey(getTarget())))
-					.collect(Collectors.toList()), 
+					.toList(), 
 				getTarget().getEPackage().getNsURI().hashCode() + "-" + getTarget().getName() + "-load-specification", 
 				"load-specification-table", 
 				progressMonitor);

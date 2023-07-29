@@ -211,7 +211,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				
 				List<Object> ret = new ArrayList<>();
 				ret.add("<ol>");
-				for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).collect(Collectors.toList())) {
+				for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).toList()) {
 					ret.add("<li>");
 					ret.add(pwf.createLink(base, progressMonitor));
 					ret.add(" : ");
@@ -233,7 +233,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				
 				List<Object> ret = new ArrayList<>();
 				ret.add("<ol>");
-				for (WidgetFactory gewf: eGenericExceptionsWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).collect(Collectors.toList())) {
+				for (WidgetFactory gewf: eGenericExceptionsWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).toList()) {
 					ret.add("<li>");
 					ret.add(gewf.createLink(base, progressMonitor)); // TODO - reifiedType
 					ret.add("</li>");

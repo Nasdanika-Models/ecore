@@ -2,8 +2,11 @@ package org.nasdanika.models.ecore.graph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -18,44 +21,53 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.graph.Element;
 import org.nasdanika.graph.emf.EObjectGraphFactory;
 import org.nasdanika.graph.emf.EObjectNode;
-import org.nasdanika.graph.emf.EObjectNode.ResultRecord;
-import org.nasdanika.graph.emf.NodeFactory;
 
 /**
+ * A factory for Ecore model object. Reflective target for {@link EObjectGraphFactory}.
  * Graph factory for ecore models
  * @author Pavel
  *
  */
 public class EcoreGraphFactory extends EObjectGraphFactory {
 	
-	public EcoreGraphFactory(boolean parallelAccept) {
-		super(parallelAccept);
-	}
+	public void createReifiedTypeConnection(
+			EClassNode source, 
+			EGenericType genericType,
+			Function<EObject, CompletionStage<Element>> elementProvider, 
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
+		
+		EGenericType reifiedType = EcoreUtil.getReifiedType(source.getTarget(), genericType);
+		if (reifiedType != null && !Objects.equals(reifiedType, genericType)) {
+			stageConsumer.accept(elementProvider.apply(reifiedType).thenAccept(reifiedTypeNode -> new ReifiedTypeConnection(source, (EObjectNode) reifiedTypeNode, genericType)));
+		}
+	}	
 
-	@NodeFactory(type = EClass.class)
-	public EClassNode createEClassNode(EObject eObject, BiFunction<EObject, ProgressMonitor, ResultRecord> nodeFactory, ProgressMonitor progressMonitor) {
-		return new EClassNode(
-				(EClass) eObject, 
-				nodeFactory,
-				this::createReferenceConnection, 
-				this::createOperationConnections,
-				(source, genericType, nFactory) -> createReifiedTypeConnection(source, genericType, nFactory, progressMonitor),
-				parallelAccept,
-				progressMonitor);
+	@org.nasdanika.common.Transformer.Factory(type=EClass.class)
+	public EClassNode createEClassNode(
+			EClass element,
+			boolean parallel,
+			Function<EObject, CompletionStage<Element>> elementProvider, 
+			CompletionStage<Map<EObject, Element>> registry,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
+		
+		return new EClassNode(element, parallel, elementProvider, stageConsumer, registry, this, progressMonitor);
 	}
 	
-	@NodeFactory(type = EOperation.class)
-	public EOperationNode createEOperationNode(EObject eObject, BiFunction<EObject, ProgressMonitor, ResultRecord> nodeFactory, ProgressMonitor progressMonitor) {
-		return new EOperationNode(
-				(EOperation) eObject, 
-				nodeFactory,
-				this::createReferenceConnection, 
-				this::createOperationConnections,
-				(source, genericType, nFactory) -> createReifiedTypeConnection(source, genericType, nFactory, progressMonitor),
-				parallelAccept,
-				progressMonitor);
+	@org.nasdanika.common.Transformer.Factory(type=EOperation.class)
+	public EOperationNode createEOperationNode(
+			EOperation element,
+			boolean parallel,
+			Function<EObject, CompletionStage<Element>> elementProvider, 
+			CompletionStage<Map<EObject, Element>> registry,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
+
+		return new EOperationNode(element, parallel, elementProvider, stageConsumer, registry, this, progressMonitor);
 	}
 
 	@Override
@@ -91,24 +103,5 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 		
 		return super.argumentToPathSegment(parameter, argument);
 	};
-		
-	/**
-	 * Creates a connection from the source {@link EClassNode} to reified {@link EGenericType} node. The connection is qualified by the original EGenericType
-	 * @param source Source (context) EClass
-	 * @param genericType Generic type to be reified. Available via {@link ReifiedTypeConnection}.getGenericType() method.
-	 * @param nodeFactory Node factory for connections.
-	 * @param progressMonitor Progress monitor.
-	 */
-	protected void createReifiedTypeConnection(
-			EClassNode source, 
-			EGenericType genericType, 
-			BiFunction<EObject, ProgressMonitor, EObjectNode.ResultRecord> nodeFactory, 
-			ProgressMonitor progressMonitor) {
-		EGenericType reifiedType = EcoreUtil.getReifiedType(source.getTarget(), genericType);
-		if (reifiedType != null && !Objects.equals(reifiedType, genericType)) {
-			EObjectNode.ResultRecord reifiedTypeRecord = nodeFactory.apply(reifiedType, progressMonitor);
-			new ReifiedTypeConnection(source, reifiedTypeRecord.node(), -1, null, genericType, reifiedTypeRecord.isNew());
-		}
-	}	
 	
 }
