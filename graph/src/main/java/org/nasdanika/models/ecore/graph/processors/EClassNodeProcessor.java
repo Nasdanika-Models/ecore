@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -637,23 +636,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		});  
 
 		loadSpecificationTableBuilder.addStringColumnBuilder("cardinality", true, false, "Cardinality", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getCardinality());
-		
-//			.addBooleanColumnBuilder("Homogeneous", true, false, "Homogeneous", HomogeneousPredicate)
-//			.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", strictContainmentPredicate)
-//			.addStringColumnBuilder("exclusive-with", true, false, "Exclusive With", sf -> {
-//				Object[] exclusiveWith = exclusiveWithExtractor.apply(sf);
-//				if (exclusiveWith.length == 0) {
-//					return null;
-//				}
-//				Tag ul = TagName.ul.create();
-//				for (Object exw: exclusiveWith) {
-//					ul.content(TagName.li.create(exw));
-//				}
-//				return ul.toString();				
-//			})
-//			.addStringColumnBuilder("description", true, false, "Description", this::getEStructuralFeatureFirstLoadDocSentence);
-//			// Other things not visible?
-//		
+		loadSpecificationTableBuilder.addBooleanColumnBuilder("homogeneous", true, false, "Homogeneous", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isHomogeneous());
+		loadSpecificationTableBuilder.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isStrictContainment());
+		loadSpecificationTableBuilder.addStringColumnBuilder("exclusive", true, true, "Exclusive With", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getExclusiveWith(getTarget()));
+		loadSpecificationTableBuilder.addStringColumnBuilder("description", true, false, "Description", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getLoadDescription());
 		
 		List<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> fwf;		
 		synchronized (featureWidgetFactories) {

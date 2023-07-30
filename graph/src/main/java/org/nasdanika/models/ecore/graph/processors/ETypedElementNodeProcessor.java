@@ -1,8 +1,14 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -10,12 +16,21 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
+import org.nasdanika.exec.content.ContentFactory;
+import org.nasdanika.exec.content.Text;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
+import org.nasdanika.html.Tag;
+import org.nasdanika.html.TagName;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.html.model.bootstrap.BootstrapFactory;
+import org.nasdanika.html.model.bootstrap.Table;
+import org.nasdanika.html.model.bootstrap.TableCell;
+import org.nasdanika.html.model.bootstrap.TableRow;
+import org.nasdanika.html.model.bootstrap.TableSection;
 import org.nasdanika.ncore.util.NcoreUtil;
 
 public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extends ENamedElementNodeProcessor<T> implements FeatureWidgetFactory {
@@ -85,7 +100,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 
 	@Override
 	public String getLoadDescription() {
-		return "TODO!";
+		return null;
 	}	
 	
 	@Override
@@ -112,7 +127,35 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 			}
 		}
 		
+		// TODO - properties table, subclasses may add more rows 
+		
 		return action;
+	}
+	
+	protected TableRow buildPropertyRow(String name, Collection<EObject> cellValues) {
+		TableRow row = BootstrapFactory.eINSTANCE.createTableRow();
+		TableCell nameCell = BootstrapFactory.eINSTANCE.createTableCell();
+		row.getCells().add(nameCell);
+		nameCell.setHeader(true);
+		Text nameText = ContentFactory.eINSTANCE.createText();
+		nameText.setContent(name);
+		nameCell.getContent().add(nameText);		
+		
+		TableCell valueCell = BootstrapFactory.eINSTANCE.createTableCell();
+		row.getCells().add(valueCell);
+		valueCell.getContent().addAll(cellValues);
+		
+		return row;		
+	}
+	
+	protected TableRow buildPropertyRow(String name, boolean cellValue) {
+		return buildPropertyRow(name, cellValue ? "<i class=\"fas fa-check\"></i>" : "");
+	}
+	
+	protected TableRow buildPropertyRow(String name, String cellValue) {
+		Text valueText = ContentFactory.eINSTANCE.createText();
+		valueText.setContent(cellValue);
+		return buildPropertyRow(name, Collections.singleton(valueText));
 	}
 
 	protected Action createLoadSpecificationAction(Label action, ProgressMonitor progressMonitor) {
@@ -124,8 +167,104 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		loadSpecificationAction.setText("Load specification");
 		loadSpecificationAction.setLocation("load-specification.html");
 		
-		// TODO - properties table: key, type, cardinality, homogeneous, strict containment, exclusive with
-				
+		// Properties table
+		Table propertiesTable = BootstrapFactory.eINSTANCE.createTable();
+		Text autoText = ContentFactory.eINSTANCE.createText();
+		autoText.setContent("width:auto");
+		propertiesTable.getAttributes().put("style", autoText);
+		TableSection body = BootstrapFactory.eINSTANCE.createTableSection();
+		propertiesTable.setBody(body);
+		EList<TableRow> bodyRows = body.getRows();
+		bodyRows.add(buildPropertyRow("Load Key", getLoadKey(null)));
+		
+		if (getTarget() instanceof EOperation) {
+			// TODO
+//			bodyRows.add(buildPropertyRow("Type", Collections.emptyList()));
+//			return featureWidgetFactoryEntry.getValue().createWidgetString((Selector<Object>) this::parameterTypes, progressMonitor);
+		} else {
+//			return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor)
+		}
+		
+		bodyRows.add(buildPropertyRow("Default", Collections.emptyList()));
+		bodyRows.add(buildPropertyRow("Cardinality", Collections.emptyList()));
+		bodyRows.add(buildPropertyRow("Homogeneous", Collections.emptyList()));
+		bodyRows.add(buildPropertyRow("Strict Containment", Collections.emptyList()));
+		bodyRows.add(buildPropertyRow("Exclusive With", Collections.emptyList()));
+		bodyRows.add(buildPropertyRow("Description", Collections.emptyList()));
+		
+//		loadSpecificationTableBuilder.addStringColumnBuilder("key", true, true, "Key", featureWidgetFactoryEntry -> {
+//			FeatureWidgetFactory featureWidgetFactory = featureWidgetFactoryEntry.getValue();
+//			String key = featureWidgetFactory.getLoadKey(getTarget());
+//			// TODO - link if there is a feature spec detail
+//			if (featureWidgetFactory.isDefaultFeature(getTarget())) {
+//				key = "<b>" + key + "</b>";
+//			}
+//			if (featureWidgetFactory.hasLoadSpecificationAction()) {
+//				URI loadSpecURI = featureWidgetFactory.getLoadSpecRef(uri);
+//				key = "<a href=\"" + loadSpecURI + "\">" + key + "</a>";
+//			}
+//			return key;
+//		});
+//	
+//	loadSpecificationTableBuilder.addStringColumnBuilder("type", true, true, "Type", featureWidgetFactoryEntry -> {
+//		EObject target = featureWidgetFactoryEntry.getKey().getTarget().getTarget();
+//		if (target instanceof EOperation) {
+//			return featureWidgetFactoryEntry.getValue().createWidgetString((Selector<Object>) this::parameterTypes, progressMonitor);
+//		}
+//		return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor);
+//	});  
+		
+		
+		
+		
+//			EList<TableCell> elementRowCells = elementRow.getCells();
+//			for (ColumnBuilder<? super T> cb: columnBuilders) {
+//				TableCell elementCell = BootstrapFactory.eINSTANCE.createTableCell();
+//				elementRowCells.add(elementCell);
+//				cb.buildCell(element, elementCell, progressMonitor);
+//			}
+		
+		loadSpecificationAction.getContent().add(propertiesTable);
+		
+		
+//		Table table = context.get(BootstrapFactory.class).table();
+//		table.toHTMLElement().style().width("auto");
+		
+//		loadSpecificationTableBuilder.addStringColumnBuilder("cardinality", true, false, "Cardinality", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getCardinality());
+//		loadSpecificationTableBuilder.addBooleanColumnBuilder("homogeneous", true, false, "Homogeneous", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isHomogeneous());
+//		loadSpecificationTableBuilder.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isStrictContainment());
+//		loadSpecificationTableBuilder.addStringColumnBuilder("exclusive", true, true, "Exclusive With", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getExclusiveWith(getTarget()));
+//		loadSpecificationTableBuilder.addStringColumnBuilder("description", true, false, "Description", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getLoadDescription());
+//		
+//		
+//		genericType(sf.getEGenericType(), eObject, ETypedElementActionSupplier.addRow(table, "Type")::add, progressMonitor);
+//		
+//		boolean isDefaultFeature = EObjectLoader.isDefaultFeature(eObject, sf);
+//		if (isDefaultFeature) {
+//			ETypedElementActionSupplier.addRow(table, "Default").add("true");				
+//		}
+//		
+//		boolean isHomogeneous = HomogeneousPredicate.test(sf);
+//		if (isHomogeneous) {
+//			ETypedElementActionSupplier.addRow(table, "Homogeneous").add("true");									
+//		}
+//		
+//		boolean isStrictContainment = strictContainmentPredicate.test(sf);			
+//		if (isStrictContainment) {
+//			ETypedElementActionSupplier.addRow(table, "Strict containment").add("true");									
+//		}
+//		
+//		Object[] exclusiveWith = exclusiveWithExtractor.apply(sf);
+//		if (exclusiveWith.length != 0) {
+//			Tag ul = TagName.ul.create();
+//			for (Object exw: exclusiveWith) {
+//				ul.content(TagName.li.create(exw));
+//			}
+//			ETypedElementActionSupplier.addRow(table, "Exclusive with").add(ul);				
+//		}
+
+//		addContent(loadSpecificationAction., table.toString());
+						
 		loadSpecificationAction.getContent().add(interpolatedMarkdown(loadDoc.documentation(), loadDoc.location(), progressMonitor));
 		return loadSpecificationAction;
 	}
@@ -144,6 +283,26 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 			cardinality = "<B>"+cardinality+"</B>";
 		}
 		return cardinality;
+	}
+	
+	public boolean isHomogeneous() {
+		return "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), EObjectLoader.IS_HOMOGENEOUS)) || NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), EObjectLoader.REFERENCE_TYPE) != null;
+	}
+	
+	public boolean isStrictContainment() {
+		return isHomogeneous() && "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), EObjectLoader.IS_STRICT_CONTAINMENT)); 
+	}
+
+	public String getExclusiveWith(EClass eClass) {
+		Object[] exclusiveWith = EObjectLoader.getExclusiveWith(eClass, getTarget(), EObjectLoader.LOAD_KEY_PROVIDER);
+		if (exclusiveWith.length == 0) {
+			return null;
+		}
+		Tag ul = TagName.ul.create();
+		for (Object exw : exclusiveWith) {
+			ul.content(TagName.li.create(exw));
+		}
+		return ul.toString();
 	}
 		
 }
