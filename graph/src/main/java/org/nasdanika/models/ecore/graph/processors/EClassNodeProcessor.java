@@ -461,6 +461,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			classID = EcorePackage.EGENERIC_TYPE, 
 			referenceID = EcorePackage.EGENERIC_TYPE__ECLASSIFIER)
 	public void buildEGenericTypeClassifierIncomingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceIncomingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> incomingLabels, 
