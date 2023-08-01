@@ -71,6 +71,7 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 	
 	@OutgoingReferenceBuilder(EcorePackage.ETYPE_PARAMETER__EBOUNDS)
 	public void buildETypeParametersOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 

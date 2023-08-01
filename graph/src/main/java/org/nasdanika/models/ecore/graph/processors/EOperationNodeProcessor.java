@@ -101,6 +101,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 	
 	@OutgoingReferenceBuilder(EcorePackage.EOPERATION__EPARAMETERS)
 	public void buildParametersOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
@@ -156,6 +157,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 	
 	@OutgoingReferenceBuilder(EcorePackage.EOPERATION__ETYPE_PARAMETERS)
 	public void buildETypeParametersOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 

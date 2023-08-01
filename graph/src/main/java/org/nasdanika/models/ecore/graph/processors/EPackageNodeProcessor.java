@@ -104,6 +104,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	
 	@OutgoingReferenceBuilder(EcorePackage.EPACKAGE__ECLASSIFIERS)
 	public void buildEClassifiersOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
@@ -121,7 +122,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> classifiersTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				buildClassifierColumns(classifiersTableBuilder, progressMonitor);
 				
-				org.nasdanika.html.model.html.Tag attributesTable = classifiersTableBuilder.build(
+				org.nasdanika.html.model.html.Tag classifiersTable = classifiersTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
@@ -130,13 +131,14 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 						"epackage-classifiers", 
 						"classifiers-table", 
 						progressMonitor);
-				getClassifiersAction((Action) tLabel).getContent().add(attributesTable);
+				getClassifiersAction((Action) tLabel).getContent().add(classifiersTable);
 			}
 		}
 	}
 	
 	@OutgoingReferenceBuilder(EcorePackage.EPACKAGE__ESUBPACKAGES)
 	public void buildESubPackagesOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 

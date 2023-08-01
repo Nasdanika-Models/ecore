@@ -70,6 +70,7 @@ public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedEleme
 	
 	@OutgoingReferenceBuilder(EcorePackage.ECLASSIFIER__ETYPE_PARAMETERS)
 	public void buildETypeParametersOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 

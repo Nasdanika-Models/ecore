@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,9 +39,11 @@ import org.nasdanika.exec.content.ContentFactory;
 import org.nasdanika.exec.content.Interpolator;
 import org.nasdanika.exec.content.Markdown;
 import org.nasdanika.exec.content.Text;
+import org.nasdanika.graph.Element;
 import org.nasdanika.graph.Node;
 import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
+import org.nasdanika.graph.processor.ProcessorInfo;
 import org.nasdanika.graph.processor.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
@@ -263,7 +266,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	
 		
 	@EObjectNodeProcessor(type = EPackage.class)
-	public Object createEPackageNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEPackageNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 			.stream()
 			.filter(aer -> aer.test(config.getElement()))
@@ -297,7 +305,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EClass.class)
-	public Object createEClassNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEClassNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		return createEClassifierNodeProcessor(config, () -> new EClassNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);
 	}
 
@@ -355,12 +368,22 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EDataType.class)
-	public Object createEDataTypeNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEDataTypeNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		return createEClassifierNodeProcessor(config, () -> new EDataTypeNodeProcessor<EDataType>(config, context, getPrototypeProvider(config)), progressMonitor);
 	}
 	
 	@EObjectNodeProcessor(type = EEnum.class)
-	public Object createEEnumNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEEnumNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		return createEClassifierNodeProcessor(config, () -> new EEnumNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);		
 	}	
 
@@ -415,17 +438,32 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 		
 	@EObjectNodeProcessor(type = EAttribute.class)
-	public Object createEAttributeNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEAttributeNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		return createEStructuralFeatureNodeProcessor(config, () -> new EAttributeNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);		
 	}	
 	
 	@EObjectNodeProcessor(type = EReference.class)
-	public Object createEReferenceNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEReferenceNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		return createEStructuralFeatureNodeProcessor(config, () -> new EReferenceNodeProcessor(config, context, getPrototypeProvider(config)), progressMonitor);		
 	}
 	
 	@EObjectNodeProcessor(type = EOperation.class)
-	public Object createEOperationNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEOperationNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -471,7 +509,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EParameter.class)
-	public Object createEParameterNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEParameterNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -520,7 +563,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 
 	@EObjectNodeProcessor(type = EEnumLiteral.class)
-	public Object createEEnumLiteralNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEEnumLiteralNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -566,7 +614,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = ETypeParameter.class)
-	public Object createETypeParameterNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createETypeParameterNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -627,7 +680,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	}	
 	
 	@EObjectNodeProcessor(type = EGenericType.class)
-	public Object createEGenericTypeNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public Object createEGenericTypeNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		Optional<AnnotatedElementRecord> fo = annotatedElementRecords
 				.stream()
 				.filter(aer -> aer.test(config.getElement()))
@@ -702,7 +760,12 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	// --- TODO ~~~
 	
 	@EObjectNodeProcessor(type = EAnnotation.class)
-	public EAnnotationNodeProcessor createEAnnotationNodeProcessor(NodeProcessorConfig<WidgetFactory, WidgetFactory> config, ProgressMonitor progressMonitor) {
+	public EAnnotationNodeProcessor createEAnnotationNodeProcessor(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			boolean parallel, 
+			Function<Element,CompletionStage<ProcessorInfo<Object>>> infoProvider,
+			Consumer<CompletionStage<?>> stageConsumer,
+			ProgressMonitor progressMonitor) {
 		return new EAnnotationNodeProcessor(config, context, getPrototypeProvider(config));
 	}	
 

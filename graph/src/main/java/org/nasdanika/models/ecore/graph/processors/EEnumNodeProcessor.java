@@ -39,6 +39,7 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 
 	@OutgoingReferenceBuilder(EcorePackage.EENUM__ELITERALS)
 	public void buildELiteralsOutgoingReference(
+			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
 			Collection<Label> labels,
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 

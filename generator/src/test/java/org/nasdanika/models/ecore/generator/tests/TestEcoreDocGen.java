@@ -107,7 +107,7 @@ public class TestEcoreDocGen {
 				Element element = re.getKey();
 				if (element instanceof EObjectNode) {
 					EObjectNode eObjNode = (EObjectNode) element;
-					EObject target = eObjNode.getTarget();
+					EObject target = eObjNode.get();
 					if (target == topLevelPackage) {
 						ProcessorInfo<Object> info = re.getValue();
 						Object processor = info.getProcessor();
