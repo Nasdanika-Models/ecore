@@ -65,7 +65,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 	protected java.util.function.Function<ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory> config) {
 		return progressMonitor -> {
 			if (prototypeProvider != null) {
-				for (URI identifier: NcoreUtil.getIdentifiers(((EObjectNode) config.getElement()).getTarget())) {
+				for (URI identifier: NcoreUtil.getIdentifiers(((EObjectNode) config.getElement()).get())) {
 					Action prototype = prototypeProvider.apply(identifier, progressMonitor);
 					if (prototype != null) {
 						return prototype;
@@ -127,7 +127,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 		EPackageNodeProcessorFactory pnfa = target.getClass().getAnnotation(EPackageNodeProcessorFactory.class);
 		EClassifierNodeProcessorFactory cnfa = target.getClass().getAnnotation(EClassifierNodeProcessorFactory.class);		
 		return obj -> {
-			EObject eObj = ((EObjectNode) obj).getTarget();
+			EObject eObj = ((EObjectNode) obj).get();
 			if (pnfa != null) {
 				EPackage ePackage = null;
 				if (eObj instanceof EPackage) {
@@ -269,7 +269,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 			.filter(aer -> aer.test(config.getElement()))
 			.filter(aer -> {
 				EPackageNodeProcessorFactory ann = aer.getAnnotation(EPackageNodeProcessorFactory.class);
-				return ann != null && (Util.isBlank(ann.nsURI()) || ann.nsURI().equals(((EPackage) ((EObjectNode) config.getElement()).getTarget()).getNsURI()));
+				return ann != null && (Util.isBlank(ann.nsURI()) || ann.nsURI().equals(((EPackage) ((EObjectNode) config.getElement()).get()).getNsURI()));
 			}).findFirst();
 		
 		if (fo.isPresent()) {
@@ -313,7 +313,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (ann == null) {
 						return false;
 					}
-					EClassifier target = (EClassifier) ((EObjectNode) config.getElement()).getTarget();
+					EClassifier target = (EClassifier) ((EObjectNode) config.getElement()).get();
 					int id = ann.classifierID();
 					if (id != -1 && id != target.getClassifierID()) {
 						return false;
@@ -331,7 +331,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 		String label = ann.label();
 		Node node = config.getElement();
 		if (node instanceof EObjectNode) {
-			EObject target = ((EObjectNode) node).getTarget();
+			EObject target = ((EObjectNode) node).get();
 			if (target instanceof EClass && ((EClass) target).isAbstract()) {
 				label = "<i>" + label + "</i>";
 			}
@@ -378,7 +378,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (ann == null) {
 						return false;
 					}
-					EStructuralFeature target = (EStructuralFeature) ((EObjectNode) config.getElement()).getTarget();
+					EStructuralFeature target = (EStructuralFeature) ((EObjectNode) config.getElement()).get();
 					if (target.getFeatureID() != ann.featureID()) {
 						return false;
 					}
@@ -434,7 +434,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (ann == null) {
 						return false;
 					}
-					EOperation target = (EOperation) ((EObjectNode) config.getElement()).getTarget();
+					EOperation target = (EOperation) ((EObjectNode) config.getElement()).get();
 					if (target.getOperationID() != ann.operationID()) {
 						return false;
 					}
@@ -480,7 +480,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (ann == null) {
 						return false;
 					}					
-					EParameter target = (EParameter) ((EObjectNode) config.getElement()).getTarget();
+					EParameter target = (EParameter) ((EObjectNode) config.getElement()).get();
 					if (!target.getName().equals(ann.name())) {
 						return false;
 					}
@@ -529,7 +529,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (ann == null) {
 						return false;
 					}
-					EEnumLiteral target = (EEnumLiteral) ((EObjectNode) config.getElement()).getTarget();
+					EEnumLiteral target = (EEnumLiteral) ((EObjectNode) config.getElement()).get();
 					if (!ann.literal().equals(target.getLiteral())) {
 						return false;
 					}
@@ -575,7 +575,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 					if (ann == null) {
 						return false;
 					}					
-					ETypeParameter target = (ETypeParameter) ((EObjectNode) config.getElement()).getTarget();
+					ETypeParameter target = (ETypeParameter) ((EObjectNode) config.getElement()).get();
 					if (!target.getName().equals(ann.name())) {
 						return false;
 					}
@@ -637,7 +637,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						return false;
 					}
 					
-					EGenericType target = (EGenericType) ((EObjectNode) config.getElement()).getTarget();
+					EGenericType target = (EGenericType) ((EObjectNode) config.getElement()).get();
 					EObject targetContainer = target.eContainer();
 					if (!(targetContainer instanceof ETypeParameter)) {
 						return false;

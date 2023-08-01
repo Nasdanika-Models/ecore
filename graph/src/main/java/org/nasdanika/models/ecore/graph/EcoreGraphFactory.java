@@ -40,7 +40,7 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 			Consumer<CompletionStage<?>> stageConsumer,
 			ProgressMonitor progressMonitor) {
 		
-		EGenericType reifiedType = EcoreUtil.getReifiedType(source.getTarget(), genericType);
+		EGenericType reifiedType = EcoreUtil.getReifiedType(source.get(), genericType);
 		if (reifiedType != null && !Objects.equals(reifiedType, genericType)) {
 			stageConsumer.accept(elementProvider.apply(reifiedType).thenAccept(reifiedTypeNode -> new ReifiedTypeConnection(source, (EObjectNode) reifiedTypeNode, genericType)));
 		}
@@ -72,10 +72,10 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 
 	@Override
 	protected String referencePath(EObjectNode source, EObjectNode target, EReference reference, int index) {
-		if (reference.getEKeys().isEmpty() && target.getTarget() instanceof ENamedElement && reference.isUnique()) {
-			String name = ((ENamedElement) target.getTarget()).getName();
-			if (target.getTarget() instanceof EOperation /** && !((EOperation) target.getTarget()).getEParameters().isEmpty() */) {
-				EOperation eOperation = (EOperation) target.getTarget();
+		if (reference.getEKeys().isEmpty() && target.get() instanceof ENamedElement && reference.isUnique()) {
+			String name = ((ENamedElement) target.get()).getName();
+			if (target.get() instanceof EOperation /** && !((EOperation) target.getTarget()).getEParameters().isEmpty() */) {
+				EOperation eOperation = (EOperation) target.get();
 				return name + "-" + eOperation.getOperationID();
 			}
 			return name;
@@ -87,7 +87,7 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 	protected Collection<EList<Object>> createBindings(EObjectNode node, EOperation eOperation) {
 		if (eOperation == EcorePackage.Literals.ECLASS___GET_FEATURE_TYPE__ESTRUCTURALFEATURE) {
 			Collection<EList<Object>> ret = new ArrayList<>();
-			for (EStructuralFeature sf: ((EClass) node.getTarget()).getEAllStructuralFeatures()) {
+			for (EStructuralFeature sf: ((EClass) node.get()).getEAllStructuralFeatures()) {
 				ret.add(ECollections.singletonEList(sf));
 			}
 			return ret;

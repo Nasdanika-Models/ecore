@@ -28,7 +28,7 @@ import org.nasdanika.exec.content.ContentFactory;
 import org.nasdanika.exec.content.Interpolator;
 import org.nasdanika.exec.content.Markdown;
 import org.nasdanika.exec.content.Text;
-import org.nasdanika.graph.emf.Connection;
+import org.nasdanika.graph.emf.EObjectConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.TagName;
@@ -104,7 +104,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	@Override
 	protected Label createAction(ProgressMonitor progressMonitor) {
 		Label action = super.createAction(progressMonitor);
-		EModelElementDocumentation documentation = EmfUtil.getDocumentation((EModelElement) node.getTarget());
+		EModelElementDocumentation documentation = EmfUtil.getDocumentation((EModelElement) node.get());
 		if (documentation != null) {
 			action.getContent().add(interpolatedMarkdown(context.interpolateToString(documentation.documentation()), documentation.location(), progressMonitor));			
 		}
@@ -170,7 +170,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	
 	// --- Reusable methods ---
 	
-	protected String typeLink(Connection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
+	protected String typeLink(EObjectConnection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
 		return typeLink(connection, widgetFactory, null, progressMonitor);
 	}
 
@@ -182,8 +182,8 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	 * @param progressMonitor
 	 * @return
 	 */
-	protected String typeLink(Connection connection, WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {		
-		EGenericType eGenericType = ((ETypedElement) connection.getTarget().getTarget()).getEGenericType();
+	protected String typeLink(EObjectConnection connection, WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {		
+		EGenericType eGenericType = ((ETypedElement) connection.getTarget().get()).getEGenericType();
 		if (eGenericType == null) {
 			return "void";
 		}
@@ -198,7 +198,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	
 	protected String targetNameLink(EReferenceConnection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
 		boolean isDirect = false;
-		EObject tt = connection.getTarget().getTarget();
+		EObject tt = connection.getTarget().get();
 		if (tt instanceof EStructuralFeature) {
 			isDirect = ((EStructuralFeature) tt).getEContainingClass() == getTarget();
 		} else if (tt instanceof EOperation) {
@@ -207,7 +207,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 			isDirect = tt.eContainer() == getTarget();			
 		}
 		String linkStr = widgetFactory.createLinkString(progressMonitor);
-		String name = Util.isBlank(linkStr) ? ((ENamedElement) connection.getTarget().getTarget()).getName() : linkStr;
+		String name = Util.isBlank(linkStr) ? ((ENamedElement) connection.getTarget().get()).getName() : linkStr;
 		return isDirect ? TagName.b.create(name).toString() : name;
 	}
 		
@@ -220,12 +220,12 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 		String declaringClassName;
 		String linkStr;
 		
-		EObject tt = connection.getTarget().getTarget();
+		EObject tt = connection.getTarget().get();
 		if (tt instanceof EStructuralFeature) {
-			declaringClassName = ((EStructuralFeature) connection.getTarget().getTarget()).getEContainingClass().getName();
+			declaringClassName = ((EStructuralFeature) connection.getTarget().get()).getEContainingClass().getName();
 			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ESTRUCTURAL_FEATURE__ECONTAINING_CLASS, progressMonitor);
 		} else if (tt instanceof EOperation) {
-			declaringClassName = ((EOperation) connection.getTarget().getTarget()).getEContainingClass().getName();
+			declaringClassName = ((EOperation) connection.getTarget().get()).getEContainingClass().getName();
 			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.EOPERATION__ECONTAINING_CLASS, progressMonitor);
 		} else {
 			throw new IllegalArgumentException("Should be EStructuralOperation or EOperation: " + tt);
@@ -255,7 +255,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 		buildNamedElementColumns(tableBuilder, progressMonitor);
 		tableBuilder
 			.addStringColumnBuilder("type", true, true, "Type", endpoint -> typeLink(endpoint.getKey(), endpoint.getValue(), progressMonitor))  
-			.addStringColumnBuilder("cardinality", true, true, "Cardinality", endpoint -> cardinality((ETypedElement) endpoint.getKey().getTarget().getTarget()));
+			.addStringColumnBuilder("cardinality", true, true, "Cardinality", endpoint -> cardinality((ETypedElement) endpoint.getKey().getTarget().get()));
 
 //		getLowerBound()
 //		getUpperBound()
@@ -275,8 +275,8 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 		buildTypedElementColumns(tableBuilder, progressMonitor);
 		tableBuilder
 			.addStringColumnBuilder("declaring-class", true, true, "Declaring Class", endpoint -> declaringClassLink(endpoint.getKey(), endpoint.getValue(), progressMonitor))
-			.addBooleanColumnBuilder("changeable", true, false, "Changeable", endpoint -> ((EStructuralFeature) endpoint.getKey().getTarget().getTarget()).isChangeable())
-			.addBooleanColumnBuilder("derived", true, false, "Derived", endpoint -> ((EStructuralFeature) endpoint.getKey().getTarget().getTarget()).isDerived());
+			.addBooleanColumnBuilder("changeable", true, false, "Changeable", endpoint -> ((EStructuralFeature) endpoint.getKey().getTarget().get()).isChangeable())
+			.addBooleanColumnBuilder("derived", true, false, "Derived", endpoint -> ((EStructuralFeature) endpoint.getKey().getTarget().get()).isDerived());
 
 // TODO
 //		getDefaultValue()

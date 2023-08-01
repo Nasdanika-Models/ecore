@@ -76,7 +76,7 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	
 	@IncomingEndpoint("reference.name == 'eAllGenericSuperTypes'")
 	public final void setEAllGenericSuperTypesIncomingEndpoint(EReferenceConnection connection, WidgetFactory subtypeWidgetFactory) {
-		subTypeWidgetFactories.put((EClass) connection.getSource().getTarget(), subtypeWidgetFactory);
+		subTypeWidgetFactories.put((EClass) connection.getSource().get(), subtypeWidgetFactory);
 	}	
 	
 	public Map<EClass, WidgetFactory> getSubTypeWidgetFactories() {

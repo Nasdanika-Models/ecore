@@ -74,8 +74,8 @@ public class EOperationNode extends EObjectNode {
 	}
 
 	@Override
-	public EOperation getTarget() {
-		return (EOperation) super.getTarget();
+	public EOperation get() {
+		return (EOperation) super.get();
 	}
 	
 }

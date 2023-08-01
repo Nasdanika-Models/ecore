@@ -110,7 +110,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			ProgressMonitor progressMonitor) {
 
 		List<Entry<EReferenceConnection, Collection<Label>>> sorted = outgoingLabels.entrySet().stream()
-				.sorted((a,b) -> ((ENamedElement) a.getKey().getTarget().getTarget()).getName().compareTo(((ENamedElement) b.getKey().getTarget().getTarget()).getName()))
+				.sorted((a,b) -> ((ENamedElement) a.getKey().getTarget().get()).getName().compareTo(((ENamedElement) b.getKey().getTarget().get()).getName()))
 				.toList();		
 
 		for (Label tLabel: labels) {
@@ -123,8 +123,8 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				
 				org.nasdanika.html.model.html.Tag attributesTable = classifiersTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
-							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
-							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
+							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
+							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
 							return ane.getName().compareTo(bne.getName());
 						}).toList(),  
 						"epackage-classifiers", 
@@ -153,8 +153,8 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				
 				org.nasdanika.html.model.html.Tag subPackagesTable = subPackagesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
-							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
-							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
+							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
+							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
 							return ane.getName().compareTo(bne.getName());
 						}).toList(),  
 						"epackage-sub-packages", 

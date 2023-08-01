@@ -91,7 +91,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	 * Effective generic type for structural features
 	 */
 	protected String typeLink(Connection connection, WidgetFactory widgetFactory, ProgressMonitor progressMonitor) {
-		EObject tt = connection.getTarget().getTarget();
+		EObject tt = connection.getTarget().get();
 		if (tt instanceof EStructuralFeature) {
 			EStructuralFeature feature = (EStructuralFeature) tt;
 			EGenericType featureType = getTarget().getFeatureType(feature);
@@ -189,8 +189,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				org.nasdanika.html.model.html.Tag attributesTable = attributesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
-							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
-							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
+							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
+							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
 							return ane.getName().compareTo(bne.getName());
 						}).toList(),  
 						"eclass-attributes", 
@@ -273,8 +273,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				org.nasdanika.html.model.html.Tag referencesTable = referencesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
-							ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
-							ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
+							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
+							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
 							return ane.getName().compareTo(bne.getName());
 						}).toList(),  
 						"eclass-references", 
@@ -357,16 +357,16 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				referenceOutgoingEndpoints
 					.stream().sorted((a,b) -> {
-						ENamedElement ane = (ENamedElement) a.getKey().getTarget().getTarget();
-						ENamedElement bne = (ENamedElement) b.getKey().getTarget().getTarget();
+						ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
+						ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
 						return ane.getName().compareTo(bne.getName());
 					})
 					.forEach(e -> {
-						EOperation eop = (EOperation) e.getKey().getTarget().getTarget();
+						EOperation eop = (EOperation) e.getKey().getTarget().get();
 						Iterator<Entry<EReferenceConnection, WidgetFactory>> sit = sorted.iterator();
 						boolean isOverridden = false;
 						while (sit.hasNext()) {
-							EOperation fop = (EOperation) sit.next().getKey().getTarget().getTarget();
+							EOperation fop = (EOperation) sit.next().getKey().getTarget().get();
 							if (eop.isOverrideOf(fop)) {
 								sit.remove();
 							} else if (fop.isOverrideOf(eop)) {
@@ -474,7 +474,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				List<SubTypeRecord> subTypes = new ArrayList<>();
 				
 				for (Entry<EReferenceConnection, WidgetFactory> incomingEndpoint: referenceIncomingEndpoints) {
-					EGenericType genericSuperType = (EGenericType) ((EObjectNode) incomingEndpoint.getKey().getSource()).getTarget();
+					EGenericType genericSuperType = (EGenericType) ((EObjectNode) incomingEndpoint.getKey().getSource()).get();
 					WidgetFactory genericSuperTypeWidgetFactory = incomingEndpoint.getValue();
 					
 					Selector<List<SubTypeRecord>> selector = (wf, base, pm) -> {
@@ -535,12 +535,12 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	@OutgoingEndpoint("reference.name == 'eAllOperations'")
 	public final void setEOperationEndpoint(EReferenceConnection connection, WidgetFactory eOperationWidgetFactory, ProgressMonitor progressMonitor) {
 		FeatureWidgetFactory featureWidgetFactory = eOperationWidgetFactory.createWidget((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
-		EOperation eOp = (EOperation) connection.getTarget().getTarget();
+		EOperation eOp = (EOperation) connection.getTarget().get();
 		synchronized (featureWidgetFactories) {
 			Iterator<Entry<EReferenceConnection, FeatureWidgetFactory>> it = featureWidgetFactories.iterator();
 			while (it.hasNext()) {
 				Entry<EReferenceConnection, FeatureWidgetFactory> next = it.next();
-				EObject nextTarget = next.getKey().getTarget().getTarget();
+				EObject nextTarget = next.getKey().getTarget().get();
 				if (nextTarget instanceof EOperation) {
 					EOperation nextEOp = (EOperation) nextTarget;
 					if (nextEOp.isOverrideOf(eOp)) {
@@ -628,7 +628,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			});
 		
 		loadSpecificationTableBuilder.addStringColumnBuilder("type", true, true, "Type", featureWidgetFactoryEntry -> {
-			EObject target = featureWidgetFactoryEntry.getKey().getTarget().getTarget();
+			EObject target = featureWidgetFactoryEntry.getKey().getTarget().get();
 			if (target instanceof EOperation) {
 				return featureWidgetFactoryEntry.getValue().createWidgetString((Selector<Object>) this::parameterTypes, progressMonitor);
 			}

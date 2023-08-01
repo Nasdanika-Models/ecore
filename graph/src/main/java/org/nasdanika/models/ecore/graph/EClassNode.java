@@ -45,8 +45,8 @@ public class EClassNode extends EObjectNode {
 	}
 
 	@Override
-	public EClass getTarget() {
-		return (EClass) super.getTarget();
+	public EClass get() {
+		return (EClass) super.get();
 	}	
 	
 }

@@ -22,7 +22,7 @@ public class ReifiedTypeConnection extends Connection {
 	 * @param index -1 for single references.
 	 */
 	ReifiedTypeConnection(EClassNode source, EObjectNode target, EGenericType genericType) {
-		super(source, target);
+		super(source, target, false);
 		this.genericType = genericType;
 	}
 
@@ -34,19 +34,5 @@ public class ReifiedTypeConnection extends Connection {
 	public String toString() {
 		return super.toString() + " " + genericType;
 	}
-	
-//	@Override
-//	public int hashCode() {
-//		return Objects.hash(super.hashCode(), genericType);
-//	}
-//	
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (super.equals(obj)) {
-//			ReifiedTypeConnection other = (ReifiedTypeConnection) obj;
-//			return Objects.equals(genericType,  other.getGenericType());			
-//		}
-//		return false;
-//	}
 
 }
