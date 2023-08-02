@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Consumer;
 import org.nasdanika.common.Context;
+import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
@@ -608,6 +609,20 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return null;
 		}
 		
+		List<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> fwf;		
+		synchronized (featureWidgetFactories) {
+			fwf = new ArrayList<>(featureWidgetFactories);
+		}
+		List<Entry<EReferenceConnection, FeatureWidgetFactory>> features = fwf
+				.stream()
+				.filter(e -> e.getValue().isLoadable())
+				.sorted((a, b) -> a.getValue().getLoadKey(getTarget()).compareTo(b.getValue().getLoadKey(getTarget())))
+				.toList();
+		
+		if (features.isEmpty()) {
+			return null;
+		}
+		
 		Action loadSpecificationAction = AppFactory.eINSTANCE.createAction();
 		loadSpecificationAction.setText("Load specification");
 		loadSpecificationAction.setLocation("load-specification.html");
@@ -649,17 +664,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		loadSpecificationTableBuilder.addStringColumnBuilder("exclusive", true, true, "Exclusive With", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getExclusiveWith(getTarget()));
 		loadSpecificationTableBuilder.addStringColumnBuilder("description", true, false, "Description", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getLoadDescription());
 		
-		List<Map.Entry<EReferenceConnection,FeatureWidgetFactory>> fwf;		
-		synchronized (featureWidgetFactories) {
-			fwf = new ArrayList<>(featureWidgetFactories);
-		}
-		
 		org.nasdanika.html.model.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(
-				fwf
-					.stream()
-					.filter(e -> e.getValue().isLoadable())
-					.sorted((a, b) -> a.getValue().getLoadKey(getTarget()).compareTo(b.getValue().getLoadKey(getTarget())))
-					.toList(), 
+				features, 
 				getTarget().getEPackage().getNsURI().hashCode() + "-" + getTarget().getName() + "-load-specification", 
 				"load-specification-table", 
 				progressMonitor);
@@ -733,6 +739,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 
 			@Override
 			public void execute(Collection<Label> labels, ProgressMonitor progressMonitor) {
+				generateDiagramAction(labels, progressMonitor);				
 				generateLoadSpecification(labels, progressMonitor);				
 			}
 		}; 
@@ -750,22 +757,48 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			}
 		}
 	}
-		
-//	private void generateLoadSpecification(
-//			Action action, 
-//			Comparator<ENamedElement> namedElementComparator,
-//			ProgressMonitor progressMonitor) {
-//		
-//		// Load specification
-//		if (!eObject.isAbstract() && "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(eObject, EObjectLoader.IS_LOADABLE, "true"))) {
-//			
-//			Function<EStructuralFeature, String> keyExtractor = sf -> NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.LOAD_KEY, NcoreUtil.getFeatureKey(eObject, sf));
-//			Predicate<EStructuralFeature> HomogeneousPredicate = sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_Homogeneous)) || NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.REFERENCE_TYPE) != null;
-//			Predicate<EStructuralFeature> strictContainmentPredicate = HomogeneousPredicate.and(sf -> "true".equals(NcoreUtil.getNasdanikaAnnotationDetail(sf, EObjectLoader.IS_STRICT_CONTAINMENT)));
-//			Function<EStructuralFeature, Object[]> exclusiveWithExtractor = sf -> EObjectLoader.getExclusiveWith(eObject, sf, EObjectLoader.LOAD_KEY_PROVIDER);
-//			
-//	}
 	
+	protected void generateDiagramAction(Collection<Label> labels, ProgressMonitor progressMonitor) {
+		for (Label label: labels) {
+			if (label instanceof Action) {
+				Action action = (Action) label;
+				Action diagramAction = createDiagramAction(action, progressMonitor);
+				if (diagramAction != null) {
+					action.getNavigation().add(diagramAction);
+				}
+			}
+		}
+	}
 	
+	/**
+	 * Returns attributes action, creates if necessary. Matches by location.
+	 * @param parent
+	 * @return
+	 */
+	protected Action createDiagramAction(Action parent, ProgressMonitor progressMonitor) {
+		DiagramGenerator diagramGenerator = context.get(DiagramGenerator.class);
+		if (diagramGenerator == null || !diagramGenerator.isSupported(DiagramGenerator.UML_DIALECT)) {
+			return null;
+		}
+		Action diagramAction = AppFactory.eINSTANCE.createAction();
+		diagramAction.setText("Diagram");
+		diagramAction.setIcon("fas fa-project-diagram");
+		diagramAction.setLocation("diagram.html");
 		
+		// Own definition
+		org.nasdanika.diagram.plantuml.clazz.Type type;
+		if (getTarget().isInterface()) {
+			type = new org.nasdanika.diagram.plantuml.clazz.Interface();
+		} else {
+			type = new org.nasdanika.diagram.plantuml.clazz.Class();
+			
+		}
+		
+		String diagram = diagramGenerator.generateUmlDiagram("class Car");
+		addContent(diagramAction, diagram); 
+
+		
+		return diagramAction;
+	}
+
 }
