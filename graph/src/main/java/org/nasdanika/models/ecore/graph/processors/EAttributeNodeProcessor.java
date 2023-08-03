@@ -1,5 +1,6 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -15,5 +16,17 @@ public class EAttributeNodeProcessor extends EStructuralFeatureNodeProcessor<EAt
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
+	
+	@Override
+	public Object createWidget(Object selector, URI base, ProgressMonitor progressMonitor) {
+		if (selector == org.nasdanika.diagram.plantuml.clazz.Attribute.class) {
+			org.nasdanika.diagram.plantuml.clazz.Attribute ret = new org.nasdanika.diagram.plantuml.clazz.Attribute();
+			ret.setText(getTarget().getName());
+//			ret.getName().add(new org.nasdanika.diagram.plantuml.Link(getTarget().getName()));
+			// TODO - type
+			return ret;
+		}
+		return super.createWidget(selector, base, progressMonitor);
+	}
 
 }

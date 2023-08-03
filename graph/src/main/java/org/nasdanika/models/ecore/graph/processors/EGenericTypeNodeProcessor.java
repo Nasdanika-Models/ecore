@@ -1,6 +1,7 @@
 package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +73,7 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	}
 	
 	// EClass.getEGenericSupertypes()
-	private Map<EClass,WidgetFactory> subTypeWidgetFactories = new HashMap<>();
+	private Map<EClass,WidgetFactory> subTypeWidgetFactories = Collections.synchronizedMap(new HashMap<>());
 	
 	@IncomingEndpoint("reference.name == 'eAllGenericSuperTypes'")
 	public final void setEAllGenericSuperTypesIncomingEndpoint(EReferenceConnection connection, WidgetFactory subtypeWidgetFactory) {

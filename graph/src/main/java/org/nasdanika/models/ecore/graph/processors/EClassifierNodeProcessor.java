@@ -1,6 +1,7 @@
 package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,7 +40,7 @@ public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedEleme
 		return super.isCallOutgoingReferenceLabelsSuppliers(eReference);
 	}	
 	
-	private Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = new TreeMap<>();
+	private Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
 	
 	@OutgoingEndpoint("reference.name == 'eTypeParameters'")
 	public final void setETypeParameterEndpoint(EReferenceConnection connection, WidgetFactory eTypeParameterWidgetFactory) {

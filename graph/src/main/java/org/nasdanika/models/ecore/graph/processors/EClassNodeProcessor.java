@@ -8,9 +8,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.ENamedElement;
@@ -24,6 +27,7 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
+import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.emf.Connection;
@@ -127,7 +131,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	}		
 	
 	// === Attributes ===
-
+		
 	//	TODO getEIDAttribute()
 	
 	/**
@@ -769,6 +773,27 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			}
 		}
 	}
+		
+	private Map<String,WidgetFactory> eAttributeWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	
+	@OutgoingEndpoint("reference.name == 'eAttributes'")
+	public final void setEAttributeEndpoint(EReferenceConnection connection, WidgetFactory eAttributeWidgetFactory) {
+		eAttributeWidgetFactories.put(((EAttribute) connection.getTarget().get()).getName(), eAttributeWidgetFactory);
+	}	
+	
+	private Map<String,WidgetFactory> eReferenceWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	
+	@OutgoingEndpoint("reference.name == 'eReferences'")
+	public final void setEReferenceEndpoint(EReferenceConnection connection, WidgetFactory eReferenceWidgetFactory) {
+		eReferenceWidgetFactories.put(((EReference) connection.getTarget().get()).getName(), eReferenceWidgetFactory);
+	}	
+	
+	private Map<String,WidgetFactory> eOperationWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	
+	@OutgoingEndpoint("reference.name == 'eOperations'")
+	public final void setEOperationEndpoint(EReferenceConnection connection, WidgetFactory eOperationWidgetFactory) {
+		eOperationWidgetFactories.put(((EOperation) connection.getTarget().get()).getName(), eOperationWidgetFactory);
+	}	
 	
 	/**
 	 * Returns attributes action, creates if necessary. Matches by location.
@@ -780,24 +805,48 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		if (diagramGenerator == null || !diagramGenerator.isSupported(DiagramGenerator.UML_DIALECT)) {
 			return null;
 		}
-		Action diagramAction = AppFactory.eINSTANCE.createAction();
-		diagramAction.setText("Diagram");
-		diagramAction.setIcon("fas fa-project-diagram");
-		diagramAction.setLocation("diagram.html");
 		
 		// Own definition
 		org.nasdanika.diagram.plantuml.clazz.Type type;
 		if (getTarget().isInterface()) {
-			type = new org.nasdanika.diagram.plantuml.clazz.Interface();
+			type = new org.nasdanika.diagram.plantuml.clazz.Interface(getTarget().getName());
 		} else {
-			type = new org.nasdanika.diagram.plantuml.clazz.Class();
-			
+			type = new org.nasdanika.diagram.plantuml.clazz.Class(getTarget().getName());
+			((org.nasdanika.diagram.plantuml.clazz.Class) type).setAbstract(getTarget().isAbstract());
 		}
 		
-		String diagram = diagramGenerator.generateUmlDiagram("class Car");
-		addContent(diagramAction, diagram); 
-
+		List<DiagramElement> diagramElements = new ArrayList<>();
+		diagramElements.add(type);
 		
+		// TODO - generic parameters - add to name < ... >
+		
+		// Attributes
+		eAttributeWidgetFactories
+			.values()
+			.stream()
+			.map(awf -> (org.nasdanika.diagram.plantuml.clazz.Attribute) awf.createWidget(org.nasdanika.diagram.plantuml.clazz.Attribute.class, progressMonitor))
+			.forEach(type.getAttributes()::add);
+		
+		// Operations
+		
+								
+		// Related classes
+		
+		// Relations
+		
+		
+		Optional<String> diagramSpecOptional = diagramElements.stream().flatMap(de -> de.generate().stream()).reduce((a, b) -> a + System.lineSeparator() + b);
+		if (diagramSpecOptional.isEmpty()) {
+			return null;
+		}
+		
+		String diagram = diagramGenerator.generateUmlDiagram(diagramSpecOptional.get());
+		
+		Action diagramAction = AppFactory.eINSTANCE.createAction();
+		diagramAction.setText("Diagram");
+		diagramAction.setIcon("fas fa-project-diagram");
+		diagramAction.setLocation("diagram.html");
+		addContent(diagramAction, diagram); 		
 		return diagramAction;
 	}
 

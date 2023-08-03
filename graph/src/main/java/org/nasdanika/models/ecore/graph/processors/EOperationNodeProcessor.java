@@ -2,6 +2,7 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		this.declaringClassWidgetFactory = declaringClassWidgetFactory;
 	}
 	
-	private Map<EReferenceConnection,WidgetFactory> eParameterWidgetFactories = new LinkedHashMap<>();
+	private Map<EReferenceConnection,WidgetFactory> eParameterWidgetFactories = Collections.synchronizedMap(new LinkedHashMap<>());
 	
 	@OutgoingEndpoint("reference.name == 'eParameters'")
 	public final void setEParameterEndpoint(EReferenceConnection connection, WidgetFactory eParameterWidgetFactory) {
@@ -63,14 +64,14 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		return eParameterWidgetFactories;
 	}
 	
-	private Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = new TreeMap<>();
+	private Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
 	
 	@OutgoingEndpoint("reference.name == 'eTypeParameters'")
 	public final void setETypeParameterEndpoint(EReferenceConnection connection, WidgetFactory eTypeParameterWidgetFactory) {
 		eTypeParametersWidgetFactories.put(connection.getIndex(), eTypeParameterWidgetFactory);
 	}	
 	
-	private Map<EReferenceConnection,WidgetFactory> eGenericExceptionsWidgetFactories = new LinkedHashMap<>(); // TODO - a record for value with generic type for reified type
+	private Map<EReferenceConnection,WidgetFactory> eGenericExceptionsWidgetFactories = Collections.synchronizedMap(new LinkedHashMap<>()); // TODO - a record for value with generic type for reified type
 	
 	@OutgoingEndpoint("reference.name == 'eGenericExceptions'")
 	public final void setEGenericExceptionsEndpoint(EReferenceConnection connection, WidgetFactory eGenericExceptionWidgetFactory) {
