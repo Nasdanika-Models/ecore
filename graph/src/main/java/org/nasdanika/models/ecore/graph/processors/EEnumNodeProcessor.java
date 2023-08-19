@@ -60,7 +60,7 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> literalsTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				buildNamedElementColumns(literalsTableBuilder, progressMonitor);
 				literalsTableBuilder.addStringColumnBuilder("literal", true, false, "Literal", endpoint -> endpoint.getValue().createWidgetString((Selector<String>) this::getLiteral, progressMonitor));
-				literalsTableBuilder.addStringColumnBuilder("value", true, false, "Value", endpoint -> endpoint.getValue().createWidgetString((Selector<String>) this::getValue, progressMonitor));
+				literalsTableBuilder.addStringColumnBuilder("value", true, true, "Value", endpoint -> endpoint.getValue().createWidgetString((Selector<String>) this::getValue, progressMonitor));
 				
 				org.nasdanika.html.model.html.Tag operationsTable = literalsTableBuilder.build(
 						referenceOutgoingEndpoints,  
