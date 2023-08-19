@@ -3,7 +3,7 @@ app-action:
   text: Nasdanika Models
   location: https://models.nasdanika.org 
   children:
-    - app-action-reference: "target/action-models/test.xmi#/"
+    - app-action-reference: "target/action-models/ecore.xmi#/"
     - app-action:
         location: ${base-uri}search.html
         icon: fas fa-search

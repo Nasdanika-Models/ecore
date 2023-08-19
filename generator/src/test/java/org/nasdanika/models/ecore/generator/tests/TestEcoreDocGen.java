@@ -138,7 +138,7 @@ public class TestEcoreDocGen {
 		File actionModelsDir = new File("target\\action-models\\");
 		actionModelsDir.mkdirs();
 		
-		File output = new File(actionModelsDir, "test.xmi");
+		File output = new File(actionModelsDir, "ecore.xmi");
 		Resource actionModelResource = actionModelsResourceSet.createResource(URI.createFileURI(output.getAbsolutePath()));
 		Collection<Label> labels = testProcessor.createLabelsSupplier().call(progressMonitor, diagnosticConsumer);
 		for (Label label: labels) {
@@ -165,7 +165,13 @@ public class TestEcoreDocGen {
 		
 		String siteMapDomain = "https://models.nasdanika.org/ecore";
 		
-		ActionSiteGenerator actionSiteGenerator = new ActionSiteGenerator();
+		ActionSiteGenerator actionSiteGenerator = new ActionSiteGenerator() {
+			
+			protected boolean isDeleteOutputPath(String path) {
+				return !"CNAME".equals(path);				
+			};
+			
+		};
 		
 		Map<String, Collection<String>> errors = actionSiteGenerator.generate(rootActionURI, pageTemplateURI, siteMapDomain, new File("../docs"), new File("target/doc-site-work-dir"), true);
 				
