@@ -144,14 +144,21 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
 			ProgressMonitor progressMonitor) {
 
+		List<Entry<EReferenceConnection, Collection<Label>>> sorted = outgoingLabels.entrySet().stream()
+				.sorted((a,b) -> ((ENamedElement) a.getKey().getTarget().get()).getName().compareTo(((ENamedElement) b.getKey().getTarget().get()).getName()))
+				.toList();		
+
 		// A page with a dynamic sub-packages table and links to sub-package pages.
 		for (Label label: labels) {
+			for (Entry<EReferenceConnection, Collection<Label>> re: sorted) {
+				label.getChildren().addAll(re.getValue());
+			}
 			if (label instanceof Action) {										
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> subPackagesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				buildNamedElementColumns(subPackagesTableBuilder, progressMonitor);
 				// TODO
-				// getNsPrefix()
 				// getNsURI()
+//				subPackagesTableBuilder.addStringColumnBuilder("nsUri", true, false, "Namespace URI", endpoint -> endpoint.get description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
 				
 				org.nasdanika.html.model.html.Tag subPackagesTable = subPackagesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
