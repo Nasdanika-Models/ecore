@@ -96,7 +96,7 @@ public class TestEcoreDocGen {
 		
 		WidgetFactory testProcessor = null;
 		Collection<Throwable> resolveFailures = new ArrayList<>();		
-		URI baseActionURI = URI.createURI("tmp-https://test.nasdanika.org/");
+		URI baseActionURI = URI.createURI("https://models.ecore.nasdanika.org/");
 		
 		Map<EPackage, URI> packageURIMap = Map.ofEntries(
 			Map.entry(EcorePackage.eINSTANCE, baseActionURI)
