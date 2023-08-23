@@ -830,7 +830,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		};
 		
 		for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
-			Attribute attr = awf.createWidget(attributeSelector, progressMonitor);
+			Attribute attr = awf.createWidget(attributeSelector, base, progressMonitor);
 			type.getAttributes().add(attr);
 		}
 		

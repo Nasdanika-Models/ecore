@@ -1,6 +1,8 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -312,5 +314,30 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	protected EModelElementDocumentation getLoadDocumentation() {
 		return EmfUtil.getLoadDocumentation(getTarget());
 	}
+	
+	// --- Diagram generation methods ---
+	public List<org.nasdanika.diagram.plantuml.Link> generateDiagramLink(URI base, ProgressMonitor progressMonitor) {
+		return generateDiagramLink(createLink(base, progressMonitor), base, progressMonitor);
+	}	
+	
+	protected List<org.nasdanika.diagram.plantuml.Link> generateDiagramLink(Object link, URI base, ProgressMonitor progressMonitor) {
+		List<org.nasdanika.diagram.plantuml.Link> ret = new ArrayList<>();
+		if (link instanceof Label) {
+			Label label = (Label) link;
+			org.nasdanika.diagram.plantuml.Link dLink = new org.nasdanika.diagram.plantuml.Link(label.getText());
+			dLink.setTooltip(label.getTooltip());
+			if (label instanceof org.nasdanika.html.model.app.Link) {
+				dLink.setLocation(((org.nasdanika.html.model.app.Link) label).getLocation());
+			}
+			ret.add(dLink);
+		} else if (link instanceof Collection) {
+			for (Object le: (Collection<?>) link) {
+				ret.addAll(generateDiagramLink(le, base, progressMonitor));
+			}
+		} else if (link != null) {
+			ret.add(new org.nasdanika.diagram.plantuml.Link(link.toString()));
+		}
+		return ret;
+	}	
 	
 }

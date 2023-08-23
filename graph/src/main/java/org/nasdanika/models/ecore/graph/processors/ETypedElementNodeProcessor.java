@@ -49,7 +49,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		this.typeWidgetFactory = typeWidgetFactory;
 	}
 	
-	private WidgetFactory genericTypeWidgetFactory;
+	protected WidgetFactory genericTypeWidgetFactory;
 	
 	@OutgoingEndpoint("reference.name == 'eGenericType'")
 	public final void setGenericTypeEndpoint(WidgetFactory genericTypeWidgetFactory) {
