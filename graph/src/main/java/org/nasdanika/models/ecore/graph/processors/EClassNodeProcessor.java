@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -29,6 +29,7 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
+import org.nasdanika.diagram.plantuml.clazz.Attribute;
 import org.nasdanika.diagram.plantuml.clazz.ClassDiagram;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
@@ -808,8 +809,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	public org.nasdanika.diagram.plantuml.clazz.Type generateDiagramElement(
 			URI base, 
 			Function<Object /* TODO - narrow */, CompletionStage<DiagramElement>> diagramElementProvider,
-			ProgressMonitor progressMonitor) {
-		
+			ProgressMonitor progressMonitor) {		
 		
 		// Own definition
 		org.nasdanika.diagram.plantuml.clazz.Type type;
@@ -825,14 +825,18 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		// TODO - generic parameters - add to name < ... >
 		
-		// Attributes
-		eAttributeWidgetFactories
-			.values()
-			.stream()
-			.map(awf -> (org.nasdanika.diagram.plantuml.clazz.Attribute) awf.createWidget(org.nasdanika.diagram.plantuml.clazz.Attribute.class, progressMonitor))
-			.forEach(type.getAttributes()::add);
-
+		Selector<Attribute> attributeSelector = (widgetFactory, sBase, pm) -> {
+			return ((EAttributeNodeProcessor) widgetFactory).generateMember(sBase, progressMonitor);
+		};
 		
+		for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
+			Attribute attr = awf.createWidget(attributeSelector, progressMonitor);
+			type.getAttributes().add(attr);
+		}
+		
+		// TODO - supertypes and references with removal and creation of relations on completion of diagramElementProvider
+		
+		return type;
 	}
 	
 	/**
@@ -847,21 +851,17 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 		
 		ClassDiagram classDiagram = new ClassDiagram();
-		
-		// Operations
-		
-								
-		// Related classes
-		
-		// Relations
+		Map<Object /*TODO - narrow */, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
+		Function<Object /* TODO - narrow */, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+
+		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(uri, k -> diagramElementProvider.apply(k), progressMonitor);
+		classDiagram.getDiagramElements().add(thisType);
 		
 		
-		Optional<String> diagramSpecOptional = diagramElements.stream().flatMap(de -> de.generate().stream()).reduce((a, b) -> a + System.lineSeparator() + b);
-		if (diagramSpecOptional.isEmpty()) {
-			return null;
-		}
+		// TODO - relatted elements
 		
-		String diagram = diagramGenerator.generateUmlDiagram(diagramSpecOptional.get());
+		
+		String diagram = diagramGenerator.generateUmlDiagram(classDiagram.toString());
 		
 		Action diagramAction = AppFactory.eINSTANCE.createAction();
 		diagramAction.setText("Diagram");
