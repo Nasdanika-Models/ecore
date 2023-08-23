@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -12,6 +14,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.model.app.Action;
@@ -79,5 +82,14 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 	protected String getValue(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
 		return String.valueOf(((EEnumLiteralNodeProcessor) widgetFactory).getTarget().getValue());		
 	}
+	
+	@Override
+	public org.nasdanika.diagram.plantuml.clazz.Enum generateDiagramElement(
+			URI base,
+			Function<Object, CompletionStage<DiagramElement>> diagramElementProvider,
+			ProgressMonitor progressMonitor) {
+		throw new UnsupportedOperationException();
+	}
+	
 	
 }

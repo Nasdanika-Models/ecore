@@ -1,6 +1,5 @@
 module org.nasdanika.models.ecore.graph {
 	
-//	requires transitive org.nasdanika.html.model.app.gen;
 	requires transitive org.nasdanika.html.model.app.graph;
 	requires transitive org.nasdanika.emf;
 	requires org.apache.commons.codec;
@@ -9,7 +8,7 @@ module org.nasdanika.models.ecore.graph {
 	requires org.nasdanika.html.model.html;
 	requires org.nasdanika.ncore;
 	requires org.nasdanika.html.model.app.gen;
-	requires org.nasdanika.diagram;
+	requires transitive org.nasdanika.diagram;
 	
 	exports org.nasdanika.models.ecore.graph;
 	exports org.nasdanika.models.ecore.graph.processors;

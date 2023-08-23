@@ -38,4 +38,6 @@ public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeatu
 		return super.createWidget(selector, base, progressMonitor);
 	}
 	
+	public abstract org.nasdanika.diagram.plantuml.clazz.Member generateMember(URI base, ProgressMonitor progressMonitor); 	
+	
 }

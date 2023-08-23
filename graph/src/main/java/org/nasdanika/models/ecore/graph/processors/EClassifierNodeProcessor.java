@@ -5,14 +5,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
@@ -23,7 +27,7 @@ import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 
-public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> {
+public abstract class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> {
 
 	public EClassifierNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
@@ -101,7 +105,13 @@ public class EClassifierNodeProcessor<T extends EClassifier> extends ENamedEleme
 				typeParametersAction.getContent().add(operationsTable);
 			}
 		}
-	}				
+	}			
+	
+	public abstract org.nasdanika.diagram.plantuml.clazz.Classifier generateDiagramElement(
+			URI base, 
+			Function<Object /* TODO - narrow */, CompletionStage<DiagramElement>> diagramElementProvider,
+			ProgressMonitor progressMonitor);
+	
 		
 	// === Uses ===
 	

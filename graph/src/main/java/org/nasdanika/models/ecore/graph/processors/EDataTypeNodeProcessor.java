@@ -1,8 +1,14 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EDataType;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.clazz.DataType;
+import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
@@ -15,5 +21,13 @@ public class EDataTypeNodeProcessor<T extends EDataType> extends EClassifierNode
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
+	
+	@Override
+	public DataType generateDiagramElement(
+			URI base,
+			Function<Object, CompletionStage<DiagramElement>> diagramElementProvider,
+			ProgressMonitor progressMonitor) {
+		throw new UnsupportedOperationException();
+	}
 
 }

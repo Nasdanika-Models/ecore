@@ -33,5 +33,10 @@ public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParamet
 		}
 		return super.createWidget(selector, base, progressMonitor);
 	}	
+	
+	public org.nasdanika.diagram.plantuml.clazz.Parameter generateParameter(URI base, ProgressMonitor progressMonitor) {
+		throw new UnsupportedOperationException();
+	}		
+	
 
 }

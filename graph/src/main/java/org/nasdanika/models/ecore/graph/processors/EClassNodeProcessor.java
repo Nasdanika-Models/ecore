@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -27,6 +29,7 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
+import org.nasdanika.diagram.plantuml.clazz.ClassDiagram;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
@@ -793,18 +796,20 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	@OutgoingEndpoint("reference.name == 'eOperations'")
 	public final void setEOperationEndpoint(EReferenceConnection connection, WidgetFactory eOperationWidgetFactory) {
 		eOperationWidgetFactories.put(((EOperation) connection.getTarget().get()).getName(), eOperationWidgetFactory);
-	}	
+	}
 	
 	/**
-	 * Returns attributes action, creates if necessary. Matches by location.
-	 * @param parent
+	 * Creates a 
+	 * @param base
+	 * @param diagramElementProvider
 	 * @return
 	 */
-	protected Action createDiagramAction(Action parent, ProgressMonitor progressMonitor) {
-		DiagramGenerator diagramGenerator = context.get(DiagramGenerator.class);
-		if (diagramGenerator == null || !diagramGenerator.isSupported(DiagramGenerator.UML_DIALECT)) {
-			return null;
-		}
+	@Override
+	public org.nasdanika.diagram.plantuml.clazz.Type generateDiagramElement(
+			URI base, 
+			Function<Object /* TODO - narrow */, CompletionStage<DiagramElement>> diagramElementProvider,
+			ProgressMonitor progressMonitor) {
+		
 		
 		// Own definition
 		org.nasdanika.diagram.plantuml.clazz.Type type;
@@ -826,6 +831,22 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			.stream()
 			.map(awf -> (org.nasdanika.diagram.plantuml.clazz.Attribute) awf.createWidget(org.nasdanika.diagram.plantuml.clazz.Attribute.class, progressMonitor))
 			.forEach(type.getAttributes()::add);
+
+		
+	}
+	
+	/**
+	 * Returns attributes action, creates if necessary. Matches by location.
+	 * @param parent
+	 * @return
+	 */
+	protected Action createDiagramAction(Action parent, ProgressMonitor progressMonitor) {
+		DiagramGenerator diagramGenerator = context.get(DiagramGenerator.class);
+		if (diagramGenerator == null || !diagramGenerator.isSupported(DiagramGenerator.UML_DIALECT)) {
+			return null;
+		}
+		
+		ClassDiagram classDiagram = new ClassDiagram();
 		
 		// Operations
 		

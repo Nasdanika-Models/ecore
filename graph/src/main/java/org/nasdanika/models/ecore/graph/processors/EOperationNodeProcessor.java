@@ -268,5 +268,9 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		
 		return super.createWidget(selector, base, progressMonitor);
 	}
+	
+	public org.nasdanika.diagram.plantuml.clazz.Operation generateOperation(URI base, ProgressMonitor progressMonitor) {
+		throw new UnsupportedOperationException();
+	}		
 
 }
