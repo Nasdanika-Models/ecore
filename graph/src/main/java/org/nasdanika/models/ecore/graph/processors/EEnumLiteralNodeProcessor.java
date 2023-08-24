@@ -1,10 +1,14 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.Link;
+import org.nasdanika.diagram.plantuml.clazz.EnumLiteral;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.model.app.Action;
+import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
 public class EEnumLiteralNodeProcessor extends EModelElementNodeProcessor<EEnumLiteral> {
@@ -16,4 +20,18 @@ public class EEnumLiteralNodeProcessor extends EModelElementNodeProcessor<EEnumL
 		super(config, context, prototypeProvider);
 	}	
 
+	public EnumLiteral generateLiteral(URI base, ProgressMonitor progressMonitor) {
+		EnumLiteral litaral = new EnumLiteral();
+		litaral.getName().add(new Link(getTarget().getName()));
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			litaral.setTooltip(((Label) link).getTooltip());
+		}
+		if (link instanceof org.nasdanika.html.model.app.Link) {
+			litaral.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		}
+		return litaral;
+	}	
+	
 }

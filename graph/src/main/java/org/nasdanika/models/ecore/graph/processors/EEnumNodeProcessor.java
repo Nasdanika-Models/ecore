@@ -1,9 +1,11 @@
 package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -16,8 +18,11 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
+import org.nasdanika.diagram.plantuml.clazz.Enum;
+import org.nasdanika.diagram.plantuml.clazz.EnumLiteral;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
+import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
@@ -83,13 +88,40 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 	protected String getValue(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
 		return String.valueOf(((EEnumLiteralNodeProcessor) widgetFactory).getTarget().getValue());		
 	}
+		
+	private Map<Integer,WidgetFactory> eLiteralWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	
+	@OutgoingEndpoint("reference.name == 'eLiterals'")
+	public final void setELiteralTypeEndpoint(EReferenceConnection connection, WidgetFactory eLiteralWidgetFactory) {
+		eLiteralWidgetFactories.put(connection.getIndex(), eLiteralWidgetFactory);
+	}	
 	
 	@Override
 	public org.nasdanika.diagram.plantuml.clazz.Enum generateDiagramElement(
 			URI base,
 			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {
-		throw new UnsupportedOperationException();
-	}
-	
+		
+		Enum ret = new Enum(getTarget().getName());
+				
+		Selector<EnumLiteral> literalSelector = (widgetFactory, sBase, pm) -> {
+			return ((EEnumLiteralNodeProcessor) widgetFactory).generateLiteral(sBase, pm);
+		};
+		
+		for (WidgetFactory lwf: eLiteralWidgetFactories.values()) {
+			EnumLiteral literal = lwf.createWidget(literalSelector, base, progressMonitor);
+			ret.getLiterals().add(literal);
+		}
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			ret.setTooltip(((Label) link).getTooltip());
+		}
+		if (link instanceof org.nasdanika.html.model.app.Link) {
+			ret.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		}
+		
+		
+		return ret;
+	}	
 }
