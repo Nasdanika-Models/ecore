@@ -23,11 +23,14 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.junit.jupiter.api.Test;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.Diagnostic;
+import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ExecutionException;
+import org.nasdanika.common.MutableContext;
 import org.nasdanika.common.NasdanikaException;
 import org.nasdanika.common.NullProgressMonitor;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Transformer;
+import org.nasdanika.diagramgenerator.plantuml.PlantUMLDiagramGenerator;
 import org.nasdanika.graph.Connection;
 import org.nasdanika.graph.Element;
 import org.nasdanika.graph.emf.EObjectNode;
@@ -53,7 +56,7 @@ import org.nasdanika.models.ecore.processors.doc.EcoreDocProcessorFactory;
 public class TestEcoreDocGen {
 	
 	@Test
-	public void testGraphEcoreDoc() throws IOException, DiagnosticException {
+	public void testEcoreDocGen() throws IOException, DiagnosticException {
 		List<EPackage> ePackages = Arrays.asList(EcorePackage.eINSTANCE);
 		ProgressMonitor progressMonitor = new NullProgressMonitor(); // new PrintStreamProgressMonitor();
 		Transformer<EObject,Element> graphFactory = new Transformer<>(new EcoreGraphFactory());
@@ -72,7 +75,9 @@ public class TestEcoreDocGen {
 		Map<Element, ProcessorConfig> configs = processorConfigTransformer.transform(graph.values(), false, progressMonitor);
 		System.out.println("Configs: " + configs.size());		
 		
-		Context context = Context.EMPTY_CONTEXT;
+		MutableContext context = Context.EMPTY_CONTEXT.fork();
+		context.register(DiagramGenerator.class, new PlantUMLDiagramGenerator());
+		
 		Consumer<Diagnostic> diagnosticConsumer = d -> d.dump(System.out, 0);
 		List<Function<URI,Action>> actionProviders = new ArrayList<>();		
 		EcoreDocProcessorFactory ecoreDocProcessorFactory = new EcoreDocProcessorFactory();
@@ -96,7 +101,7 @@ public class TestEcoreDocGen {
 		
 		WidgetFactory testProcessor = null;
 		Collection<Throwable> resolveFailures = new ArrayList<>();		
-		URI baseActionURI = URI.createURI("https://ecore.models.nasdanika.org/");
+		URI baseActionURI = URI.createURI("local://ecore.models.nasdanika.org/");
 		
 		Map<EPackage, URI> packageURIMap = Map.ofEntries(
 			Map.entry(EcorePackage.eINSTANCE, baseActionURI)

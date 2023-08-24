@@ -11,25 +11,13 @@ import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.diagram.plantuml.Link;
-import org.nasdanika.diagram.plantuml.clazz.Aggregation;
-import org.nasdanika.diagram.plantuml.clazz.Association;
-import org.nasdanika.diagram.plantuml.clazz.Attribute;
-import org.nasdanika.diagram.plantuml.clazz.Composition;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
-import org.nasdanika.diagram.plantuml.clazz.Generalization;
-import org.nasdanika.diagram.plantuml.clazz.Implementation;
-import org.nasdanika.diagram.plantuml.clazz.Operation;
-import org.nasdanika.diagram.plantuml.clazz.Relation;
-import org.nasdanika.diagram.plantuml.clazz.SuperType;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
@@ -38,8 +26,6 @@ import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
-import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 
 public abstract class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> {
