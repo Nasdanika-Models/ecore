@@ -9,6 +9,7 @@ module org.nasdanika.models.ecore.graph {
 	requires org.nasdanika.ncore;
 	requires org.nasdanika.html.model.app.gen;
 	requires transitive org.nasdanika.diagram;
+	requires transitive org.nasdanika.models.echarts.graph;
 	
 	exports org.nasdanika.models.ecore.graph;
 	exports org.nasdanika.models.ecore.graph.processors;
