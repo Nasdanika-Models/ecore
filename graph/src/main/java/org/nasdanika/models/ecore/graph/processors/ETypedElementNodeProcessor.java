@@ -269,7 +269,48 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		return loadSpecificationAction;
 	}
 	
-	public String getCardinality() {
+	/**
+	 * Type member cardinality to show on diagrams. 0..1 and 1..1 are the default - not shown
+	 * @return
+	 */
+	public String getMemberMultiplicity() {
+		String multiplicity = getDiagramMultiplicity();
+		if (multiplicity == null) {
+			return multiplicity;
+		}
+		
+		if ("*".equals(multiplicity)) {
+			return "[]";
+		}
+		
+		return "[" + multiplicity + "]";
+	}
+	
+	/**
+	 * Cardinality to show on diagrams. 0..1 and 1..1 are the default - not shown
+	 * @return
+	 */
+	public String getDiagramMultiplicity() {
+		T typedElement = getTarget();
+		int lowerBound = typedElement.getLowerBound();
+		int upperBound = typedElement.getUpperBound();
+		
+		if ((lowerBound == 0 || lowerBound ==1) && upperBound == 1) {
+			return null; // Default cardinalities - should not be shown 
+		}
+		
+		if (lowerBound == upperBound) {
+			return String.valueOf(lowerBound);
+		} 
+		
+		if (lowerBound == 0 && upperBound == -1) {
+			return "*";
+		}
+				
+		return lowerBound + ".." + (upperBound == -1 ? "*" : String.valueOf(upperBound));
+	}	
+	
+	public String getMultiplicity() {
 		T typedElement = getTarget();
 		int lowerBound = typedElement.getLowerBound();
 		int upperBound = typedElement.getUpperBound();
@@ -304,7 +345,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		}
 		return ul.toString();
 	}
-		
+			
 }
 
 

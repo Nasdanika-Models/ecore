@@ -29,9 +29,12 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
+import org.nasdanika.diagram.plantuml.Link;
 import org.nasdanika.diagram.plantuml.clazz.Attribute;
 import org.nasdanika.diagram.plantuml.clazz.ClassDiagram;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
+import org.nasdanika.diagram.plantuml.clazz.Operation;
+import org.nasdanika.diagram.plantuml.clazz.SuperType;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.emf.Connection;
@@ -666,7 +669,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor);
 		});  
 
-		loadSpecificationTableBuilder.addStringColumnBuilder("cardinality", true, false, "Cardinality", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getCardinality());
+		loadSpecificationTableBuilder.addStringColumnBuilder("cardinality", true, false, "Cardinality", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getMultiplicity());
 		loadSpecificationTableBuilder.addBooleanColumnBuilder("homogeneous", true, false, "Homogeneous", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isHomogeneous());
 		loadSpecificationTableBuilder.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isStrictContainment());
 		loadSpecificationTableBuilder.addStringColumnBuilder("exclusive", true, true, "Exclusive With", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getExclusiveWith(getTarget()));
@@ -778,6 +781,13 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 	}
 		
+	private Map<Integer,WidgetFactory> eGenericSuperTypeWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	
+	@OutgoingEndpoint("reference.name == 'eGenericSuperTypes'")
+	public final void setEGenericSuperTypeEndpoint(EReferenceConnection connection, WidgetFactory eGenericSuperTypeWidgetFactory) {
+		eGenericSuperTypeWidgetFactories.put(connection.getIndex(), eGenericSuperTypeWidgetFactory);
+	}	
+			
 	private Map<String,WidgetFactory> eAttributeWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
 	
 	@OutgoingEndpoint("reference.name == 'eAttributes'")
@@ -825,8 +835,25 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		// TODO - generic parameters - add to name < ... >
 		
+		Selector<SuperType> superTypeSelector = (widgetFactory, sBase, pm) -> {			
+			List<Link> typeLink = ((EGenericTypeNodeProcessor) widgetFactory).generateDiagramLink(sBase, progressMonitor);
+			SuperType superType = new SuperType();
+			superType.getName().addAll(typeLink);						
+			return superType;
+		};
+		
+		for (WidgetFactory awf: eGenericSuperTypeWidgetFactories.values()) {
+			SuperType superType = awf.createWidget(superTypeSelector, base, progressMonitor);
+			type.getSuperTypes().add(superType);
+			
+			// TODO - creation of a relation on completion, removal of the supertype.
+			
+			
+
+		}
+				
 		Selector<Attribute> attributeSelector = (widgetFactory, sBase, pm) -> {
-			return ((EAttributeNodeProcessor) widgetFactory).generateMember(sBase, progressMonitor);
+			return ((EStructuralFeatureNodeProcessor<?>) widgetFactory).generateMember(sBase, progressMonitor);
 		};
 		
 		for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
@@ -834,7 +861,24 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			type.getAttributes().add(attr);
 		}
 		
-		// TODO - supertypes and references with removal and creation of relations on completion of diagramElementProvider
+		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
+			Attribute attr = rwf.createWidget(attributeSelector, base, progressMonitor);
+			type.getReferences().add(attr);
+			
+			// TODO - creation of a relation on completion, removal of the supertype.
+			
+			
+
+		}
+		
+		Selector<Operation> operationSelector = (widgetFactory, sBase, pm) -> {
+			return ((EOperationNodeProcessor) widgetFactory).generateOperation(sBase, progressMonitor);
+		};
+				
+		for (WidgetFactory owf: eOperationWidgetFactories.values()) {
+			Operation operation = owf.createWidget(operationSelector, base, progressMonitor);
+			type.getOperations().add(operation);
+		}
 		
 		return type;
 	}

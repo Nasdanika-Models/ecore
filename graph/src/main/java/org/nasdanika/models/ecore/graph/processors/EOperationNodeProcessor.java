@@ -16,6 +16,9 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.Link;
+import org.nasdanika.diagram.plantuml.clazz.Operation;
+import org.nasdanika.diagram.plantuml.clazz.Parameter;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
@@ -269,8 +272,43 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		return super.createWidget(selector, base, progressMonitor);
 	}
 	
-	public org.nasdanika.diagram.plantuml.clazz.Operation generateOperation(URI base, ProgressMonitor progressMonitor) {
-		throw new UnsupportedOperationException();
+	public Operation generateOperation(URI base, ProgressMonitor progressMonitor) {
+		Operation operation = new Operation();
+		operation.getName().add(new Link(getTarget().getName()));
+		
+		if (genericTypeWidgetFactory != null) {
+			Selector<List<Link>> linkSelector = (widgetFactory, sBase, pm) -> {
+				return ((EGenericTypeNodeProcessor) widgetFactory).generateDiagramLink(sBase, pm);
+			};
+			
+			List<Link> typeLink = genericTypeWidgetFactory.createWidget(linkSelector, base, progressMonitor);
+			if (typeLink != null && !typeLink.isEmpty()) {
+				operation.getType().addAll(typeLink);
+				String memberCardinality = getMemberMultiplicity();
+				if (memberCardinality != null) {
+					operation.getType().add(new Link(memberCardinality));
+				}
+			}
+		}
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			operation.setTooltip(((Label) link).getTooltip());
+		}
+		if (link instanceof org.nasdanika.html.model.app.Link) {
+			operation.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		}
+				
+		Selector<Parameter> parameterSelector = (widgetFactory, sBase, pm) -> {
+			return ((EParameterNodeProcessor) widgetFactory).generateParameter(sBase, progressMonitor);
+		};		
+		
+		for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).toList()) {
+			Parameter param = pwf.createWidget(parameterSelector, base, progressMonitor);
+			operation.getParameters().add(param);			
+		}						
+		
+		return operation;
 	}		
 
 }

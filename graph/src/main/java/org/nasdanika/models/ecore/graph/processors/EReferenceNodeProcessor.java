@@ -1,6 +1,5 @@
 package org.nasdanika.models.ecore.graph.processors;
 
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EReference;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -15,11 +14,6 @@ public class EReferenceNodeProcessor extends EStructuralFeatureNodeProcessor<ERe
 			Context context,
 			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
-	}	
-	
-	@Override
-	public org.nasdanika.diagram.plantuml.clazz.Reference generateMember(URI base, ProgressMonitor progressMonitor) {
-		throw new UnsupportedOperationException();
 	}	
 
 }

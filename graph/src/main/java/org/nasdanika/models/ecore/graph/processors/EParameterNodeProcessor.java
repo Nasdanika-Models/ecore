@@ -1,13 +1,19 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import java.util.List;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EParameter;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.Link;
+import org.nasdanika.diagram.plantuml.clazz.Attribute;
+import org.nasdanika.diagram.plantuml.clazz.Parameter;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
+import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
 public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParameter> {
@@ -34,9 +40,33 @@ public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParamet
 		return super.createWidget(selector, base, progressMonitor);
 	}	
 	
-	public org.nasdanika.diagram.plantuml.clazz.Parameter generateParameter(URI base, ProgressMonitor progressMonitor) {
-		throw new UnsupportedOperationException();
+	public Parameter generateParameter(URI base, ProgressMonitor progressMonitor) {
+		Parameter parameter = new Parameter();
+		parameter.getName().add(new Link(getTarget().getName()));
+		
+		if (genericTypeWidgetFactory != null) {
+			Selector<List<Link>> linkSelector = (widgetFactory, sBase, pm) -> {
+				return ((EGenericTypeNodeProcessor) widgetFactory).generateDiagramLink(sBase, pm);
+			};
+			
+			List<Link> typeLink = genericTypeWidgetFactory.createWidget(linkSelector, base, progressMonitor);
+			if (typeLink != null && !typeLink.isEmpty()) {
+				parameter.getType().addAll(typeLink);
+				String memberCardinality = getMemberMultiplicity();
+				if (memberCardinality != null) {
+					parameter.getType().add(new Link(memberCardinality));
+				}
+			}
+		}
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			parameter.setTooltip(((Label) link).getTooltip());
+		}
+		if (link instanceof org.nasdanika.html.model.app.Link) {
+			parameter.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		}
+		return parameter;
 	}		
 	
-
 }
