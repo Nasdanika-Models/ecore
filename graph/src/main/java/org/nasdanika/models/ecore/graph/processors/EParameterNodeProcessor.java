@@ -8,7 +8,6 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.Link;
-import org.nasdanika.diagram.plantuml.clazz.Attribute;
 import org.nasdanika.diagram.plantuml.clazz.Parameter;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;

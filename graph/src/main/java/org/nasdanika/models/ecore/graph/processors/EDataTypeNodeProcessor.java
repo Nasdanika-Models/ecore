@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EModelElement;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.clazz.DataType;
@@ -25,7 +26,7 @@ public class EDataTypeNodeProcessor<T extends EDataType> extends EClassifierNode
 	@Override
 	public DataType generateDiagramElement(
 			URI base,
-			Function<Object, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {
 		throw new UnsupportedOperationException();
 	}

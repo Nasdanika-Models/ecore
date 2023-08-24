@@ -17,7 +17,9 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.ENamedElement;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
@@ -30,10 +32,16 @@ import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
 import org.nasdanika.diagram.plantuml.Link;
+import org.nasdanika.diagram.plantuml.clazz.Aggregation;
+import org.nasdanika.diagram.plantuml.clazz.Association;
 import org.nasdanika.diagram.plantuml.clazz.Attribute;
 import org.nasdanika.diagram.plantuml.clazz.ClassDiagram;
+import org.nasdanika.diagram.plantuml.clazz.Composition;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
+import org.nasdanika.diagram.plantuml.clazz.Generalization;
+import org.nasdanika.diagram.plantuml.clazz.Implementation;
 import org.nasdanika.diagram.plantuml.clazz.Operation;
+import org.nasdanika.diagram.plantuml.clazz.Relation;
 import org.nasdanika.diagram.plantuml.clazz.SuperType;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
@@ -49,6 +57,7 @@ import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.graph.emf.IncomingReferenceBuilder;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 import org.nasdanika.models.ecore.graph.ReifiedTypeConnection;
@@ -808,7 +817,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	public final void setEOperationEndpoint(EReferenceConnection connection, WidgetFactory eOperationWidgetFactory) {
 		eOperationWidgetFactories.put(((EOperation) connection.getTarget().get()).getName(), eOperationWidgetFactory);
 	}
-	
+		
 	/**
 	 * Creates a 
 	 * @param base
@@ -818,7 +827,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	@Override
 	public org.nasdanika.diagram.plantuml.clazz.Type generateDiagramElement(
 			URI base, 
-			Function<Object /* TODO - narrow */, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {		
 		
 		// Own definition
@@ -830,9 +839,6 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			((org.nasdanika.diagram.plantuml.clazz.Class) type).setAbstract(getTarget().isAbstract());
 		}
 		
-		List<DiagramElement> diagramElements = new ArrayList<>();
-		diagramElements.add(type);
-		
 		// TODO - generic parameters - add to name < ... >
 		
 		Selector<SuperType> superTypeSelector = (widgetFactory, sBase, pm) -> {			
@@ -842,18 +848,24 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return superType;
 		};
 		
-		for (WidgetFactory awf: eGenericSuperTypeWidgetFactories.values()) {
-			SuperType superType = awf.createWidget(superTypeSelector, base, progressMonitor);
-			type.getSuperTypes().add(superType);
-			
-			// TODO - creation of a relation on completion, removal of the supertype.
-			
-			
-
+		for (WidgetFactory swf: eGenericSuperTypeWidgetFactories.values()) {
+			SuperType superType = swf.createWidget(superTypeSelector, base, progressMonitor);
+			type.getSuperTypes().add(superType);			
+			EGenericType sgt = (EGenericType) swf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
+			EClassifier st = sgt.getEClassifier();
+			diagramElementProvider.apply(st).thenAccept(stde -> {
+				type.getSuperTypes().remove(superType);
+				
+				boolean isSuperInterface = ((EClass) st).isInterface();				
+				boolean isClass = !getTarget().isInterface();
+				
+				Relation superTypeRelation = isSuperInterface && isClass ? new Implementation(type, stde) : new Generalization(type, stde);
+				// TODO - generic type parameters bindings if any
+			});
 		}
 				
 		Selector<Attribute> attributeSelector = (widgetFactory, sBase, pm) -> {
-			return ((EStructuralFeatureNodeProcessor<?>) widgetFactory).generateMember(sBase, progressMonitor);
+			return ((EStructuralFeatureNodeProcessor<?>) widgetFactory).generateMember(sBase, pm);
 		};
 		
 		for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
@@ -862,22 +874,60 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 		
 		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
-			Attribute attr = rwf.createWidget(attributeSelector, base, progressMonitor);
-			type.getReferences().add(attr);
+			Attribute ref = rwf.createWidget(attributeSelector, base, progressMonitor);
+			type.getReferences().add(ref);
 			
-			// TODO - creation of a relation on completion, removal of the supertype.
+			// TODO - group opposites into one, a way to select only one of two to render
 			
-			
+			EReference eRef = (EReference) rwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
+			EClass refType = eRef.getEReferenceType();
+			diagramElementProvider.apply(refType).thenAccept(rtde -> {
+				type.getReferences().remove(ref);
+				Relation refRelation;
+				if (eRef.isContainment()) {
+					refRelation = new Composition(type, rtde);
+				} else if (eRef.isMany()) {
+					refRelation = new Aggregation(type, rtde);
+				} else {
+					refRelation = new Association(type, rtde);
+				}
+				
+				refRelation.getName().add(new Link(eRef.getName()));
+								
+				Object refLink = rwf.createLink(base, progressMonitor);
+				if (refLink instanceof Label) {
+					refRelation.setTooltip(((Label) refLink).getTooltip());
+				}
+				if (refLink instanceof org.nasdanika.html.model.app.Link) {
+					refRelation.setLocation(((org.nasdanika.html.model.app.Link) refLink).getLocation());
+				}				
+				
+				Selector<String> multiplicitySelector = (wf, sBase, pm) -> ((ETypedElementNodeProcessor<?>) wf).getRelationMultiplicity();
+				String targetMultiplicity = rwf.createWidget(multiplicitySelector, base, progressMonitor);
+				if (targetMultiplicity != null) {
+					refRelation.setTargetDecoration(targetMultiplicity);
+				}
+				
+				// TODO - generic parameters if any
+			});
 
 		}
 		
 		Selector<Operation> operationSelector = (widgetFactory, sBase, pm) -> {
-			return ((EOperationNodeProcessor) widgetFactory).generateOperation(sBase, progressMonitor);
+			return ((EOperationNodeProcessor) widgetFactory).generateOperation(sBase, pm);
 		};
 				
 		for (WidgetFactory owf: eOperationWidgetFactories.values()) {
 			Operation operation = owf.createWidget(operationSelector, base, progressMonitor);
 			type.getOperations().add(operation);
+		}
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			type.setTooltip(((Label) link).getTooltip());
+		}
+		if (link instanceof org.nasdanika.html.model.app.Link) {
+			type.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
 		}
 		
 		return type;
@@ -895,15 +945,47 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 		
 		ClassDiagram classDiagram = new ClassDiagram();
-		Map<Object /*TODO - narrow */, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
-		Function<Object /* TODO - narrow */, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
-
-		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(uri, k -> diagramElementProvider.apply(k), progressMonitor);
+		Map<EModelElement, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
+		Function<EModelElement, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+		Function<EModelElement, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
+		
+		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(uri, diagramElementCompletionStageProvider, progressMonitor);		
+		thisType.setStyle("#DDDDDD");
 		classDiagram.getDiagramElements().add(thisType);
+				
+		// Related elements
 		
+		Selector<DiagramElement> genericTypeClassifierDiagramElementSelector = (widgetFactory, sBase, pm) -> {
+			return ((EGenericTypeNodeProcessor) widgetFactory).generateEClassifierDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
+		};
+
+		// Supertypes
+		for (WidgetFactory swf: eGenericSuperTypeWidgetFactories.values()) {
+			EGenericType sgt = (EGenericType) swf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			EClassifier st = sgt.getEClassifier();
+			CompletableFuture<DiagramElement> stcf = diagramElementProvider.apply(st);
+			if (!stcf.isDone()) {
+				DiagramElement stde = swf.createWidget(genericTypeClassifierDiagramElementSelector, uri, progressMonitor);
+				classDiagram.getDiagramElements().add(stde);
+				stcf.complete(stde);
+			}
+		}		
 		
-		// TODO - relatted elements
+		Selector<DiagramElement> referenceTypeDiagramElementSelector = (widgetFactory, sBase, pm) -> {
+			return ((ETypedElementNodeProcessor<?>) widgetFactory).generateTypeDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
+		};
 		
+		// References
+		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
+			EReference eRef = (EReference) rwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, uri, progressMonitor); 
+			EClass refClass = eRef.getEReferenceType();
+			CompletableFuture<DiagramElement> rccf = diagramElementProvider.apply(refClass);
+			if (!rccf.isDone()) {
+				DiagramElement rtde = rwf.createWidget(referenceTypeDiagramElementSelector, uri, progressMonitor);
+				classDiagram.getDiagramElements().add(rtde);
+				rccf.complete(rtde);
+			}
+		}		
 		
 		String diagram = diagramGenerator.generateUmlDiagram(classDiagram.toString());
 		

@@ -8,7 +8,7 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 
 public class EReferenceNodeProcessor extends EStructuralFeatureNodeProcessor<EReference> {
-
+		
 	public EReferenceNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,

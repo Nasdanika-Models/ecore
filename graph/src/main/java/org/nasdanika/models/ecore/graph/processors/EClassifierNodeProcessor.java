@@ -5,13 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
@@ -109,7 +110,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	
 	public abstract org.nasdanika.diagram.plantuml.clazz.Classifier generateDiagramElement(
 			URI base, 
-			Function<Object /* TODO - narrow */, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor);
 	
 		

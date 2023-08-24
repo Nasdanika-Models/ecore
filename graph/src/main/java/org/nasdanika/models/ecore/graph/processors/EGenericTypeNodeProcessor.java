@@ -8,12 +8,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EModelElement;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
@@ -148,6 +152,18 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 			ret.add(new org.nasdanika.diagram.plantuml.Link(link.toString()));
 		}
 		return ret;
-	}	
-
+	}
+	
+	public DiagramElement generateEClassifierDiagramElement(
+			URI base, 
+			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
+			ProgressMonitor progressMonitor) {		
+		
+		Selector<DiagramElement> diagramElementSelector = (widgetFactory, sBase, pm) -> {
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDiagramElement(sBase, diagramElementProvider, pm);
+		};
+		
+		return eClassifierWidgetFactory.createWidget(diagramElementSelector, base, progressMonitor);
+	}
+	
 }

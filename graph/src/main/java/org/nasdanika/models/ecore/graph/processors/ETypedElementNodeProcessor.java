@@ -2,11 +2,14 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EReference;
@@ -14,6 +17,7 @@ import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.exec.content.ContentFactory;
@@ -274,7 +278,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	 * @return
 	 */
 	public String getMemberMultiplicity() {
-		String multiplicity = getDiagramMultiplicity();
+		String multiplicity = getRelationMultiplicity();
 		if (multiplicity == null) {
 			return multiplicity;
 		}
@@ -290,7 +294,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	 * Cardinality to show on diagrams. 0..1 and 1..1 are the default - not shown
 	 * @return
 	 */
-	public String getDiagramMultiplicity() {
+	public String getRelationMultiplicity() {
 		T typedElement = getTarget();
 		int lowerBound = typedElement.getLowerBound();
 		int upperBound = typedElement.getUpperBound();
@@ -344,6 +348,18 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 			ul.content(TagName.li.create(exw));
 		}
 		return ul.toString();
+	}
+	
+	public DiagramElement generateTypeDiagramElement(
+			URI base, 
+			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
+			ProgressMonitor progressMonitor) {		
+		
+		Selector<DiagramElement> diagramElementSelector = (widgetFactory, sBase, pm) -> {
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDiagramElement(sBase, diagramElementProvider, pm);
+		};
+		
+		return typeWidgetFactory.createWidget(diagramElementSelector, base, progressMonitor);
 	}
 			
 }
