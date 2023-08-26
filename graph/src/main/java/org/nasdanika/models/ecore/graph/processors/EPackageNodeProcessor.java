@@ -274,7 +274,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		return diagramAction;
 	}
 	
-	private final static String GRAPH_TEMPLATE = 
+	final static String GRAPH_TEMPLATE = 
 			"""
 			<div id="graph-container-${graphContainerId}" class="row" style="height:80vh;width:100%">
 			</div>
@@ -286,12 +286,12 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 						useDirtyRect: false
 					});		
 					var option = ${chart};
-//					option.series[0].tooltip = {
-//						formatter: function(arg) { 
-//							console.log("Tooltip");
-//							return arg.value ? arg.value.description : null; 
-//						}
-//					};
+					option.tooltip = {};
+					option.series[0].tooltip = {
+						formatter: function(arg) { 
+							return arg.value ? arg.value.description : null; 
+						}
+					};
 					myChart.setOption(option);
 					myChart.on("click", function(params) {
 						if (params.value) {
