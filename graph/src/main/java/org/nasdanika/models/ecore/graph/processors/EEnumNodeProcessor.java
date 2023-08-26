@@ -11,8 +11,8 @@ import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnum;
-import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
@@ -99,7 +99,7 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 	@Override
 	public org.nasdanika.diagram.plantuml.clazz.Enum generateDiagramElement(
 			URI base,
-			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EClassifier, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {
 		
 		Enum ret = new Enum(getTarget().getName());

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,9 @@ import java.util.function.Function;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
-import org.eclipse.emf.ecore.EModelElement;
+import org.jsoup.Jsoup;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
@@ -27,7 +29,7 @@ import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 
-public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType> {
+public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType> implements EClassifierNodeProcessorProvider {
 	
 	public record SubtypeSelector(EClass subType) {};
 
@@ -137,8 +139,9 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	protected List<org.nasdanika.diagram.plantuml.Link> generateDiagramLink(Object link, URI base, ProgressMonitor progressMonitor) {
 		List<org.nasdanika.diagram.plantuml.Link> ret = new ArrayList<>();
 		if (link instanceof Label) {
-			Label label = (Label) link;
-			org.nasdanika.diagram.plantuml.Link dLink = new org.nasdanika.diagram.plantuml.Link(label.getText());
+			Label label = (Label) link;			
+			String labelText = label.getText();			
+			org.nasdanika.diagram.plantuml.Link dLink = new org.nasdanika.diagram.plantuml.Link(Jsoup.parse(labelText).text());
 			dLink.setTooltip(label.getTooltip());
 			if (label instanceof org.nasdanika.html.model.app.Link) {
 				dLink.setLocation(((org.nasdanika.html.model.app.Link) label).getLocation());
@@ -156,7 +159,7 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	
 	public DiagramElement generateEClassifierDiagramElement(
 			URI base, 
-			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EClassifier, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {		
 		
 		Selector<DiagramElement> diagramElementSelector = (widgetFactory, sBase, pm) -> {
@@ -164,6 +167,34 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 		};
 		
 		return eClassifierWidgetFactory.createWidget(diagramElementSelector, base, progressMonitor);
+	}
+
+	@Override
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+		// eClassifier
+		if (eClassifierWidgetFactory != null) {
+			ret.addAll(eClassifierWidgetFactory.createWidget(selector, progressMonitor));
+		}
+		// eTypeParameter
+		if (eTypeParameterWidgetFactory != null) {
+			ret.addAll(eTypeParameterWidgetFactory.createWidget(selector, progressMonitor));			
+		}
+		// eLowerBound
+		if (eLowerBoundWidgetFactory != null) {
+			ret.addAll(eLowerBoundWidgetFactory.createWidget(selector, progressMonitor));			
+		}
+		// eUpperBound
+		if (eUpperBoundWidgetFactory != null) {
+			ret.addAll(eUpperBoundWidgetFactory.createWidget(selector, progressMonitor));			
+		}
+		// eTypeArguments
+		for (WidgetFactory tawf: eTypeArgumentWidgetFactories.values()) {
+			ret.addAll(tawf.createWidget(selector, progressMonitor));			
+		}
+
+		return ret;
 	}
 	
 }

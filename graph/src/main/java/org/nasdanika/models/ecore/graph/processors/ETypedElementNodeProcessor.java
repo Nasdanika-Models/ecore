@@ -2,14 +2,15 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
-import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EReference;
@@ -30,6 +31,7 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
 import org.nasdanika.html.model.bootstrap.BootstrapFactory;
 import org.nasdanika.html.model.bootstrap.Table;
 import org.nasdanika.html.model.bootstrap.TableCell;
@@ -37,7 +39,7 @@ import org.nasdanika.html.model.bootstrap.TableRow;
 import org.nasdanika.html.model.bootstrap.TableSection;
 import org.nasdanika.ncore.util.NcoreUtil;
 
-public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extends ENamedElementNodeProcessor<T> implements FeatureWidgetFactory {
+public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extends ENamedElementNodeProcessor<T> implements FeatureWidgetFactory, EClassifierNodeProcessorProvider {
 
 	public ETypedElementNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
@@ -352,7 +354,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	
 	public DiagramElement generateTypeDiagramElement(
 			URI base, 
-			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EClassifier, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {		
 		
 		Selector<DiagramElement> diagramElementSelector = (widgetFactory, sBase, pm) -> {
@@ -360,6 +362,18 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		};
 		
 		return typeWidgetFactory.createWidget(diagramElementSelector, base, progressMonitor);
+	}
+	
+	@Override
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+		// generic type
+		if (genericTypeWidgetFactory != null) {
+			ret.addAll(genericTypeWidgetFactory.createWidget(selector, progressMonitor));
+		}
+
+		return ret;
 	}
 			
 }

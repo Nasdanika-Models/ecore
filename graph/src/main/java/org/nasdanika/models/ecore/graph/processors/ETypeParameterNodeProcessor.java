@@ -2,6 +2,7 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,7 +25,7 @@ import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 
 // <name> extends <bound 1> [& <bound 2> ...]
-public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETypeParameter> {
+public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETypeParameter> implements EClassifierNodeProcessorProvider {
 
 	public ETypeParameterNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
@@ -106,4 +107,14 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 		}
 	}				
 
+	@Override
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+		for (WidgetFactory bwf: eBoundsWidgetFactories.values()) {
+			ret.addAll(bwf.createWidget(selector, progressMonitor));
+		}
+		return ret;
+	}
+	
 }

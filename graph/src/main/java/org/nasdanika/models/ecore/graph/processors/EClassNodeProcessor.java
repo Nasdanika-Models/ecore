@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,13 +20,19 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
-import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.ENamedElement;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.icepear.echarts.charts.graph.GraphEdgeLineStyle;
+import org.icepear.echarts.charts.graph.GraphEmphasis;
+import org.icepear.echarts.charts.graph.GraphForce;
+import org.icepear.echarts.charts.graph.GraphSeries;
+import org.icepear.echarts.components.series.SeriesLabel;
+import org.icepear.echarts.render.Engine;
 import org.nasdanika.common.Consumer;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
@@ -57,9 +64,12 @@ import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.graph.emf.IncomingReferenceBuilder;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.echarts.graph.GraphFactory;
+import org.nasdanika.models.echarts.graph.Item;
 import org.nasdanika.models.ecore.graph.ReifiedTypeConnection;
 import org.nasdanika.ncore.util.NcoreUtil;
 
@@ -759,7 +769,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 
 			@Override
 			public void execute(Collection<Label> labels, ProgressMonitor progressMonitor) {
-				generateDiagramAction(labels, progressMonitor);				
+				generateDiagramAndGraphActions(labels, progressMonitor);				
 				generateLoadSpecification(labels, progressMonitor);				
 			}
 		}; 
@@ -778,13 +788,18 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 	}
 	
-	protected void generateDiagramAction(Collection<Label> labels, ProgressMonitor progressMonitor) {
+	protected void generateDiagramAndGraphActions(Collection<Label> labels, ProgressMonitor progressMonitor) {
 		for (Label label: labels) {
 			if (label instanceof Action) {
 				Action action = (Action) label;
 				Action diagramAction = createDiagramAction(action, progressMonitor);
 				if (diagramAction != null) {
 					action.getNavigation().add(diagramAction);
+				}
+				
+				Action graphAction = createGraphAction(action, progressMonitor);
+				if (graphAction != null) {
+					action.getNavigation().add(graphAction);
 				}
 			}
 		}
@@ -827,7 +842,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	@Override
 	public org.nasdanika.diagram.plantuml.clazz.Type generateDiagramElement(
 			URI base, 
-			Function<EModelElement, CompletionStage<DiagramElement>> diagramElementProvider,
+			Function<EClassifier, CompletionStage<DiagramElement>> diagramElementProvider,
 			ProgressMonitor progressMonitor) {		
 		
 		// Own definition
@@ -838,6 +853,15 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			type = new org.nasdanika.diagram.plantuml.clazz.Class(getTarget().getName());
 			((org.nasdanika.diagram.plantuml.clazz.Class) type).setAbstract(getTarget().isAbstract());
 		}
+		
+		CompletionStage<DiagramElement> thisTypeCompletedStage = CompletableFuture.completedStage(type);
+		
+		Function<EClassifier, CompletionStage<DiagramElement>> dep = ec -> {
+			if (ec.getEPackage().getNsURI().equals(getTarget().getEPackage().getNsURI()) && ec.getName().equals(getTarget().getName())) {
+				return thisTypeCompletedStage;
+			}
+			return diagramElementProvider.apply(ec);
+		};
 		
 		// TODO - generic parameters - add to name < ... >
 		
@@ -853,7 +877,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			type.getSuperTypes().add(superType);			
 			EGenericType sgt = (EGenericType) swf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 			EClassifier st = sgt.getEClassifier();
-			diagramElementProvider.apply(st).thenAccept(stde -> {
+			dep.apply(st).thenAccept(stde -> {
 				type.getSuperTypes().remove(superType);
 				
 				boolean isSuperInterface = ((EClass) st).isInterface();				
@@ -881,7 +905,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			
 			EReference eRef = (EReference) rwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 			EClass refType = eRef.getEReferenceType();
-			diagramElementProvider.apply(refType).thenAccept(rtde -> {
+			dep.apply(refType).thenAccept(rtde -> {
 				type.getReferences().remove(ref);
 				Relation refRelation;
 				if (eRef.isContainment()) {
@@ -945,13 +969,16 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 		
 		ClassDiagram classDiagram = new ClassDiagram();
-		Map<EModelElement, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
-		Function<EModelElement, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
-		Function<EModelElement, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
+
+		record EClassifierKey(String nsURI, String name) {}
+		Map<EClassifierKey, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
+		Function<EClassifier, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(new EClassifierKey(k.getEPackage().getNsURI(), k.getName()), kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
 		
 		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(uri, diagramElementCompletionStageProvider, progressMonitor);		
 		thisType.setStyle("#DDDDDD");
 		classDiagram.getDiagramElements().add(thisType);
+		diagramElementProvider.apply(getTarget()).complete(thisType);
 				
 		// Related elements
 		
@@ -996,5 +1023,103 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		addContent(diagramAction, diagram); 		
 		return diagramAction;
 	}
+	
+	@Override
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
+		ret.add(this);
+		if (depth > 0) {
+			Selector<Collection<EClassifierNodeProcessor<?>>> eClassifierNodeProcessorSelector =  EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth - 1);
+			for (WidgetFactory rtwf: reifiedTypesWidgetFactories.values()) {
+				ret.addAll(rtwf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));
+			}		
+			
+			// Supertypes
+			for (WidgetFactory gswf: eGenericSuperTypeWidgetFactories.values()) {
+				ret.addAll(gswf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+			}
+			
+			// Attributes
+			for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
+				ret.addAll(awf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+			}			
+			
+			// References
+			for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
+				ret.addAll(rwf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+			}			
+			
+			// Operations
+			for (WidgetFactory owf: eOperationWidgetFactories.values()) {
+				ret.addAll(owf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+			}						
+		}
+		return ret;
+	}
+		
+	protected Action createGraphAction(Action parent, ProgressMonitor progressMonitor) {		
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Graph");
+		graphAction.setIcon("https://img.icons8.com/external-dreamstale-lineal-dreamstale/16/external-diagram-seo-media-dreamstale-lineal-dreamstale.png");
+		graphAction.setLocation("graph.html");
+		
+		GraphFactory graphFactory = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE;
+		org.nasdanika.models.echarts.graph.Graph graph = graphFactory.createGraph();
+		
+		Map<EClassifier, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeMap = new HashMap<>();
+		Function<EClassifier, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletionStage<org.nasdanika.models.echarts.graph.Node>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
+		
+		
+		Map<EPackage, Item> categoryMap = new HashMap<>();
+		Function<EPackage, Item> categoryProvider = k -> categoryMap.computeIfAbsent(k, kk -> {
+			Item category = GraphFactory.eINSTANCE.createItem();
+			category.setName(kk.getName());
+			graph.getCategories().add(category);
+			return category;
+		});
+			
+		Selector<org.nasdanika.models.echarts.graph.Node> eClassifierNodeSelector = (widgetFactory, sBase, pm) -> {
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateEChartsGraphNode(sBase, nodeCompletionStageProvider, categoryProvider, progressMonitor);
+		};
+		
+		for (WidgetFactory cwf: getEClassifierNodeProcessors(1, progressMonitor)) {
+			EClassifier eClassifier = (EClassifier) cwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
+			if (!eccf.isDone()) {
+				org.nasdanika.models.echarts.graph.Node ecn = cwf.createWidget(eClassifierNodeSelector, uri, progressMonitor);
+				graph.getNodes().add(ecn);
+				eccf.complete(ecn);
+			}
+		}
+		
+		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
+				.setSymbolSize(16)
+				.setDraggable(true)				
+				.setLayout("force")
+				.setForce(new GraphForce().setRepulsion(200).setGravity(0.1).setEdgeLength(200))
+	            .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
+	            .setLineStyle(new GraphEdgeLineStyle().setColor("source").setCurveness(0))
+	            .setRoam(true)
+	            .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
+		
+		
+		graph.configureGraphSeries(graphSeries);
+		
+		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph()
+				.setLegend()
+				.addSeries(graphSeries);
+		
+	    Engine engine = new Engine();
+	    String chartJSON = engine.renderJsonOption(echartsGraph);
+	    
+		String chartHTML = Context
+				.singleton("chart", chartJSON)
+				.compose(Context.singleton("graphContainerId", EPackageNodeProcessor.GRAPH_CONTAINER_COUNTER.incrementAndGet()))
+				.interpolateToString(EPackageNodeProcessor.GRAPH_TEMPLATE);
+		addContent(graphAction, chartHTML);
+	    
+		return graphAction;
+	}	
 
 }

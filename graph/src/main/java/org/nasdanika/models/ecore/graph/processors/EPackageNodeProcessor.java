@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.eclipse.emf.ecore.EClassifier;
@@ -41,7 +42,6 @@ import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 import org.nasdanika.models.echarts.graph.GraphFactory;
-import org.nasdanika.ncore.NcoreFactory;
 
 public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> {
 	
@@ -69,7 +69,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 
 			@Override
 			public void execute(Collection<Label> labels, ProgressMonitor progressMonitor) {
-				generateDiagramAction(labels, progressMonitor);				
+				generateDiagramAndGraphActions(labels, progressMonitor);				
 			}
 		}; 
 		return super.createLabelsSupplier().then(loadSpecificationConsumer.asFunction()).then(this::sortLabels);
@@ -214,7 +214,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		}
 	}	
 	
-	protected void generateDiagramAction(Collection<Label> labels, ProgressMonitor progressMonitor) {
+	protected void generateDiagramAndGraphActions(Collection<Label> labels, ProgressMonitor progressMonitor) {
 		for (Label label: labels) {
 			if (label instanceof Action) {
 				Action action = (Action) label;
@@ -245,9 +245,11 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		}
 		
 		ClassDiagram classDiagram = new ClassDiagram();
-		Map<EModelElement, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
-		Function<EModelElement, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
-		Function<EModelElement, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
+		
+		record EClassifierKey(String nsURI, String name) {}
+		Map<EClassifierKey, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
+		Function<EClassifier, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(new EClassifierKey(k.getEPackage().getNsURI(), k.getName()), kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
 
 		Selector<DiagramElement> eClassifierDiagramElementSelector = (widgetFactory, sBase, pm) -> {
 			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
@@ -307,6 +309,8 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		
 			</script>
 			""";
+	
+	static AtomicInteger GRAPH_CONTAINER_COUNTER = new AtomicInteger();
 		
 	protected Action createGraphAction(Action parent, ProgressMonitor progressMonitor) {		
 		Action graphAction = AppFactory.eINSTANCE.createAction();
@@ -317,14 +321,13 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		GraphFactory graphFactory = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE;
 		org.nasdanika.models.echarts.graph.Graph graph = graphFactory.createGraph();
 		
-		Map<EModelElement, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeMap = new HashMap<>();
-		Function<EModelElement, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
-		Function<EModelElement, CompletionStage<org.nasdanika.models.echarts.graph.Node>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
+		Map<EClassifier, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeMap = new HashMap<>();
+		Function<EClassifier, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletionStage<org.nasdanika.models.echarts.graph.Node>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
 
 		Selector<org.nasdanika.models.echarts.graph.Node> eClassifierNodeSelector = (widgetFactory, sBase, pm) -> {
-			return ((EClassifierNodeProcessor<?>) widgetFactory).generateEChartsGraphNode(sBase, nodeCompletionStageProvider, progressMonitor);
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateEChartsGraphNode(sBase, nodeCompletionStageProvider, null, progressMonitor);
 		};
-		
 		
 		for (WidgetFactory cwf: eClassifierWidgetFactories.values()) {
 			EClassifier eClassifier = (EClassifier) cwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
@@ -336,13 +339,19 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			}
 		}		
 		
+//		Map<String,Number> scaleLimit = new HashMap<>();
+//		scaleLimit.put("min", 0.2);
+//		scaleLimit.put("max", 5);
+		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-//				.setSymbolSize(10)
+				.setSymbolSize(16)
 				.setDraggable(true)				
 				.setLayout("force")
 				.setForce(new GraphForce().setRepulsion(200).setGravity(0.1).setEdgeLength(200))
                 .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
                 .setLineStyle(new GraphEdgeLineStyle().setColor("source").setCurveness(0))
+                .setRoam(true)
+//                .setScaleLimit(scaleLimit)
                 .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
 		
 		
@@ -356,12 +365,13 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	    Engine engine = new Engine();
 	    String chartJSON = engine.renderJsonOption(echartsGraph);
 	    
-		String chartHTML = Context.singleton("chart", chartJSON).interpolateToString(GRAPH_TEMPLATE);
+		String chartHTML = Context
+				.singleton("chart", chartJSON)
+				.compose(Context.singleton("graphContainerId", GRAPH_CONTAINER_COUNTER.incrementAndGet()))
+				.interpolateToString(GRAPH_TEMPLATE);
 		addContent(graphAction, chartHTML);
 	    
 		return graphAction;
 	}
 	
 }
-
-
