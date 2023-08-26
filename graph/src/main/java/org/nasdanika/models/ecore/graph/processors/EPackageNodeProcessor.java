@@ -17,6 +17,12 @@ import org.eclipse.emf.ecore.ENamedElement;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.icepear.echarts.charts.graph.GraphEdgeLineStyle;
+import org.icepear.echarts.charts.graph.GraphEmphasis;
+import org.icepear.echarts.charts.graph.GraphForce;
+import org.icepear.echarts.charts.graph.GraphSeries;
+import org.icepear.echarts.components.series.SeriesLabel;
+import org.icepear.echarts.render.Engine;
 import org.nasdanika.common.Consumer;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
@@ -34,6 +40,8 @@ import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.echarts.graph.GraphFactory;
+import org.nasdanika.ncore.NcoreFactory;
 
 public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> {
 	
@@ -214,11 +222,15 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				if (diagramAction != null) {
 					action.getNavigation().add(diagramAction);
 				}
+				
+				Action graphAction = createGraphAction(action, progressMonitor);
+				if (graphAction != null) {
+					action.getNavigation().add(graphAction);
+				}
 			}
 		}
 	}
-	
-	
+		
 	private Map<String, WidgetFactory> eClassifierWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
 
 	@OutgoingEndpoint("reference.name == 'eClassifiers'")
@@ -226,11 +238,6 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		eClassifierWidgetFactories.put(((ENamedElement) connection.getTarget().get()).getName(), eClassifierWidgetFactory);
 	}	
 	
-	/**
-	 * Returns attributes action, creates if necessary. Matches by location.
-	 * @param parent
-	 * @return
-	 */
 	protected Action createDiagramAction(Action parent, ProgressMonitor progressMonitor) {
 		DiagramGenerator diagramGenerator = context.get(DiagramGenerator.class);
 		if (diagramGenerator == null || !diagramGenerator.isSupported(DiagramGenerator.UML_DIALECT)) {
@@ -267,6 +274,93 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		return diagramAction;
 	}
 	
+	private final static String GRAPH_TEMPLATE = 
+			"""
+			<div id="graph-container-${graphContainerId}" class="row" style="height:80vh;width:100%">
+			</div>
+			<script type="text/javascript">
+				$(document).ready(function() {
+					var dom = document.getElementById("graph-container-${graphContainerId}");
+					var myChart = echarts.init(dom, null, {
+						render: "canvas",
+						useDirtyRect: false
+					});		
+					var option = ${chart};
+//					option.series[0].tooltip = {
+//						formatter: function(arg) { 
+//							console.log("Tooltip");
+//							return arg.value ? arg.value.description : null; 
+//						}
+//					};
+					myChart.setOption(option);
+					myChart.on("click", function(params) {
+						if (params.value) {
+							if (params.value.link) {
+								window.open(params.value.link, "_self");
+							} else if (params.value.externalLink) {
+								window.open(params.value.externalLink);
+							}
+						}
+					});
+					window.addEventListener("resize", myChart.resize);
+				});
+		
+			</script>
+			""";
+		
+	protected Action createGraphAction(Action parent, ProgressMonitor progressMonitor) {		
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Graph");
+		graphAction.setIcon("https://img.icons8.com/external-dreamstale-lineal-dreamstale/16/external-diagram-seo-media-dreamstale-lineal-dreamstale.png");
+		graphAction.setLocation("graph.html");
+		
+		GraphFactory graphFactory = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE;
+		org.nasdanika.models.echarts.graph.Graph graph = graphFactory.createGraph();
+		
+		Map<EModelElement, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeMap = new HashMap<>();
+		Function<EModelElement, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+		Function<EModelElement, CompletionStage<org.nasdanika.models.echarts.graph.Node>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
+
+		Selector<org.nasdanika.models.echarts.graph.Node> eClassifierNodeSelector = (widgetFactory, sBase, pm) -> {
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateEChartsGraphNode(sBase, nodeCompletionStageProvider, progressMonitor);
+		};
+		
+		
+		for (WidgetFactory cwf: eClassifierWidgetFactories.values()) {
+			EClassifier eClassifier = (EClassifier) cwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
+			if (!eccf.isDone()) {
+				org.nasdanika.models.echarts.graph.Node ecn = cwf.createWidget(eClassifierNodeSelector, uri, progressMonitor);
+				graph.getNodes().add(ecn);
+				eccf.complete(ecn);
+			}
+		}		
+		
+		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
+//				.setSymbolSize(10)
+				.setDraggable(true)				
+				.setLayout("force")
+				.setForce(new GraphForce().setRepulsion(200).setGravity(0.1).setEdgeLength(200))
+                .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
+                .setLineStyle(new GraphEdgeLineStyle().setColor("source").setCurveness(0))
+                .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
+		
+		
+		graph.configureGraphSeries(graphSeries);
+		
+    	org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph()
+//                .setTooltip("item")
+//                .setLegend()
+                .addSeries(graphSeries);
+    	
+	    Engine engine = new Engine();
+	    String chartJSON = engine.renderJsonOption(echartsGraph);
+	    
+		String chartHTML = Context.singleton("chart", chartJSON).interpolateToString(GRAPH_TEMPLATE);
+		addContent(graphAction, chartHTML);
+	    
+		return graphAction;
+	}
 	
 }
 

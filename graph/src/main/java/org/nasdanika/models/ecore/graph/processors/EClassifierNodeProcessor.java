@@ -27,6 +27,7 @@ import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.ncore.NcoreFactory;
 
 public abstract class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> {
 
@@ -142,6 +143,21 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 			ProgressMonitor progressMonitor) {		
 		
 		org.nasdanika.models.echarts.graph.Node graphNode = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE.createNode();
+		org.nasdanika.ncore.Map vMap = NcoreFactory.eINSTANCE.createMap();
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			vMap.put("description", ((Label) link).getTooltip());  
+		}
+		if (link instanceof org.nasdanika.html.model.app.Link) {
+			vMap.put("externalLink", ((org.nasdanika.html.model.app.Link) link).getLocation());
+		}
+		
+		if (!vMap.getValue().isEmpty()) {
+			graphNode.getValue().add(vMap);
+		}
+		graphNode.setName(getTarget().getName());
+		
 		
 		// Node name
 		
