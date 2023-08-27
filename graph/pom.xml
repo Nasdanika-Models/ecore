@@ -4,7 +4,7 @@
 	  <parent>
 	    <artifactId>parent</artifactId>
 		<groupId>org.nasdanika.models.ecore</groupId>
-		<version>2023.7.0</version>
+		<version>2023.8.0</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<artifactId>graph</artifactId>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.nasdanika.models.echarts</groupId>
 			<artifactId>graph</artifactId>
-			<version>2023.9.0</version>			
+			<version>2023.8.0</version>			
 		</dependency>		
 		<dependency>
 		  <groupId>commons-codec</groupId>
