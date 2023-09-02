@@ -64,7 +64,6 @@ import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.html.model.app.graph.emf.IncomingReferenceBuilder;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
@@ -688,7 +687,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor);
 		});  
 
-		loadSpecificationTableBuilder.addStringColumnBuilder("cardinality", true, false, "Cardinality", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getMultiplicity());
+		loadSpecificationTableBuilder.addStringColumnBuilder("multiplicity", true, false, "Multiplicity", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getMultiplicity());
 		loadSpecificationTableBuilder.addBooleanColumnBuilder("homogeneous", true, false, "Homogeneous", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isHomogeneous());
 		loadSpecificationTableBuilder.addBooleanColumnBuilder("strict-containment", true, false, "Strict Containment", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).isStrictContainment());
 		loadSpecificationTableBuilder.addStringColumnBuilder("exclusive", true, true, "Exclusive With", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getExclusiveWith(getTarget()));
@@ -907,32 +906,94 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			EClass refType = eRef.getEReferenceType();
 			dep.apply(refType).thenAccept(rtde -> {
 				type.getReferences().remove(ref);
-				Relation refRelation;
-				if (eRef.isContainment()) {
-					refRelation = new Composition(type, rtde);
-				} else if (eRef.isMany()) {
-					refRelation = new Aggregation(type, rtde);
-				} else {
-					refRelation = new Association(type, rtde);
+				
+				enum OppositeResult {
+					NO_OPPOSITE,
+					GENERATE,
+					NO_GENERATE
 				}
 				
-				refRelation.getName().add(new Link(eRef.getName()));
-								
-				Object refLink = rwf.createLink(base, progressMonitor);
-				if (refLink instanceof Label) {
-					refRelation.setTooltip(((Label) refLink).getTooltip());
-				}
-				if (refLink instanceof org.nasdanika.html.model.app.Link) {
-					refRelation.setLocation(((org.nasdanika.html.model.app.Link) refLink).getLocation());
-				}				
+				Selector<OppositeResult> oppositeResultSelector = (wf, sBase, pm) -> {
+					if (wf instanceof EReferenceNodeProcessor) {
+						WidgetFactory orwf = ((EReferenceNodeProcessor) wf).getOppositeReferenceWidgetFactory();
+						if (orwf != null) {
+							Selector<Boolean> shallGenerateSelector = (owf, osBase, opm) ->	((EObjectNodeProcessor<?>) owf).getId() > ((EObjectNodeProcessor<?>) wf).getId();
+							return orwf.createWidget(shallGenerateSelector, progressMonitor) ? OppositeResult.GENERATE : OppositeResult.NO_GENERATE;
+						}
+					}
+					return OppositeResult.NO_OPPOSITE;	
+				};
 				
 				Selector<String> multiplicitySelector = (wf, sBase, pm) -> ((ETypedElementNodeProcessor<?>) wf).getRelationMultiplicity();
 				String targetMultiplicity = rwf.createWidget(multiplicitySelector, base, progressMonitor);
-				if (targetMultiplicity != null) {
-					refRelation.setTargetDecoration(targetMultiplicity);
-				}
+				Object refLink = rwf.createLink(base, progressMonitor);
 				
-				// TODO - generic parameters if any
+				OppositeResult oppositeResult = rwf.createWidget(oppositeResultSelector, progressMonitor);
+				if (oppositeResult != OppositeResult.NO_GENERATE) {
+					Relation refRelation;
+					if (eRef.isContainment()) {
+						refRelation = new Composition(type, rtde, oppositeResult == OppositeResult.GENERATE);
+					} else if (eRef.isMany()) {
+						refRelation = new Aggregation(type, rtde, oppositeResult == OppositeResult.GENERATE);
+					} else {
+						refRelation = new Association(type, rtde, oppositeResult == OppositeResult.GENERATE);
+					}
+					
+					if (oppositeResult == OppositeResult.NO_OPPOSITE) {
+						refRelation.getName().add(new Link(eRef.getName()));
+										
+						if (refLink instanceof Label) {
+							refRelation.setTooltip(((Label) refLink).getTooltip());
+						}
+						if (refLink instanceof org.nasdanika.html.model.app.Link) {
+							refRelation.setLocation(((org.nasdanika.html.model.app.Link) refLink).getLocation());
+						}				
+						
+						if (targetMultiplicity != null) {
+							refRelation.setTargetDecoration(targetMultiplicity);
+						}
+					} else {
+						// Target decoration
+						Link targetLink = new Link(eRef.getName());
+
+						if (refLink instanceof Label) {
+							targetLink.setTooltip(((Label) refLink).getTooltip());
+						}
+						if (refLink instanceof org.nasdanika.html.model.app.Link) {
+							targetLink.setLocation(((org.nasdanika.html.model.app.Link) refLink).getLocation());
+						}				
+						
+						if (targetMultiplicity == null) {
+							refRelation.setTargetDecoration(targetLink.toString());
+						} else {
+							refRelation.setTargetDecoration(targetLink + "[" + targetMultiplicity + "]");							
+						}
+																		
+						// Source decoration
+						Selector<WidgetFactory> oppositeSelector = (wf, sBase, pm) -> ((EReferenceNodeProcessor) wf).getOppositeReferenceWidgetFactory();
+						WidgetFactory owf = rwf.createWidget(oppositeSelector, progressMonitor);
+						EReference eRefOpposite = (EReference) owf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
+						Object refOppositeLink = owf.createLink(base, progressMonitor);
+						String sourceMultiplicity = owf.createWidget(multiplicitySelector, base, progressMonitor);
+						
+						Link sourceLink = new Link(eRefOpposite.getName());
+
+						if (refOppositeLink instanceof Label) {
+							sourceLink.setTooltip(((Label) refOppositeLink).getTooltip());
+						}
+						if (refOppositeLink instanceof org.nasdanika.html.model.app.Link) {
+							sourceLink.setLocation(((org.nasdanika.html.model.app.Link) refOppositeLink).getLocation());
+						}				
+						
+						if (sourceMultiplicity == null) {
+							refRelation.setSourceDecoration(sourceLink.toString());
+						} else {
+							refRelation.setSourceDecoration(sourceLink + "[" + sourceMultiplicity + "]");							
+						}
+					}
+					
+					// TODO - generic parameters if any
+				}
 			});
 
 		}

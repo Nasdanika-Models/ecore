@@ -192,7 +192,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		}
 		
 		bodyRows.add(buildPropertyRow("Default", Collections.emptyList()));
-		bodyRows.add(buildPropertyRow("Cardinality", Collections.emptyList()));
+		bodyRows.add(buildPropertyRow("Multiplicity", Collections.emptyList()));
 		bodyRows.add(buildPropertyRow("Homogeneous", Collections.emptyList()));
 		bodyRows.add(buildPropertyRow("Strict Containment", Collections.emptyList()));
 		bodyRows.add(buildPropertyRow("Exclusive With", Collections.emptyList()));

@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletionStage;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -21,12 +20,11 @@ public class EOperationNode extends EObjectNode {
 	public EOperationNode(
 			EOperation target,
 			boolean parallel,
-			Function<EObject, CompletionStage<Element>> elementProvider, 
-			Consumer<CompletionStage<?>> stageConsumer,
-			CompletionStage<Map<EObject, Element>> registry,
+			BiConsumer<EObject, BiConsumer<Element,ProgressMonitor>> elementProvider, 
+			Consumer<BiConsumer<Map<EObject, Element>,ProgressMonitor>> registry,
 			EObjectGraphFactory factory,
 			ProgressMonitor progressMonitor) {
-		super(target, parallel, elementProvider, stageConsumer, registry, factory, progressMonitor);
+		super(target, parallel, elementProvider, registry, factory, progressMonitor);
 		
 		List<EOperation> inheritedOperations = new ArrayList<>();
 		target
@@ -68,7 +66,7 @@ public class EOperationNode extends EObjectNode {
 			
 		for (EOperation io: inheritedOperations) {
 			if (target.isOverrideOf(io)) {
-				stageConsumer.accept(elementProvider.apply(io).thenAccept(ioNode -> new OverridesConnection(this, (EObjectNode) ioNode)));
+				elementProvider.accept(io, (ioNode, pm) -> new OverridesConnection(this, (EObjectNode) ioNode));
 			}
 		}		
 	}

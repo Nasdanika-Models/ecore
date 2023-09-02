@@ -257,7 +257,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 		buildNamedElementColumns(tableBuilder, progressMonitor);
 		tableBuilder
 			.addStringColumnBuilder("type", true, true, "Type", endpoint -> typeLink(endpoint.getKey(), endpoint.getValue(), progressMonitor))  
-			.addStringColumnBuilder("cardinality", true, true, "Cardinality", endpoint -> cardinality((ETypedElement) endpoint.getKey().getTarget().get()));
+			.addStringColumnBuilder("multiplicity", true, true, "Multiplicity", endpoint -> cardinality((ETypedElement) endpoint.getKey().getTarget().get()));
 
 //		getLowerBound()
 //		getUpperBound()

@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletionStage;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -24,6 +23,7 @@ import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.graph.Element;
 import org.nasdanika.graph.emf.EObjectGraphFactory;
 import org.nasdanika.graph.emf.EObjectNode;
+import org.nasdanika.ncore.util.NcoreUtil;
 
 /**
  * A factory for Ecore model object. Reflective target for {@link EObjectGraphFactory}.
@@ -36,13 +36,12 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 	public void createReifiedTypeConnection(
 			EClassNode source, 
 			EGenericType genericType,
-			Function<EObject, CompletionStage<Element>> elementProvider, 
-			Consumer<CompletionStage<?>> stageConsumer,
+			BiConsumer<EObject, BiConsumer<Element,ProgressMonitor>> elementProvider, 
 			ProgressMonitor progressMonitor) {
 		
 		EGenericType reifiedType = EcoreUtil.getReifiedType(source.get(), genericType);
 		if (reifiedType != null && !Objects.equals(reifiedType, genericType)) {
-			stageConsumer.accept(elementProvider.apply(reifiedType).thenAccept(reifiedTypeNode -> new ReifiedTypeConnection(source, (EObjectNode) reifiedTypeNode, genericType)));
+			elementProvider.accept(reifiedType, (reifiedTypeNode, pm) -> new ReifiedTypeConnection(source, (EObjectNode) reifiedTypeNode, genericType));
 		}
 	}	
 
@@ -50,25 +49,49 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 	public EClassNode createEClassNode(
 			EClass element,
 			boolean parallel,
-			Function<EObject, CompletionStage<Element>> elementProvider, 
-			CompletionStage<Map<EObject, Element>> registry,
-			Consumer<CompletionStage<?>> stageConsumer,
+			BiConsumer<EObject, BiConsumer<Element,ProgressMonitor>> elementProvider, 
+			Consumer<BiConsumer<Map<EObject, Element>,ProgressMonitor>> registry,
 			ProgressMonitor progressMonitor) {
 		
-		return new EClassNode(element, parallel, elementProvider, stageConsumer, registry, this, progressMonitor);
+		return new EClassNode(element, parallel, elementProvider, registry, this, progressMonitor);
 	}
 	
 	@org.nasdanika.common.Transformer.Factory(type=EOperation.class)
 	public EOperationNode createEOperationNode(
 			EOperation element,
 			boolean parallel,
-			Function<EObject, CompletionStage<Element>> elementProvider, 
-			CompletionStage<Map<EObject, Element>> registry,
-			Consumer<CompletionStage<?>> stageConsumer,
+			BiConsumer<EObject, BiConsumer<Element,ProgressMonitor>> elementProvider, 
+			Consumer<BiConsumer<Map<EObject, Element>,ProgressMonitor>> registry,
 			ProgressMonitor progressMonitor) {
 
-		return new EOperationNode(element, parallel, elementProvider, stageConsumer, registry, this, progressMonitor);
+		return new EOperationNode(element, parallel, elementProvider, registry, this, progressMonitor);
 	}
+	
+	/**
+	 * Sets up opposites
+	 * @param element
+	 * @param parallel
+	 * @param elementProvider
+	 * @param registry
+	 * @param progressMonitor
+	 * @return
+	 */
+	@org.nasdanika.common.Transformer.Factory(type=EReference.class)
+	public EObjectNode createEReferenceNode(
+			EReference element,
+			boolean parallel,
+			BiConsumer<EObject, BiConsumer<Element,ProgressMonitor>> elementProvider, 
+			Consumer<BiConsumer<Map<EObject, Element>,ProgressMonitor>> registry,
+			ProgressMonitor progressMonitor) {
+		
+		EObjectNode ret = new EObjectNode(element, parallel, elementProvider, registry, this, progressMonitor);
+		EReference opposite = NcoreUtil.getOpposite(element);
+		if (opposite != null) {
+			elementProvider.accept(opposite, (oppositeNode, pm) -> new OppositeReferenceConnection(ret, (EObjectNode) oppositeNode));
+		}		
+		return ret;
+	}
+	
 
 	@Override
 	protected String referencePath(EObjectNode source, EObjectNode target, EReference reference, int index) {

@@ -4,7 +4,7 @@ import org.nasdanika.graph.emf.Connection;
 import org.nasdanika.graph.emf.EObjectNode;
 
 /**
- * Connection between two {@link EOperationNode} nodes - from the overriding operation is subclass to the overridden in superclass. 
+ * Connection between two {@link EOperationNode}s - from the overriding operation is subclass to the overridden in superclass. 
  * @author Pavel
  *
  */
