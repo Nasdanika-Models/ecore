@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.ENamedElement;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -272,6 +271,14 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		diagramAction.setText("Diagram");
 		diagramAction.setIcon("fas fa-project-diagram");
 		diagramAction.setLocation("diagram.html");
+		diagramAction.setDecorator(
+				createHelpDecorator(
+						"A class diagram showing package classifiers and relationships between them", 
+						null, 
+						null, 
+						null, 
+						"Hover mouse over diagram elements to display tooltips. Click on diagram elements to navigate go documentation",  
+						null));
 		addContent(diagramAction, diagram); 		
 		return diagramAction;
 	}
@@ -303,6 +310,9 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 								window.open(params.value.externalLink);
 							}
 						}
+					});
+					myChart.on("drag", function(params) {
+						console.dir(params);
 					});
 					window.addEventListener("resize", myChart.resize);
 				});
@@ -371,6 +381,15 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				.interpolateToString(GRAPH_TEMPLATE);
 		addContent(graphAction, chartHTML);
 	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A graph of package classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						"Hover mouse over nodes elements to display tooltips. Click on nodes to navigate go documentation. Drag to rearrange, nodes become fixed on drag.",  
+						null));
+		
 		return graphAction;
 	}
 	
