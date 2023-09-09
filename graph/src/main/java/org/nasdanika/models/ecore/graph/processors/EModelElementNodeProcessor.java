@@ -2,6 +2,7 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,16 +21,17 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.jgrapht.alg.drawing.FRLayoutAlgorithm2D;
+import org.jgrapht.alg.drawing.model.Box2D;
+import org.jgrapht.alg.drawing.model.MapLayoutModel2D;
+import org.jgrapht.alg.drawing.model.Point2D;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Util;
 import org.nasdanika.emf.EmfUtil;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
-import org.nasdanika.emf.persistence.MarkerFactory;
-import org.nasdanika.exec.content.ContentFactory;
-import org.nasdanika.exec.content.Interpolator;
-import org.nasdanika.exec.content.Markdown;
-import org.nasdanika.exec.content.Text;
 import org.nasdanika.graph.emf.EObjectConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
@@ -39,6 +41,8 @@ import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.echarts.graph.Graph;
+import org.nasdanika.models.echarts.graph.Node;
 import org.nasdanika.ncore.util.NcoreUtil;
 
 public class EModelElementNodeProcessor<T extends EModelElement> extends EObjectNodeProcessor<T> {
@@ -111,31 +115,6 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 			action.getContent().add(interpolatedMarkdown(context.interpolateToString(documentation.documentation()), documentation.location(), progressMonitor));			
 		}
 		return action;
-	}
-	
-	/**
-	 * @param markdown Markdown text
-	 * @return Spec for interpolating markdown and then converting to HTML. 
-	 */
-	protected Markdown interpolatedMarkdown(String markdown, URI location, ProgressMonitor progressMonitor) {
-		if (Util.isBlank(markdown)) {
-			return null;
-		}
-		Markdown ret = ContentFactory.eINSTANCE.createMarkdown();
-		Interpolator interpolator = ContentFactory.eINSTANCE.createInterpolator();
-		Text text = ContentFactory.eINSTANCE.createText();
-		text.setContent(markdown);
-		interpolator.setSource(text);
-		ret.setSource(interpolator);
-		ret.setStyle(true);
-		
-		// Creating a marker with EObject resource location for resource resolution in Markdown
-		if (location != null) {
-			org.nasdanika.ncore.Marker marker = context.get(MarkerFactory.class, MarkerFactory.INSTANCE).createMarker(location.toString(), progressMonitor);
-			ret.getMarkers().add(marker); 
-		}
-		
-		return ret;
 	}
 
 	/**
@@ -306,6 +285,24 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 //		getInstanceClassName()
 //		getInstanceTypeName()
 	}
+
+	/**
+	 * Markdown help contents to display in context help dialogs. 
+	 * @return
+	 */
+	protected EModelElementDocumentation getHelpContents() {
+		return null;
+	}	
+	
+	@Override
+	protected Collection<EObject> createHelpContents(URI base, ProgressMonitor progressMonitor) {		
+		EModelElementDocumentation helpContents = getHelpContents();
+		if (helpContents != null) {
+			return Collections.singleton(interpolatedMarkdown(helpContents.documentation(), helpContents.location(), progressMonitor));
+		}
+		
+		return super.createHelpContents(base, progressMonitor);
+	}
 	
 	/**
 	 * Loads documentation from Ecore model annotations. Override to return documentation from annotations.
@@ -338,6 +335,49 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 			ret.add(new org.nasdanika.diagram.plantuml.Link(link.toString()));
 		}
 		return ret;
+	}	
+	
+	// Graph layout
+	
+	protected double getLayoutWidth() {
+		return 1000.0;
+	}
+	
+	protected double getLayoutHeight() {
+		return 800.0;
+	}
+	
+	/**
+	 * Uses JGraphT {@link FRLayoutAlgorithm2D} to force layout the graph.
+	 * @param graph
+	 */
+	protected void forceLayout(Graph graph) {
+		// Using JGraphT for force layout
+		DefaultUndirectedGraph<Node, org.nasdanika.models.echarts.graph.Link> dGraph = new DefaultUndirectedGraph<>(org.nasdanika.models.echarts.graph.Link.class);
+		
+		// Populating
+		for (Node node: graph.getNodes()) {
+			dGraph.addVertex(node);
+		}	
+		
+		for (Node node: graph.getNodes()) {
+			for (org.nasdanika.models.echarts.graph.Link link: node.getOutgoingLinks()) {
+				if (dGraph.getEdge(link.getTarget(), node) == null) { // Not yet connected, connect
+					dGraph.addEdge(node, link.getTarget(), link);
+				}
+			}
+		}		
+		
+		FRLayoutAlgorithm2D<Node, org.nasdanika.models.echarts.graph.Link> forceLayout = new FRLayoutAlgorithm2D<>();
+		MapLayoutModel2D<Node> model = new MapLayoutModel2D<>(new Box2D(getLayoutWidth(), getLayoutHeight()));
+		forceLayout.layout(dGraph, model);
+		model.forEach(ne -> {
+			Node node = ne.getKey();
+			Point2D point = ne.getValue();
+			node.setX(point.getX());
+			node.setY(point.getY());
+		});
+		
 	}	
 	
 }
