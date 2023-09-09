@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.icepear.echarts.charts.graph.GraphCircular;
 import org.icepear.echarts.charts.graph.GraphEdgeLineStyle;
 import org.icepear.echarts.charts.graph.GraphEmphasis;
 import org.icepear.echarts.charts.graph.GraphForce;
@@ -791,14 +792,14 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		for (Label label: labels) {
 			if (label instanceof Action) {
 				Action action = (Action) label;
-				Action diagramAction = createDiagramAction(action, progressMonitor);
+				Action diagramAction = createDiagramAction(progressMonitor);
 				if (diagramAction != null) {
 					action.getNavigation().add(diagramAction);
 				}
 				
-				Action graphAction = createGraphAction(action, progressMonitor);
-				if (graphAction != null) {
-					action.getNavigation().add(graphAction);
+				Label graphsLabel = createGraphsLabel(progressMonitor);
+				if (graphsLabel != null) {
+					action.getNavigation().add(graphsLabel);
 				}
 			}
 		}
@@ -1023,7 +1024,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	 * @param parent
 	 * @return
 	 */
-	protected Action createDiagramAction(Action parent, ProgressMonitor progressMonitor) {
+	protected Action createDiagramAction(ProgressMonitor progressMonitor) {
 		DiagramGenerator diagramGenerator = context.get(DiagramGenerator.class);
 		if (diagramGenerator == null || !diagramGenerator.isSupported(DiagramGenerator.UML_DIALECT)) {
 			return null;
@@ -1117,21 +1118,125 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 		return ret;
 	}
-		
-	protected Action createGraphAction(Action parent, ProgressMonitor progressMonitor) {		
-		Action graphAction = AppFactory.eINSTANCE.createAction();
-		graphAction.setText("Graph");
+			
+	// =======
+	
+	
+	protected Label createGraphsLabel(ProgressMonitor progressMonitor) {		
+		Label graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Graphs");
 		graphAction.setIcon("https://img.icons8.com/external-dreamstale-lineal-dreamstale/16/external-diagram-seo-media-dreamstale-lineal-dreamstale.png");
-		graphAction.setLocation("graph.html");
+		graphAction.getChildren().add(createDefaultGraphAction(progressMonitor));
+		graphAction.getChildren().add(createCircularGraphAction(progressMonitor));
+		graphAction.getChildren().add(createForceGraphAction(progressMonitor));
+	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"Graphs of package classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						(String) null,  
+						null));
 		
+		return graphAction;
+	}
+	
+	protected Action createDefaultGraphAction(ProgressMonitor progressMonitor) {
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Default Graph");
+		graphAction.setLocation("default-graph.html");
+		
+		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
+				.setSymbolSize(16)
+				.setDraggable(true)				
+				.setLayout("none")
+	            .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
+	            .setLineStyle(new GraphEdgeLineStyle().setColor("source").setCurveness(0))
+	            .setRoam(true)
+	            .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
+				
+		generateGraph(progressMonitor).configureGraphSeries(graphSeries);		
+		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph().addSeries(graphSeries);
+		
+	    Engine engine = new Engine();
+	    String chartJSON = engine.renderJsonOption(echartsGraph);
+	    
+		String chartHTML = Context
+				.singleton("chart", chartJSON)
+				.compose(Context.singleton("graphContainerId", EPackageNodeProcessor.GRAPH_CONTAINER_COUNTER.incrementAndGet()))
+				.interpolateToString(EPackageNodeProcessor.GRAPH_TEMPLATE);
+		addContent(graphAction, chartHTML);
+	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A fixed force-layout graph of this classifier and related classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						"""
+						Hover mouse over nodes elements to display tooltips. 
+						Double-click on nodes to navigate go documentation. 
+						Drag to rearrange.
+						""",  
+						null));
+		
+		return graphAction;		
+	}
+	
+	protected Action createCircularGraphAction(ProgressMonitor progressMonitor) {
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Circular Graph");
+		graphAction.setLocation("circular-layout-graph.html");
+		
+		org.nasdanika.models.echarts.graph.Graph graph = generateGraph(progressMonitor);
+		
+		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
+				.setSymbolSize(16)
+				.setDraggable(true)				
+				.setLayout("circular")
+				.setCircular(new GraphCircular().setRotateLabel(true))
+	            .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
+	            .setLineStyle(new GraphEdgeLineStyle().setColor("source").setCurveness(0.3))
+	            .setRoam(true)
+	            .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
+				
+		graph.configureGraphSeries(graphSeries);		
+		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph().addSeries(graphSeries);
+		
+	    Engine engine = new Engine();
+	    String chartJSON = engine.renderJsonOption(echartsGraph);
+	    
+		String chartHTML = Context
+				.singleton("chart", chartJSON)
+				.compose(Context.singleton("graphContainerId", EPackageNodeProcessor.GRAPH_CONTAINER_COUNTER.incrementAndGet()))
+				.interpolateToString(EPackageNodeProcessor.GRAPH_TEMPLATE);
+		addContent(graphAction, chartHTML);
+	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A circular layout graph of this classifier and related classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						"""
+						Hover mouse over nodes elements to display tooltips. 
+						Double-click on nodes to navigate go documentation. 
+						Drag to rearrange.
+						""",  
+						null));
+		
+		return graphAction;		
+	}
+
+	protected org.nasdanika.models.echarts.graph.Graph generateGraph(ProgressMonitor progressMonitor) {
 		GraphFactory graphFactory = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE;
 		org.nasdanika.models.echarts.graph.Graph graph = graphFactory.createGraph();
 		
 		Map<EClassifier, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeMap = new HashMap<>();
 		Function<EClassifier, CompletableFuture<org.nasdanika.models.echarts.graph.Node>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
 		Function<EClassifier, CompletionStage<org.nasdanika.models.echarts.graph.Node>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
-		
-		
+				
 		Map<EPackage, Item> categoryMap = new HashMap<>();
 		Function<EPackage, Item> categoryProvider = k -> categoryMap.computeIfAbsent(k, kk -> {
 			Item category = GraphFactory.eINSTANCE.createItem();
@@ -1154,6 +1259,15 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			}
 		}
 		
+		forceLayout(graph);
+		return graph;
+	}
+		
+	protected Action createForceGraphAction(ProgressMonitor progressMonitor) {
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Force Graph");
+		graphAction.setLocation("force-layout-graph.html");
+		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
 				.setSymbolSize(16)
 				.setDraggable(true)				
@@ -1165,8 +1279,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	            .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
 		
 		
-		graph.configureGraphSeries(graphSeries);
-		
+		generateGraph(progressMonitor).configureGraphSeries(graphSeries);
 		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph()
 				.setLegend()
 				.addSeries(graphSeries);
@@ -1180,7 +1293,20 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				.interpolateToString(EPackageNodeProcessor.GRAPH_TEMPLATE);
 		addContent(graphAction, chartHTML);
 	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A live force-layout graph of this classifier and related classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						"""
+						Hover mouse over nodes elements to display tooltips. 
+						Double-click on nodes to navigate go documentation. 
+						Drag to rearrange, nodes will not stay in place once released.
+						""",  
+						null));
+	    
 		return graphAction;
-	}	
+	}
 
 }
