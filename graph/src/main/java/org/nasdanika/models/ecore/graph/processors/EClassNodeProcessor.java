@@ -1119,9 +1119,6 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		return ret;
 	}
 			
-	// =======
-	
-	
 	protected Label createGraphsLabel(ProgressMonitor progressMonitor) {		
 		Label graphAction = AppFactory.eINSTANCE.createAction();
 		graphAction.setText("Graphs");
