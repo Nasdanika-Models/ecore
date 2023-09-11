@@ -1154,7 +1154,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	            .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
 				
 		generateGraph(progressMonitor).configureGraphSeries(graphSeries);		
-		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph().addSeries(graphSeries);
+		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph().addSeries(graphSeries).setLegend();
 		
 	    Engine engine = new Engine();
 	    String chartJSON = engine.renderJsonOption(echartsGraph);
@@ -1199,7 +1199,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	            .setEmphasis(new GraphEmphasis().setFocus("adjacency")); // Line style width 10?
 				
 		graph.configureGraphSeries(graphSeries);		
-		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph().addSeries(graphSeries);
+		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph().addSeries(graphSeries).setLegend();
 		
 	    Engine engine = new Engine();
 	    String chartJSON = engine.renderJsonOption(echartsGraph);
@@ -1277,6 +1277,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		
 		generateGraph(progressMonitor).configureGraphSeries(graphSeries);
+		
 		org.icepear.echarts.Graph echartsGraph = new org.icepear.echarts.Graph()
 				.setLegend()
 				.addSeries(graphSeries);
