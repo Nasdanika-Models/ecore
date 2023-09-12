@@ -1,9 +1,7 @@
 package org.nasdanika.models.ecore.graph.processors;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,8 +18,6 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
-import org.nasdanika.graph.Connection;
-import org.nasdanika.graph.Node;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
@@ -163,6 +159,8 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		
 		GraphFactory graphFactory = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE;
 		org.nasdanika.models.echarts.graph.Node graphNode = graphFactory.createNode();
+		graphNode.setId(getTarget().getName() + "@" + getTarget().getEPackage().getNsURI());
+		
 		org.nasdanika.ncore.Map vMap = NcoreFactory.eINSTANCE.createMap();
 		
 		Object link = createLink(base, progressMonitor);
