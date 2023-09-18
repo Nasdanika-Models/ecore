@@ -333,8 +333,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 						}
 					});
 					window.addEventListener("resize", myChart.resize);
-				});
-		
+				});		
 			</script>
 			""";
 	
