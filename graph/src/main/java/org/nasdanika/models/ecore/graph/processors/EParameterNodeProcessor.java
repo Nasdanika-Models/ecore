@@ -32,11 +32,11 @@ public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParamet
 	}
 	
 	@Override
-	public Object createWidget(Object selector, URI base, ProgressMonitor progressMonitor) {
+	public Object select(Object selector, URI base, ProgressMonitor progressMonitor) {
 		if (selector == EcorePackage.Literals.EPARAMETER__EOPERATION && operationWidgetFactory != null) {
 			return operationWidgetFactory.createLink(base, progressMonitor);
 		}
-		return super.createWidget(selector, base, progressMonitor);
+		return super.select(selector, base, progressMonitor);
 	}	
 	
 	public Parameter generateParameter(URI base, ProgressMonitor progressMonitor) {
@@ -48,7 +48,7 @@ public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParamet
 				return ((EGenericTypeNodeProcessor) widgetFactory).generateDiagramLink(sBase, pm);
 			};
 			
-			List<Link> typeLink = genericTypeWidgetFactory.createWidget(linkSelector, base, progressMonitor);
+			List<Link> typeLink = genericTypeWidgetFactory.select(linkSelector, base, progressMonitor);
 			if (typeLink != null && !typeLink.isEmpty()) {
 				parameter.getType().addAll(typeLink);
 				String memberCardinality = getMemberMultiplicity();

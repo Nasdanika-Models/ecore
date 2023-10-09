@@ -277,10 +277,10 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		
 		// Classifiers
 		for (WidgetFactory cwf: eClassifierWidgetFactories.values()) {
-			EClassifier eClassifier = (EClassifier) cwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 			CompletableFuture<DiagramElement> eccf = diagramElementProvider.apply(eClassifier);
 			if (!eccf.isDone()) {
-				DiagramElement ecde = cwf.createWidget(eClassifierDiagramElementSelector, uri, progressMonitor);
+				DiagramElement ecde = cwf.select(eClassifierDiagramElementSelector, uri, progressMonitor);
 				classDiagram.getDiagramElements().add(ecde);
 				eccf.complete(ecde);
 			}
@@ -396,10 +396,10 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		
 		for (WidgetFactory pcwf: getEClassifierWidgetFactories(withSubpackages, progressMonitor)) {
 			for (WidgetFactory cwf: withDependencies(pcwf, withDependencies ? 1 : 0, progressMonitor)) {
-				EClassifier eClassifier = (EClassifier) cwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+				EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 				CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
 				if (!eccf.isDone()) {
-					org.nasdanika.models.echarts.graph.Node ecn = cwf.createWidget(eClassifierNodeSelector, uri, progressMonitor);
+					org.nasdanika.models.echarts.graph.Node ecn = cwf.select(eClassifierNodeSelector, uri, progressMonitor);
 					graph.getNodes().add(ecn);
 					eccf.complete(ecn);
 				}
@@ -414,7 +414,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		Collection<WidgetFactory> ret = new HashSet<>(getEClassifierWidgetFactories().values());
 		if (recursive) {
 			for (WidgetFactory eSubpackageWidgetFactory: getESubpackageWidgetFactories().values()) {
-				EPackageNodeProcessor subpackageNodeProcessor = (EPackageNodeProcessor) eSubpackageWidgetFactory.createWidget(EObjectNodeProcessor.SELF_SELECTOR, progressMonitor);
+				EPackageNodeProcessor subpackageNodeProcessor = (EPackageNodeProcessor) eSubpackageWidgetFactory.select(EObjectNodeProcessor.SELF_SELECTOR, progressMonitor);
 				ret.addAll(subpackageNodeProcessor.getEClassifierWidgetFactories(recursive, progressMonitor));
 			}
 		}
@@ -422,9 +422,9 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	}
 	
 	protected Collection<? extends WidgetFactory> withDependencies(WidgetFactory wf, int depth, ProgressMonitor progressMonitor) {
-		EClassifier eClassifier = (EClassifier) wf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+		EClassifier eClassifier = (EClassifier) wf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 		if (eClassifier instanceof EClass) {
-			EClassNodeProcessor ecnp = (EClassNodeProcessor) wf.createWidget(EObjectNodeProcessor.SELF_SELECTOR, progressMonitor);
+			EClassNodeProcessor ecnp = (EClassNodeProcessor) wf.select(EObjectNodeProcessor.SELF_SELECTOR, progressMonitor);
 			return ecnp.getEClassifierNodeProcessors(depth, progressMonitor);
 		}
 		return Collections.singleton(wf);

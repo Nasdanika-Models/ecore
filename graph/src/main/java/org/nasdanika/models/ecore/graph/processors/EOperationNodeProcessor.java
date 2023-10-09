@@ -3,7 +3,6 @@ package org.nasdanika.models.ecore.graph.processors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
 import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
 
 public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperation> {
@@ -196,7 +194,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 	}					
 		
 	@Override
-	public Object createWidget(Object selector, URI base, ProgressMonitor progressMonitor) {
+	public Object select(Object selector, URI base, ProgressMonitor progressMonitor) {
 		if (selector == EcorePackage.Literals.EOPERATION__ECONTAINING_CLASS && declaringClassWidgetFactory != null) {
 			return declaringClassWidgetFactory.createLink(base, progressMonitor);
 		}
@@ -212,7 +210,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 					WidgetFactory pwf = eParameterWidgetFactories.values().iterator().next();
 					ret.add(pwf.createLink(base, progressMonitor));
 					ret.add(" : ");
-					ret.add(pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
+					ret.add(pwf.select(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
 					return ret;
 				}
 				
@@ -222,7 +220,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 					ret.add("<li>");
 					ret.add(pwf.createLink(base, progressMonitor));
 					ret.add(" : ");
-					ret.add(pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
+					ret.add(pwf.select(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
 					ret.add("</li>");
 				}						
 				ret.add("</ol>");
@@ -271,7 +269,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 			}
 		}
 		
-		return super.createWidget(selector, base, progressMonitor);
+		return super.select(selector, base, progressMonitor);
 	}
 	
 	public Operation generateOperation(URI base, ProgressMonitor progressMonitor) {
@@ -283,7 +281,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				return ((EGenericTypeNodeProcessor) widgetFactory).generateDiagramLink(sBase, pm);
 			};
 			
-			List<Link> typeLink = genericTypeWidgetFactory.createWidget(linkSelector, base, progressMonitor);
+			List<Link> typeLink = genericTypeWidgetFactory.select(linkSelector, base, progressMonitor);
 			if (typeLink != null && !typeLink.isEmpty()) {
 				operation.getType().addAll(typeLink);
 				String memberCardinality = getMemberMultiplicity();
@@ -306,13 +304,12 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		};		
 		
 		for (WidgetFactory pwf: eParameterWidgetFactories.entrySet().stream().sorted((a,b) -> a.getKey().getIndex() - b.getKey().getIndex()).map(Map.Entry::getValue).toList()) {
-			Parameter param = pwf.createWidget(parameterSelector, base, progressMonitor);
+			Parameter param = pwf.select(parameterSelector, base, progressMonitor);
 			operation.getParameters().add(param);			
 		}						
 		
 		return operation;
 	}		
-
 	
 	@Override
 	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
@@ -320,17 +317,17 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
 		// parameters
 		for (WidgetFactory pwf: eParameterWidgetFactories.values()) {
-			ret.addAll(pwf.createWidget(selector, progressMonitor));
+			ret.addAll(pwf.select(selector, progressMonitor));
 		}
 		
 		// type parameters
 		for (WidgetFactory tpwf: eTypeParameterWidgetFactories.values()) {
-			ret.addAll(tpwf.createWidget(selector, progressMonitor));
+			ret.addAll(tpwf.select(selector, progressMonitor));
 		}
 		
 		// exceptions
 		for (WidgetFactory gewf: eGenericExceptionWidgetFactories.values()) {
-			ret.addAll(gewf.createWidget(selector, progressMonitor));
+			ret.addAll(gewf.select(selector, progressMonitor));
 		}
 
 		return ret;

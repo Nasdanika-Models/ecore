@@ -112,7 +112,7 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
 		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
 		for (WidgetFactory bwf: eBoundsWidgetFactories.values()) {
-			ret.addAll(bwf.createWidget(selector, progressMonitor));
+			ret.addAll(bwf.select(selector, progressMonitor));
 		}
 		return ret;
 	}

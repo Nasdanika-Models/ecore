@@ -36,11 +36,11 @@ public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeatu
 	}
 	
 	@Override
-	public Object createWidget(Object selector, URI base, ProgressMonitor progressMonitor) {
+	public Object select(Object selector, URI base, ProgressMonitor progressMonitor) {
 		if (selector == EcorePackage.Literals.ESTRUCTURAL_FEATURE__ECONTAINING_CLASS && declaringClassWidgetFactory != null) {
 			return declaringClassWidgetFactory.createLink(base, progressMonitor);
 		}
-		return super.createWidget(selector, base, progressMonitor);
+		return super.select(selector, base, progressMonitor);
 	}
 	
 	public Attribute generateMember(URI base, ProgressMonitor progressMonitor) {
@@ -52,7 +52,7 @@ public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeatu
 				return ((EGenericTypeNodeProcessor) widgetFactory).generateDiagramLink(sBase, pm);
 			};
 			
-			List<Link> typeLink = genericTypeWidgetFactory.createWidget(linkSelector, base, progressMonitor);
+			List<Link> typeLink = genericTypeWidgetFactory.select(linkSelector, base, progressMonitor);
 			if (typeLink != null && !typeLink.isEmpty()) {
 				attribute.getType().addAll(typeLink);
 				String memberCardinality = getMemberMultiplicity();

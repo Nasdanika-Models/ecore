@@ -31,7 +31,6 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
 import org.nasdanika.html.model.bootstrap.BootstrapFactory;
 import org.nasdanika.html.model.bootstrap.Table;
 import org.nasdanika.html.model.bootstrap.TableCell;
@@ -63,7 +62,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	}
 	
 	@Override
-	public Object createWidget(Object selector, URI base, ProgressMonitor progressMonitor) {
+	public Object select(Object selector, URI base, ProgressMonitor progressMonitor) {
 		if (selector == EcorePackage.Literals.ETYPED_ELEMENT__ETYPE && typeWidgetFactory != null) {
 			return typeWidgetFactory.createLink(base, progressMonitor);
 		}
@@ -84,7 +83,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 			}
 		}		
 		
-		return super.createWidget(selector, base, progressMonitor);
+		return super.select(selector, base, progressMonitor);
 	}
 
 	// 
@@ -361,7 +360,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDiagramElement(sBase, diagramElementProvider, pm);
 		};
 		
-		return typeWidgetFactory.createWidget(diagramElementSelector, base, progressMonitor);
+		return typeWidgetFactory.select(diagramElementSelector, base, progressMonitor);
 	}
 	
 	@Override
@@ -370,7 +369,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
 		// generic type
 		if (genericTypeWidgetFactory != null) {
-			ret.addAll(genericTypeWidgetFactory.createWidget(selector, progressMonitor));
+			ret.addAll(genericTypeWidgetFactory.select(selector, progressMonitor));
 		}
 
 		return ret;

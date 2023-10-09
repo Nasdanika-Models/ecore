@@ -25,7 +25,6 @@ import org.jgrapht.alg.drawing.FRLayoutAlgorithm2D;
 import org.jgrapht.alg.drawing.model.Box2D;
 import org.jgrapht.alg.drawing.model.MapLayoutModel2D;
 import org.jgrapht.alg.drawing.model.Point2D;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -170,9 +169,9 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 		}
 		String typeName = eGenericType.getERawType().getName(); // TODO - as string
 		String typeNameComment = "<!-- " + typeName + "--> ";
-		String linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE, base, progressMonitor);
+		String linkStr = widgetFactory.selectString(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE, base, progressMonitor);
 		if (linkStr == null) {
-			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ETYPED_ELEMENT__ETYPE, base, progressMonitor);			
+			linkStr = widgetFactory.selectString(EcorePackage.Literals.ETYPED_ELEMENT__ETYPE, base, progressMonitor);			
 		}
 		return typeNameComment + (Util.isBlank(linkStr) ? typeName : linkStr);
 	}
@@ -204,10 +203,10 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 		EObject tt = connection.getTarget().get();
 		if (tt instanceof EStructuralFeature) {
 			declaringClassName = ((EStructuralFeature) connection.getTarget().get()).getEContainingClass().getName();
-			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.ESTRUCTURAL_FEATURE__ECONTAINING_CLASS, progressMonitor);
+			linkStr = widgetFactory.selectString(EcorePackage.Literals.ESTRUCTURAL_FEATURE__ECONTAINING_CLASS, progressMonitor);
 		} else if (tt instanceof EOperation) {
 			declaringClassName = ((EOperation) connection.getTarget().get()).getEContainingClass().getName();
-			linkStr = widgetFactory.createWidgetString(EcorePackage.Literals.EOPERATION__ECONTAINING_CLASS, progressMonitor);
+			linkStr = widgetFactory.selectString(EcorePackage.Literals.EOPERATION__ECONTAINING_CLASS, progressMonitor);
 		} else {
 			throw new IllegalArgumentException("Should be EStructuralOperation or EOperation: " + tt);
 		}

@@ -166,7 +166,7 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDiagramElement(sBase, diagramElementProvider, pm);
 		};
 		
-		return eClassifierWidgetFactory.createWidget(diagramElementSelector, base, progressMonitor);
+		return eClassifierWidgetFactory.select(diagramElementSelector, base, progressMonitor);
 	}
 
 	@Override
@@ -175,23 +175,23 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
 		// eClassifier
 		if (eClassifierWidgetFactory != null) {
-			ret.addAll(eClassifierWidgetFactory.createWidget(selector, progressMonitor));
+			ret.addAll(eClassifierWidgetFactory.select(selector, progressMonitor));
 		}
 		// eTypeParameter
 		if (eTypeParameterWidgetFactory != null) {
-			ret.addAll(eTypeParameterWidgetFactory.createWidget(selector, progressMonitor));			
+			ret.addAll(eTypeParameterWidgetFactory.select(selector, progressMonitor));			
 		}
 		// eLowerBound
 		if (eLowerBoundWidgetFactory != null) {
-			ret.addAll(eLowerBoundWidgetFactory.createWidget(selector, progressMonitor));			
+			ret.addAll(eLowerBoundWidgetFactory.select(selector, progressMonitor));			
 		}
 		// eUpperBound
 		if (eUpperBoundWidgetFactory != null) {
-			ret.addAll(eUpperBoundWidgetFactory.createWidget(selector, progressMonitor));			
+			ret.addAll(eUpperBoundWidgetFactory.select(selector, progressMonitor));			
 		}
 		// eTypeArguments
 		for (WidgetFactory tawf: eTypeArgumentWidgetFactories.values()) {
-			ret.addAll(tawf.createWidget(selector, progressMonitor));			
+			ret.addAll(tawf.select(selector, progressMonitor));			
 		}
 
 		return ret;

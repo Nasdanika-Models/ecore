@@ -382,9 +382,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				buildTypedElementColumns(operationsTableBuilder, progressMonitor);					
 				operationsTableBuilder
 					.addStringColumnBuilder("declaring-class", true, true, "Declaring Class", endpoint -> declaringClassLink(endpoint.getKey(), endpoint.getValue(), progressMonitor))
-					.addStringColumnBuilder("parameters", true, false, "Parameters", endpoint -> endpoint.getValue().createWidgetString(new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EPARAMETERS), progressMonitor))
-					.addStringColumnBuilder("exceptions", true, false, "Exceptions", endpoint -> endpoint.getValue().createWidgetString(new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EGENERIC_EXCEPTIONS), progressMonitor))
-					.addStringColumnBuilder("type-parameters", true, false, "Type Parameters", endpoint -> endpoint.getValue().createWidgetString(new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__ETYPE_PARAMETERS), progressMonitor));		
+					.addStringColumnBuilder("parameters", true, false, "Parameters", endpoint -> endpoint.getValue().selectString(new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EPARAMETERS), progressMonitor))
+					.addStringColumnBuilder("exceptions", true, false, "Exceptions", endpoint -> endpoint.getValue().selectString(new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EGENERIC_EXCEPTIONS), progressMonitor))
+					.addStringColumnBuilder("type-parameters", true, false, "Type Parameters", endpoint -> endpoint.getValue().selectString(new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__ETYPE_PARAMETERS), progressMonitor));		
 				
 				// TODO - overrides, not visible by default and not sortable
 				
@@ -530,7 +530,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 						return ret;
 					};										
 					
-					subTypes.addAll(genericSuperTypeWidgetFactory.createWidget(selector, progressMonitor));
+					subTypes.addAll(genericSuperTypeWidgetFactory.select(selector, progressMonitor));
 				}
 				
 				Collections.sort(subTypes);				
@@ -573,7 +573,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	
 	@OutgoingEndpoint("reference.name == 'eAllOperations'")
 	public final void setEOperationEndpoint(EReferenceConnection connection, WidgetFactory eOperationWidgetFactory, ProgressMonitor progressMonitor) {
-		FeatureWidgetFactory featureWidgetFactory = eOperationWidgetFactory.createWidget((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
+		FeatureWidgetFactory featureWidgetFactory = eOperationWidgetFactory.select((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
 		EOperation eOp = (EOperation) connection.getTarget().get();
 		synchronized (featureWidgetFactories) {
 			Iterator<Entry<EReferenceConnection, FeatureWidgetFactory>> it = featureWidgetFactories.iterator();
@@ -598,7 +598,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	
 	@OutgoingEndpoint("reference.name == 'eAllStructuralFeatures'")
 	public final void setEStructuralFeatureEndpoint(EReferenceConnection connection, WidgetFactory eStructuralFeatureWidgetFactory, ProgressMonitor progressMonitor) {
-		FeatureWidgetFactory featureWidgetFactory = eStructuralFeatureWidgetFactory.createWidget((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
+		FeatureWidgetFactory featureWidgetFactory = eStructuralFeatureWidgetFactory.select((Selector<FeatureWidgetFactory>) this::getFeatureWidgetFactory, progressMonitor);
 		if (featureWidgetFactory.isLoadable()) {
 			featureWidgetFactories.add(Map.entry(connection, featureWidgetFactory));
 		}
@@ -613,7 +613,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		ReifiedTypeSelector reifiedTypeSelector = new ReifiedTypeSelector(EcorePackage.Literals.EOPERATION__EPARAMETERS);
 		if (eParameterWidgetFactories.size() == 1) {
 			WidgetFactory pwf = eParameterWidgetFactories.values().iterator().next();
-			return pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor);
+			return pwf.select(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor);
 		}
 		
 		List<Object> ret = new ArrayList<>();
@@ -622,7 +622,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			ret.add("<li>");
 			ret.add(pwf.createLink(base, progressMonitor));
 			ret.add(" : ");
-			ret.add(pwf.createWidget(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
+			ret.add(pwf.select(reifiedTypeSelector.createSelector(EcorePackage.Literals.ETYPED_ELEMENT__EGENERIC_TYPE), base, progressMonitor));
 			ret.add("</li>");
 		}						
 		ret.add("</ol>");
@@ -683,7 +683,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		loadSpecificationTableBuilder.addStringColumnBuilder("type", true, true, "Type", featureWidgetFactoryEntry -> {
 			EObject target = featureWidgetFactoryEntry.getKey().getTarget().get();
 			if (target instanceof EOperation) {
-				return featureWidgetFactoryEntry.getValue().createWidgetString((Selector<Object>) this::parameterTypes, progressMonitor);
+				return featureWidgetFactoryEntry.getValue().selectString((Selector<Object>) this::parameterTypes, progressMonitor);
 			}
 			return typeLink(featureWidgetFactoryEntry.getKey(), featureWidgetFactoryEntry.getValue(), progressMonitor);
 		});  
@@ -873,9 +873,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		};
 		
 		for (WidgetFactory swf: eGenericSuperTypeWidgetFactories.values()) {
-			SuperType superType = swf.createWidget(superTypeSelector, base, progressMonitor);
+			SuperType superType = swf.select(superTypeSelector, base, progressMonitor);
 			type.getSuperTypes().add(superType);			
-			EGenericType sgt = (EGenericType) swf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
+			EGenericType sgt = (EGenericType) swf.select(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 			EClassifier st = sgt.getEClassifier();
 			dep.apply(st).thenAccept(stde -> {
 				type.getSuperTypes().remove(superType);
@@ -893,17 +893,17 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		};
 		
 		for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
-			Attribute attr = awf.createWidget(attributeSelector, base, progressMonitor);
+			Attribute attr = awf.select(attributeSelector, base, progressMonitor);
 			type.getAttributes().add(attr);
 		}
 		
 		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
-			Attribute ref = rwf.createWidget(attributeSelector, base, progressMonitor);
+			Attribute ref = rwf.select(attributeSelector, base, progressMonitor);
 			type.getReferences().add(ref);
 			
 			// TODO - group opposites into one, a way to select only one of two to render
 			
-			EReference eRef = (EReference) rwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
+			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 			EClass refType = eRef.getEReferenceType();
 			dep.apply(refType).thenAccept(rtde -> {
 				type.getReferences().remove(ref);
@@ -919,17 +919,17 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 						WidgetFactory orwf = ((EReferenceNodeProcessor) wf).getOppositeReferenceWidgetFactory();
 						if (orwf != null) {
 							Selector<Boolean> shallGenerateSelector = (owf, osBase, opm) ->	((EObjectNodeProcessor<?>) owf).getId() > ((EObjectNodeProcessor<?>) wf).getId();
-							return orwf.createWidget(shallGenerateSelector, progressMonitor) ? OppositeResult.GENERATE : OppositeResult.NO_GENERATE;
+							return orwf.select(shallGenerateSelector, progressMonitor) ? OppositeResult.GENERATE : OppositeResult.NO_GENERATE;
 						}
 					}
 					return OppositeResult.NO_OPPOSITE;	
 				};
 				
 				Selector<String> multiplicitySelector = (wf, sBase, pm) -> ((ETypedElementNodeProcessor<?>) wf).getRelationMultiplicity();
-				String targetMultiplicity = rwf.createWidget(multiplicitySelector, base, progressMonitor);
+				String targetMultiplicity = rwf.select(multiplicitySelector, base, progressMonitor);
 				Object refLink = rwf.createLink(base, progressMonitor);
 				
-				OppositeResult oppositeResult = rwf.createWidget(oppositeResultSelector, progressMonitor);
+				OppositeResult oppositeResult = rwf.select(oppositeResultSelector, progressMonitor);
 				if (oppositeResult != OppositeResult.NO_GENERATE) {
 					Relation refRelation;
 					if (eRef.isContainment()) {
@@ -972,10 +972,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 																		
 						// Source decoration
 						Selector<WidgetFactory> oppositeSelector = (wf, sBase, pm) -> ((EReferenceNodeProcessor) wf).getOppositeReferenceWidgetFactory();
-						WidgetFactory owf = rwf.createWidget(oppositeSelector, progressMonitor);
-						EReference eRefOpposite = (EReference) owf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
+						WidgetFactory owf = rwf.select(oppositeSelector, progressMonitor);
+						EReference eRefOpposite = (EReference) owf.select(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 						Object refOppositeLink = owf.createLink(base, progressMonitor);
-						String sourceMultiplicity = owf.createWidget(multiplicitySelector, base, progressMonitor);
+						String sourceMultiplicity = owf.select(multiplicitySelector, base, progressMonitor);
 						
 						Link sourceLink = new Link(eRefOpposite.getName());
 
@@ -1004,7 +1004,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		};
 				
 		for (WidgetFactory owf: eOperationWidgetFactories.values()) {
-			Operation operation = owf.createWidget(operationSelector, base, progressMonitor);
+			Operation operation = owf.select(operationSelector, base, progressMonitor);
 			type.getOperations().add(operation);
 		}
 		
@@ -1050,11 +1050,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 
 		// Supertypes
 		for (WidgetFactory swf: eGenericSuperTypeWidgetFactories.values()) {
-			EGenericType sgt = (EGenericType) swf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			EGenericType sgt = (EGenericType) swf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 			EClassifier st = sgt.getEClassifier();
 			CompletableFuture<DiagramElement> stcf = diagramElementProvider.apply(st);
 			if (!stcf.isDone()) {
-				DiagramElement stde = swf.createWidget(genericTypeClassifierDiagramElementSelector, uri, progressMonitor);
+				DiagramElement stde = swf.select(genericTypeClassifierDiagramElementSelector, uri, progressMonitor);
 				classDiagram.getDiagramElements().add(stde);
 				stcf.complete(stde);
 			}
@@ -1066,11 +1066,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		// References
 		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
-			EReference eRef = (EReference) rwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, uri, progressMonitor); 
+			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, uri, progressMonitor); 
 			EClass refClass = eRef.getEReferenceType();
 			CompletableFuture<DiagramElement> rccf = diagramElementProvider.apply(refClass);
 			if (!rccf.isDone()) {
-				DiagramElement rtde = rwf.createWidget(referenceTypeDiagramElementSelector, uri, progressMonitor);
+				DiagramElement rtde = rwf.select(referenceTypeDiagramElementSelector, uri, progressMonitor);
 				classDiagram.getDiagramElements().add(rtde);
 				rccf.complete(rtde);
 			}
@@ -1093,27 +1093,27 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		if (depth > 0) {
 			Selector<Collection<EClassifierNodeProcessor<?>>> eClassifierNodeProcessorSelector =  EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth - 1);
 			for (WidgetFactory rtwf: reifiedTypesWidgetFactories.values()) {
-				ret.addAll(rtwf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));
+				ret.addAll(rtwf.select(eClassifierNodeProcessorSelector, progressMonitor));
 			}		
 			
 			// Supertypes
 			for (WidgetFactory gswf: eGenericSuperTypeWidgetFactories.values()) {
-				ret.addAll(gswf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+				ret.addAll(gswf.select(eClassifierNodeProcessorSelector, progressMonitor));				
 			}
 			
 			// Attributes
 			for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
-				ret.addAll(awf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+				ret.addAll(awf.select(eClassifierNodeProcessorSelector, progressMonitor));				
 			}			
 			
 			// References
 			for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
-				ret.addAll(rwf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+				ret.addAll(rwf.select(eClassifierNodeProcessorSelector, progressMonitor));				
 			}			
 			
 			// Operations
 			for (WidgetFactory owf: eOperationWidgetFactories.values()) {
-				ret.addAll(owf.createWidget(eClassifierNodeProcessorSelector, progressMonitor));				
+				ret.addAll(owf.select(eClassifierNodeProcessorSelector, progressMonitor));				
 			}						
 		}
 		return ret;
@@ -1247,10 +1247,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		};
 		
 		for (WidgetFactory cwf: getEClassifierNodeProcessors(1, progressMonitor)) {
-			EClassifier eClassifier = (EClassifier) cwf.createWidget(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 			CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
 			if (!eccf.isDone()) {
-				org.nasdanika.models.echarts.graph.Node ecn = cwf.createWidget(eClassifierNodeSelector, uri, progressMonitor);
+				org.nasdanika.models.echarts.graph.Node ecn = cwf.select(eClassifierNodeSelector, uri, progressMonitor);
 				graph.getNodes().add(ecn);
 				eccf.complete(ecn);
 			}
