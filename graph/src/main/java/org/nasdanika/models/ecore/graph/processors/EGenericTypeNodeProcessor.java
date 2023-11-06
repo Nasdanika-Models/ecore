@@ -16,6 +16,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.ETypedElement;
 import org.jsoup.Jsoup;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -28,6 +29,7 @@ import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.Label;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.ecore.graph.ReifiedTypeConnection;
 
 public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType> implements EClassifierNodeProcessorProvider {
 	
@@ -91,6 +93,27 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	public Map<EClass, WidgetFactory> getSubTypeWidgetFactories() {
 		return subTypeWidgetFactories;
 	}
+	
+	// ETypedElement.getEGenericType()
+	private Map<ETypedElement,WidgetFactory> typedElementWidgetFactories = Collections.synchronizedMap(new HashMap<>());
+	
+	@IncomingEndpoint("reference.name == 'eGenericType'")
+	public final void setETypedElementETypeIncomingEndpoint(EReferenceConnection connection, WidgetFactory typedElementWidgetFactory) {
+		typedElementWidgetFactories.put((ETypedElement) connection.getSource().get(), typedElementWidgetFactory);
+	}
+	
+	public Map<ETypedElement, WidgetFactory> getTypedElementWidgetFactories() {
+		return typedElementWidgetFactories;
+	}
+	
+	protected record ReifiedConnectionRecord(WidgetFactory sourceEClassWidgetFactory, EGenericType genericType) {};
+	
+	protected List<ReifiedConnectionRecord> reifiedTypeReferrersWidgetFactories = new ArrayList<>();
+	
+	@IncomingEndpoint
+	public final void setReifiedTypeReferrerEndpoint(ReifiedTypeConnection connection, WidgetFactory reifiedTypeWidgetFactory) {
+		reifiedTypeReferrersWidgetFactories.add(new ReifiedConnectionRecord(reifiedTypeWidgetFactory, connection.getGenericType()));
+	}				
 
 	@Override
 	public Object createLink(URI base, ProgressMonitor progressMonitor) {

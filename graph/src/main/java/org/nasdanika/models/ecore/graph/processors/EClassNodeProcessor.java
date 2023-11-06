@@ -26,6 +26,7 @@ import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.icepear.echarts.charts.graph.GraphCircular;
 import org.icepear.echarts.charts.graph.GraphEdgeLineStyle;
@@ -54,9 +55,9 @@ import org.nasdanika.diagram.plantuml.clazz.SuperType;
 import org.nasdanika.emf.EmfUtil.EModelElementDocumentation;
 import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.emf.Connection;
-import org.nasdanika.graph.emf.EObjectNode;
 import org.nasdanika.graph.emf.EOperationConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
+import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.TagName;
@@ -154,7 +155,46 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	@OutgoingEndpoint
 	public final void setReifiedTypeEndpoint(ReifiedTypeConnection connection, WidgetFactory reifiedTypeWidgetFactory) {
 		reifiedTypesWidgetFactories.put(connection.getGenericType(), reifiedTypeWidgetFactory);
-	}		
+	}
+	
+	private record SubTypeRecord(
+			EClass subType,
+			WidgetFactory subTypeWidgetFactory,
+			String subTypeLinkStr, 
+			EGenericType genericSuperType, 
+			WidgetFactory genericSuperTypeWidgetFactory, 
+			boolean isDirect) implements Comparable<SubTypeRecord> {
+
+		@Override
+		public int compareTo(SubTypeRecord o) {
+			return subType().getName().compareTo(o.subType().getName());
+		}
+		
+	}
+	
+	private List<SubTypeRecord> getSubTypes(ProgressMonitor progressMonitor) {
+		List<SubTypeRecord> subTypes = new ArrayList<>();		
+		
+		for (Entry<EGenericType, WidgetFactory> rgt: classifierReferencingGenericTypes.entrySet()) { 			
+			Selector<List<SubTypeRecord>> selector = (wf, base, pm) -> {
+				List<SubTypeRecord> ret = new ArrayList<>();
+				EGenericTypeNodeProcessor processor = (EGenericTypeNodeProcessor) wf;
+				for (Entry<EClass, WidgetFactory> subtypeWidgetFactoryEntry: processor.getSubTypeWidgetFactories().entrySet()) {
+					ret.add(new SubTypeRecord(
+							subtypeWidgetFactoryEntry.getKey(),
+							subtypeWidgetFactoryEntry.getValue(),
+							subtypeWidgetFactoryEntry.getValue().createLinkString(base, pm), 
+							rgt.getKey(), 
+							rgt.getValue(), 
+							subtypeWidgetFactoryEntry.getKey().getESuperTypes().contains(EClassNodeProcessor.this.getTarget())));							
+				}
+				return ret;
+			};			
+			subTypes.addAll(rgt.getValue().select(selector, progressMonitor));			
+		}
+		Collections.sort(subTypes);
+		return subTypes;
+	}
 	
 	// === Attributes ===
 		
@@ -478,8 +518,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			}
 		}			
 	}
-	
-		
+			
 	/**
 	 * Building generic sub-types table. Sub-type {@link EClass} *-all generic supertypes-> {@link EGenericType} -eClassifier-> Super-type.  
 	 * @param referenceIncomingEndpoints
@@ -500,40 +539,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		for (Label label : labels) {
 			if (label instanceof Action) {
-				record SubTypeRecord(EClass subType, String subTypeLinkStr, EGenericType genericSuperType, WidgetFactory genericSuperTypeWidgetFactory, boolean isDirect) implements Comparable<SubTypeRecord> {
 
-					@Override
-					public int compareTo(SubTypeRecord o) {
-						return subType().getName().compareTo(o.subType().getName());
-					}
-					
-				}
-
-				// TODO - collect subtypes into a record/class which would then build columns?
-				List<SubTypeRecord> subTypes = new ArrayList<>();
-				
-				for (Entry<EReferenceConnection, WidgetFactory> incomingEndpoint: referenceIncomingEndpoints) {
-					EGenericType genericSuperType = (EGenericType) ((EObjectNode) incomingEndpoint.getKey().getSource()).get();
-					WidgetFactory genericSuperTypeWidgetFactory = incomingEndpoint.getValue();
-					
-					Selector<List<SubTypeRecord>> selector = (wf, base, pm) -> {
-						List<SubTypeRecord> ret = new ArrayList<>();
-						EGenericTypeNodeProcessor processor = (EGenericTypeNodeProcessor) wf;
-						for (Entry<EClass, WidgetFactory> subtypeWidgetFactoryEntry: processor.getSubTypeWidgetFactories().entrySet()) {
-							ret.add(new SubTypeRecord(
-									subtypeWidgetFactoryEntry.getKey(), 
-									subtypeWidgetFactoryEntry.getValue().createLinkString(base, pm), 
-									genericSuperType, 
-									genericSuperTypeWidgetFactory, 
-									subtypeWidgetFactoryEntry.getKey().getESuperTypes().contains(EClassNodeProcessor.this.getTarget())));							
-						}
-						return ret;
-					};										
-					
-					subTypes.addAll(genericSuperTypeWidgetFactory.select(selector, progressMonitor));
-				}
-				
-				Collections.sort(subTypes);				
+				List<SubTypeRecord> subTypes = getSubTypes(progressMonitor);
 				if (!subTypes.isEmpty()) {				
 					DynamicTableBuilder<SubTypeRecord> subTypesTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 					subTypesTableBuilder.setProperty("transitive-label", "All");
@@ -1058,13 +1065,32 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				classDiagram.getDiagramElements().add(stde);
 				stcf.complete(stde);
 			}
-		}		
+		}	
+		
+		Selector<DiagramElement> subTypeDiagramElementSelector = (widgetFactory, sBase, pm) -> {
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
+		};		
+		
+		// Subtypes
+		for (SubTypeRecord subTypeRecord: getSubTypes(progressMonitor)) {
+			if (subTypeRecord.isDirect()) {
+				EClassifier st = subTypeRecord.subType();
+				CompletableFuture<DiagramElement> stcf = diagramElementProvider.apply(st);
+				if (!stcf.isDone()) {
+					DiagramElement stde = subTypeRecord.subTypeWidgetFactory().select(subTypeDiagramElementSelector, uri, progressMonitor);
+					classDiagram.getDiagramElements().add(stde);
+					stcf.complete(stde);
+				}
+			}
+		}	
 		
 		Selector<DiagramElement> referenceTypeDiagramElementSelector = (widgetFactory, sBase, pm) -> {
 			return ((ETypedElementNodeProcessor<?>) widgetFactory).generateTypeDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
 		};
 		
 		// References
+		
+		// Outgoing
 		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
 			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, uri, progressMonitor); 
 			EClass refClass = eRef.getEReferenceType();
@@ -1075,6 +1101,31 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				rccf.complete(rtde);
 			}
 		}		
+		
+		Selector<DiagramElement> declaringClassDiagramElementSelector = (widgetFactory, sBase, pm) -> {
+			if (widgetFactory instanceof EStructuralFeatureNodeProcessor<?>) {
+				widgetFactory = ((EStructuralFeatureNodeProcessor<?>) widgetFactory).getDeclaringClassWidgetFactory();
+			}
+			EClassNodeProcessor eClassNodeProcessor = (EClassNodeProcessor) widgetFactory.select(SELF_SELECTOR, sBase, pm);
+			return eClassNodeProcessor.generateDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
+		};
+		
+		// Incoming		
+		for (Entry<EGenericType, WidgetFactory> crgt: classifierReferencingGenericTypes.entrySet()) {
+			EGenericTypeNodeProcessor genericTypeNodeProcessor = (EGenericTypeNodeProcessor) crgt.getValue().select(SELF_SELECTOR, progressMonitor);
+			for (Entry<ETypedElement, WidgetFactory> typedElementWidgetFactoryEntry: genericTypeNodeProcessor.getTypedElementWidgetFactories().entrySet()) {
+				ETypedElement typedElement = typedElementWidgetFactoryEntry.getKey();
+				if (typedElement instanceof EReference) {
+					EClass declaringClass = ((EReference) typedElement).getEContainingClass();
+					CompletableFuture<DiagramElement> dccf = diagramElementProvider.apply(declaringClass);
+					if (!dccf.isDone()) {
+						DiagramElement dcde = typedElementWidgetFactoryEntry.getValue().select(declaringClassDiagramElementSelector, uri, progressMonitor);
+						classDiagram.getDiagramElements().add(dcde);
+						dccf.complete(dcde);
+					}
+				}
+			}
+		}
 		
 		String diagram = diagramGenerator.generateUmlDiagram(classDiagram.toString());
 		
@@ -1100,6 +1151,13 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			for (WidgetFactory gswf: eGenericSuperTypeWidgetFactories.values()) {
 				ret.addAll(gswf.select(eClassifierNodeProcessorSelector, progressMonitor));				
 			}
+
+			// Subtypes
+			for (SubTypeRecord subtypeRecord: getSubTypes(progressMonitor)) {
+				if (subtypeRecord.isDirect()) {
+					ret.addAll(subtypeRecord.subTypeWidgetFactory.select(eClassifierNodeProcessorSelector, progressMonitor));
+				}
+			}					
 			
 			// Attributes
 			for (WidgetFactory awf: eAttributeWidgetFactories.values()) {
@@ -1109,7 +1167,24 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			// References
 			for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
 				ret.addAll(rwf.select(eClassifierNodeProcessorSelector, progressMonitor));				
-			}			
+			}
+
+			Selector<Collection<EClassifierNodeProcessor<?>>> declaringClassSelector = (wf, sBase, pm) -> {
+				if (wf instanceof EStructuralFeatureNodeProcessor<?>) {
+					wf = ((EStructuralFeatureNodeProcessor<?>) wf).getDeclaringClassWidgetFactory();
+				}
+				return wf.select(eClassifierNodeProcessorSelector, sBase, progressMonitor);
+			};	
+			
+			for (Entry<EGenericType, WidgetFactory> crgt: classifierReferencingGenericTypes.entrySet()) {
+				EGenericTypeNodeProcessor genericTypeNodeProcessor = (EGenericTypeNodeProcessor) crgt.getValue().select(SELF_SELECTOR, progressMonitor);
+				for (Entry<ETypedElement, WidgetFactory> typedElementWidgetFactoryEntry: genericTypeNodeProcessor.getTypedElementWidgetFactories().entrySet()) {
+					ETypedElement typedElement = typedElementWidgetFactoryEntry.getKey();
+					if (typedElement instanceof EReference) {
+						ret.addAll(typedElementWidgetFactoryEntry.getValue().select(declaringClassSelector, progressMonitor)); 				
+					}
+				}
+			}
 			
 			// Operations
 			for (WidgetFactory owf: eOperationWidgetFactories.values()) {

@@ -2,6 +2,7 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,6 +13,7 @@ import java.util.function.Function;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -19,6 +21,7 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
+import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.model.app.Action;
@@ -48,11 +51,23 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		return super.isCallOutgoingReferenceLabelsSuppliers(eReference);
 	}	
 	
-	private Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	protected Map<Integer,WidgetFactory> eTypeParametersWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
 	
 	@OutgoingEndpoint("reference.name == 'eTypeParameters'")
 	public final void setETypeParameterEndpoint(EReferenceConnection connection, WidgetFactory eTypeParameterWidgetFactory) {
 		eTypeParametersWidgetFactories.put(connection.getIndex(), eTypeParameterWidgetFactory);
+	}
+	
+	protected Map<EGenericType, WidgetFactory> classifierReferencingGenericTypes = Collections.synchronizedMap(new HashMap<>());	
+	
+	@IncomingEndpoint
+	public final void setEGenericTypeClassifierEndpoint(EReferenceConnection connection, WidgetFactory widgetFactory) {
+		
+		if (connection.getReference() == EcorePackage.Literals.EGENERIC_TYPE__ECLASSIFIER) {
+			EGenericType genericType = (EGenericType) connection.getSource().get();
+			classifierReferencingGenericTypes.put(genericType, widgetFactory);		
+		}
+		
 	}	
 	
 	/**
