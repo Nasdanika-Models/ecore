@@ -9,10 +9,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -57,7 +59,6 @@ import org.nasdanika.emf.persistence.EObjectLoader;
 import org.nasdanika.graph.emf.Connection;
 import org.nasdanika.graph.emf.EOperationConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
-import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.TagName;
@@ -1110,18 +1111,35 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return eClassNodeProcessor.generateDiagramElement(sBase, diagramElementCompletionStageProvider, pm);
 		};
 		
-		// Incoming		
+		// Incoming
+		for (Entry<ETypedElement, WidgetFactory> rte: referencingTypedElements.entrySet()) {
+			ETypedElement typedElement = rte.getKey();
+			if (typedElement instanceof EReference) {
+				EClass declaringClass = ((EReference) typedElement).getEContainingClass();
+				if (declaringClass != null) {
+					CompletableFuture<DiagramElement> dccf = diagramElementProvider.apply(declaringClass);
+					if (!dccf.isDone()) {
+						DiagramElement dcde = rte.getValue().select(declaringClassDiagramElementSelector, uri, progressMonitor);
+						classDiagram.getDiagramElements().add(dcde);
+						dccf.complete(dcde);
+					}
+				}
+			}
+		}
+		
 		for (Entry<EGenericType, WidgetFactory> crgt: classifierReferencingGenericTypes.entrySet()) {
 			EGenericTypeNodeProcessor genericTypeNodeProcessor = (EGenericTypeNodeProcessor) crgt.getValue().select(SELF_SELECTOR, progressMonitor);
 			for (Entry<ETypedElement, WidgetFactory> typedElementWidgetFactoryEntry: genericTypeNodeProcessor.getTypedElementWidgetFactories().entrySet()) {
 				ETypedElement typedElement = typedElementWidgetFactoryEntry.getKey();
 				if (typedElement instanceof EReference) {
 					EClass declaringClass = ((EReference) typedElement).getEContainingClass();
-					CompletableFuture<DiagramElement> dccf = diagramElementProvider.apply(declaringClass);
-					if (!dccf.isDone()) {
-						DiagramElement dcde = typedElementWidgetFactoryEntry.getValue().select(declaringClassDiagramElementSelector, uri, progressMonitor);
-						classDiagram.getDiagramElements().add(dcde);
-						dccf.complete(dcde);
+					if (declaringClass != null) {
+						CompletableFuture<DiagramElement> dccf = diagramElementProvider.apply(declaringClass);
+						if (!dccf.isDone()) {
+							DiagramElement dcde = typedElementWidgetFactoryEntry.getValue().select(declaringClassDiagramElementSelector, uri, progressMonitor);
+							classDiagram.getDiagramElements().add(dcde);
+							dccf.complete(dcde);
+						}
 					}
 				}
 			}
@@ -1138,11 +1156,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	}
 	
 	@Override
-	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {
 		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
 		ret.add(this);
 		if (depth > 0) {
-			Selector<Collection<EClassifierNodeProcessor<?>>> eClassifierNodeProcessorSelector =  EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth - 1);
+			Selector<Collection<EClassifierNodeProcessor<?>>> eClassifierNodeProcessorSelector =  EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth - 1, predicate);
 			for (WidgetFactory rtwf: reifiedTypesWidgetFactories.values()) {
 				ret.addAll(rtwf.select(eClassifierNodeProcessorSelector, progressMonitor));
 			}		
@@ -1172,9 +1190,15 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			Selector<Collection<EClassifierNodeProcessor<?>>> declaringClassSelector = (wf, sBase, pm) -> {
 				if (wf instanceof EStructuralFeatureNodeProcessor<?>) {
 					wf = ((EStructuralFeatureNodeProcessor<?>) wf).getDeclaringClassWidgetFactory();
-				}
-				return wf.select(eClassifierNodeProcessorSelector, sBase, progressMonitor);
+				}				
+				return wf == null ? Collections.emptyList() :  wf.select(eClassifierNodeProcessorSelector, sBase, pm);
 			};	
+			
+			for (Entry<ETypedElement, WidgetFactory> rte: referencingTypedElements.entrySet()) {
+				if (rte.getKey() instanceof EReference) {
+					ret.addAll(rte.getValue().select(declaringClassSelector, progressMonitor)); 				
+				}
+			}
 			
 			for (Entry<EGenericType, WidgetFactory> crgt: classifierReferencingGenericTypes.entrySet()) {
 				EGenericTypeNodeProcessor genericTypeNodeProcessor = (EGenericTypeNodeProcessor) crgt.getValue().select(SELF_SELECTOR, progressMonitor);
@@ -1321,7 +1345,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return ((EClassifierNodeProcessor<?>) widgetFactory).generateEChartsGraphNode(sBase, nodeCompletionStageProvider, categoryProvider, progressMonitor);
 		};
 		
-		for (WidgetFactory cwf: getEClassifierNodeProcessors(1, progressMonitor)) {
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
+		for (WidgetFactory cwf: getEClassifierNodeProcessors(1, traversed::add, progressMonitor)) {
 			EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 			CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
 			if (!eccf.isDone()) {

@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
@@ -312,9 +313,9 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 	}		
 	
 	@Override
-	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
-		Collection<EClassifierNodeProcessor<?>> ret = super.getEClassifierNodeProcessors(depth, progressMonitor);
-		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {
+		Collection<EClassifierNodeProcessor<?>> ret = super.getEClassifierNodeProcessors(depth, predicate, progressMonitor);
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth, predicate);
 		// parameters
 		for (WidgetFactory pwf: eParameterWidgetFactories.values()) {
 			ret.addAll(pwf.select(selector, progressMonitor));

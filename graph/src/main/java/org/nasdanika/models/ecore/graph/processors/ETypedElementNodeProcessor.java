@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -364,14 +365,17 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	}
 	
 	@Override
-	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {
 		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
-		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth, predicate);
 		// generic type
 		if (genericTypeWidgetFactory != null) {
 			ret.addAll(genericTypeWidgetFactory.select(selector, progressMonitor));
 		}
-
+		if (typeWidgetFactory != null) {
+			ret.addAll(typeWidgetFactory.select(selector, progressMonitor));
+		}
+		
 		return ret;
 	}
 			

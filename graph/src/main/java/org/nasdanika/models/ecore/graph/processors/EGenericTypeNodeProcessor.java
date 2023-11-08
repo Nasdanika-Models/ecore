@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -106,6 +107,21 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 		return typedElementWidgetFactories;
 	}
 	
+	// EClass.getEGenericSupertypes()
+	
+	public record IncomingTypeParameterEBoundRecord(EReferenceConnection eReferenceConnection, WidgetFactory widgetFactory) {};
+	
+	private List<IncomingTypeParameterEBoundRecord> incomingTypeParameterEBounds = Collections.synchronizedList(new ArrayList<>());
+	
+	@IncomingEndpoint("reference.name == 'eBounds'")
+	public final void setIncomingTypeParameterEBoundEndpoint(EReferenceConnection connection, WidgetFactory incomingTypeParameterEBoundWidgetFactory) {
+		incomingTypeParameterEBounds.add(new IncomingTypeParameterEBoundRecord(connection, incomingTypeParameterEBoundWidgetFactory));
+	}	
+
+	public List<IncomingTypeParameterEBoundRecord> getIncomingTypeParameterEBounds() {
+		return incomingTypeParameterEBounds;
+	}
+	
 	protected record ReifiedConnectionRecord(WidgetFactory sourceEClassWidgetFactory, EGenericType genericType) {};
 	
 	protected List<ReifiedConnectionRecord> reifiedTypeReferrersWidgetFactories = new ArrayList<>();
@@ -193,9 +209,9 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 	}
 
 	@Override
-	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {
 		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
-		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth, predicate);
 		// eClassifier
 		if (eClassifierWidgetFactory != null) {
 			ret.addAll(eClassifierWidgetFactory.select(selector, progressMonitor));
@@ -216,6 +232,10 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 		for (WidgetFactory tawf: eTypeArgumentWidgetFactories.values()) {
 			ret.addAll(tawf.select(selector, progressMonitor));			
 		}
+//		// Incoming eBounds
+//		for (IncomingTypeParameterEBoundRecord itpebr: incomingTypeParameterEBounds) {
+//			ret.addAll(itpebr.widgetFactory().select(selector, progressMonitor));			
+//		}
 
 		return ret;
 	}

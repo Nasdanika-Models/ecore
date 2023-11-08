@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.TreeMap;
 
 import org.eclipse.emf.common.util.EList;
@@ -108,9 +109,9 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 	}				
 
 	@Override
-	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {
 		Collection<EClassifierNodeProcessor<?>> ret = new HashSet<>();
-		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth);
+		Selector<Collection<EClassifierNodeProcessor<?>>> selector = EClassifierNodeProcessorProvider.createEClassifierNodeProcessorSelector(depth, predicate);
 		for (WidgetFactory bwf: eBoundsWidgetFactories.values()) {
 			ret.addAll(bwf.select(selector, progressMonitor));
 		}

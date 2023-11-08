@@ -7,11 +7,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
@@ -394,8 +396,10 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 					progressMonitor);
 		};
 		
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
 		for (WidgetFactory pcwf: getEClassifierWidgetFactories(withSubpackages, progressMonitor)) {
-			for (WidgetFactory cwf: withDependencies(pcwf, withDependencies ? 1 : 0, progressMonitor)) {
+			for (WidgetFactory cwf: withDependencies(pcwf, withDependencies ? 1 : 0, traversed::add, progressMonitor)) {
 				EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 				CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
 				if (!eccf.isDone()) {
@@ -421,11 +425,11 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		return ret;
 	}
 	
-	protected Collection<? extends WidgetFactory> withDependencies(WidgetFactory wf, int depth, ProgressMonitor progressMonitor) {
+	protected Collection<? extends WidgetFactory> withDependencies(WidgetFactory wf, int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {
 		EClassifier eClassifier = (EClassifier) wf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 		if (eClassifier instanceof EClass) {
 			EClassNodeProcessor ecnp = (EClassNodeProcessor) wf.select(EObjectNodeProcessor.SELF_SELECTOR, progressMonitor);
-			return ecnp.getEClassifierNodeProcessors(depth, progressMonitor);
+			return ecnp.getEClassifierNodeProcessors(depth, predicate, progressMonitor);
 		}
 		return Collections.singleton(wf);
 	}	

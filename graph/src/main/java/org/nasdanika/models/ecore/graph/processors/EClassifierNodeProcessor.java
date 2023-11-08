@@ -3,12 +3,15 @@ package org.nasdanika.models.ecore.graph.processors;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -16,6 +19,7 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -59,15 +63,17 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	}
 	
 	protected Map<EGenericType, WidgetFactory> classifierReferencingGenericTypes = Collections.synchronizedMap(new HashMap<>());	
+	protected Map<ETypedElement, WidgetFactory> referencingTypedElements = Collections.synchronizedMap(new HashMap<>());		
 	
 	@IncomingEndpoint
 	public final void setEGenericTypeClassifierEndpoint(EReferenceConnection connection, WidgetFactory widgetFactory) {
-		
 		if (connection.getReference() == EcorePackage.Literals.EGENERIC_TYPE__ECLASSIFIER) {
 			EGenericType genericType = (EGenericType) connection.getSource().get();
 			classifierReferencingGenericTypes.put(genericType, widgetFactory);		
+		} else if (connection.getReference() == EcorePackage.Literals.ETYPED_ELEMENT__ETYPE) {
+			ETypedElement typeElement = (ETypedElement) connection.getSource().get();
+			referencingTypedElements.put(typeElement, widgetFactory);		
 		}
-		
 	}	
 	
 	/**
@@ -178,6 +184,8 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		
 		org.nasdanika.ncore.Map vMap = NcoreFactory.eINSTANCE.createMap();
 		
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
 		Object link = createLink(base, progressMonitor);
 		if (link instanceof Label) {
 			Label label = (Label) link;
@@ -200,7 +208,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 			graphNode.setCategory(categoryProvider.apply(getTarget().getEPackage()));
 		}
 		
-		Collection<EClassifierNodeProcessor<?>> dependencies = getEClassifierNodeProcessors(1, progressMonitor);
+		Collection<EClassifierNodeProcessor<?>> dependencies = getEClassifierNodeProcessors(1, traversed::add, progressMonitor);
 		for (EClassifierNodeProcessor<?> dep: dependencies) {
 			if (dep != this) {
 				nodeProvider.apply((EClassifier) dep.getTarget()).thenAccept(targetNode -> {
@@ -242,7 +250,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	 * Returns self. EClassNodeProcessor overrides to return also dependency classifiers from features, operations, and supertypes.
 	 */
 	@Override
-	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, ProgressMonitor progressMonitor) {
+	public Collection<EClassifierNodeProcessor<?>> getEClassifierNodeProcessors(int depth, Predicate<WidgetFactory> predicate, ProgressMonitor progressMonitor) {		
 		return Collections.singleton(this);
 	}
 	
