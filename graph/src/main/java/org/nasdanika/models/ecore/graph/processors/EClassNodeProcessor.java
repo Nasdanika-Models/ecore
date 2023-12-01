@@ -880,6 +880,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			return superType;
 		};
 		
+		boolean[] isFirstGeneralization = { true };
+		
 		for (WidgetFactory swf: eGenericSuperTypeWidgetFactories.values()) {
 			SuperType superType = swf.select(superTypeSelector, base, progressMonitor);
 			type.getSuperTypes().add(superType);			
@@ -892,6 +894,12 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				boolean isClass = !getTarget().isInterface();
 				
 				Relation superTypeRelation = isSuperInterface && isClass ? new Implementation(type, stde) : new Generalization(type, stde);
+				
+				if (superTypeRelation instanceof Generalization && isFirstGeneralization[0]) {
+					superTypeRelation.setThickness(2);
+					isFirstGeneralization[0] = false;
+				}
+				
 				// TODO - generic type parameters bindings if any
 			});
 		}
