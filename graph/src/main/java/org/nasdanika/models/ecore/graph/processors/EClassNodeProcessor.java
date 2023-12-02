@@ -564,8 +564,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	}
 	
 	@Override
-	protected void configureLabel(EObject eObject, Label label, ProgressMonitor progressMonitor) {
-		super.configureLabel(eObject, label, progressMonitor);
+	public void configureLabel(Object source, Label label, ProgressMonitor progressMonitor) {		
+		super.configureLabel(source, label, progressMonitor);
 		if (getTarget().isAbstract()) {
 			label.setText("<i>" + label.getText() + "</i>");
 		}

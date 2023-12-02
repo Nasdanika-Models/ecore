@@ -74,30 +74,33 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	}
 	
 	@Override
-	protected void configureLabel(EObject eObject, Label label, ProgressMonitor progressMonitor) {
-		if (eObject instanceof EModelElement) {
-			EModelElement modelElement = (EModelElement) eObject;
-			if (Util.isBlank(label.getIcon())) {
-				boolean isInterface = eObject instanceof EClass && ((EClass) eObject).isInterface();
-				String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/" + (isInterface ? "EInterface" : eObject.eClass().getName()) + ".gif";
-				label.setIcon(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "icon", defaultIcon));
-			}
-			if (Util.isBlank(label.getTooltip())) {
-				label.setTooltip(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "description", null));
-			}
-			if (Util.isBlank(label.getTooltip())) {
-				String modelDoc = EcoreUtil.getDocumentation(modelElement);
-				if (!Util.isBlank(modelDoc))
-				label.setTooltip(modelDoc);
-			}
-			if (Util.isBlank(label.getText())) {
-				label.setText(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "label", null));
-			}		
-			if (modelElement instanceof ENamedElement && Util.isBlank(label.getText())) {
-				label.setText(((ENamedElement) modelElement).getName());
+	public void configureLabel(Object source, Label label, ProgressMonitor progressMonitor) {
+		if (source instanceof EObject) {
+			EObject eObject = (EObject) source;
+			if (eObject instanceof EModelElement) {
+				EModelElement modelElement = (EModelElement) eObject;
+				if (Util.isBlank(label.getIcon())) {
+					boolean isInterface = eObject instanceof EClass && ((EClass) eObject).isInterface();
+					String defaultIcon = "https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/" + (isInterface ? "EInterface" : eObject.eClass().getName()) + ".gif";
+					label.setIcon(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "icon", defaultIcon));
+				}
+				if (Util.isBlank(label.getTooltip())) {
+					label.setTooltip(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "description", null));
+				}
+				if (Util.isBlank(label.getTooltip())) {
+					String modelDoc = EcoreUtil.getDocumentation(modelElement);
+					if (!Util.isBlank(modelDoc))
+					label.setTooltip(modelDoc);
+				}
+				if (Util.isBlank(label.getText())) {
+					label.setText(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "label", null));
+				}		
+				if (modelElement instanceof ENamedElement && Util.isBlank(label.getText())) {
+					label.setText(((ENamedElement) modelElement).getName());
+				}
 			}
 		}
-		super.configureLabel(eObject, label, progressMonitor);
+		super.configureLabel(source, label, progressMonitor);
 	}
 	
 	@Override
