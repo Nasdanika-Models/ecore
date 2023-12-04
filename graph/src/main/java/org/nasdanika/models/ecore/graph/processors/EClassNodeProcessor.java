@@ -895,9 +895,12 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				Relation superTypeRelation = isSuperInterface && isClass ? new Implementation(type, stde) : new Generalization(type, stde);
 				
-				if (superTypeRelation instanceof Generalization && isFirstGeneralization[0]) {
-					superTypeRelation.setThickness(2);
-					isFirstGeneralization[0] = false;
+				if (superTypeRelation instanceof Generalization) {
+					if (isFirstGeneralization[0]) {
+						isFirstGeneralization[0] = false;
+					} else {
+						superTypeRelation.getColors().add("808080");
+					}
 				}
 				
 				// TODO - generic type parameters bindings if any
