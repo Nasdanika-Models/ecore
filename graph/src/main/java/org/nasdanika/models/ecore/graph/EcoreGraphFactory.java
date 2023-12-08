@@ -99,6 +99,9 @@ public class EcoreGraphFactory extends EObjectGraphFactory {
 			String name = ((ENamedElement) target.get()).getName();
 			if (target.get() instanceof EOperation /** && !((EOperation) target.getTarget()).getEParameters().isEmpty() */) {
 				EOperation eOperation = (EOperation) target.get();
+				if (source.get() instanceof EClass) {
+					return name + "-" + ((EClass) source.get()).getOperationID(eOperation);
+				}
 				return name + "-" + eOperation.getOperationID();
 			}
 			return name;

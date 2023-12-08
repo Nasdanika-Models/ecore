@@ -72,7 +72,10 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 			});
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.ETYPE_PARAMETER__EBOUNDS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ETYPE_PARAMETER,
+			referenceID = EcorePackage.ETYPE_PARAMETER__EBOUNDS)
 	public void buildETypeParametersOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 

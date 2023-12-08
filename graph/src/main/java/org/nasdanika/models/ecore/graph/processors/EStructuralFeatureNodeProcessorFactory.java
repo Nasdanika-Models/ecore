@@ -39,16 +39,16 @@ public @interface EStructuralFeatureNodeProcessorFactory {
 	 * Containing {@link EPackage} namespace URI.
 	 * @return
 	 */
-	String nsURI() default "";
+	String nsURI(); // default "";
 	
 	/**
 	 * {@link EClass} ID as specified in the generated {@link EPackage} constants
 	 * @return
 	 */
-	int classID() default -1;
+	int classID(); // default -1;
 		
 	/**
-	 * {@link EStructuralFeature} ID as specified in the generated {@link EPackage} constants.
+	 * {@link EStructuralFeature} ID as specified in the generated {@link EPackage} constants for a given class.
 	 * @return
 	 */
 	int featureID();	

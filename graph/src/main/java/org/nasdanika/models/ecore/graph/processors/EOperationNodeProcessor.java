@@ -104,7 +104,10 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 			});
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.EOPERATION__EPARAMETERS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.EOPERATION,
+			referenceID = EcorePackage.EOPERATION__EPARAMETERS)
 	public void buildParametersOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -160,7 +163,10 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 			});
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.EOPERATION__ETYPE_PARAMETERS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.EOPERATION,
+			referenceID = EcorePackage.EOPERATION__ETYPE_PARAMETERS)
 	public void buildETypeParametersOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 

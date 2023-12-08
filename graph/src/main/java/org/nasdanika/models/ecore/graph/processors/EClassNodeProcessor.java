@@ -222,7 +222,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			});
 	}
 
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EATTRIBUTES)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EATTRIBUTES)
 	public void buildEAttributesOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -246,7 +249,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 	}		
 
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EALL_ATTRIBUTES)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EALL_ATTRIBUTES)
 	public void buildEAllAttributesOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -302,7 +308,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			});
 	}
 
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EREFERENCES)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EREFERENCES)
 	public void buildReferencesOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -325,7 +334,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 	}		
 	
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EALL_REFERENCES)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EALL_REFERENCES)
 	public void buildEAllReferencesOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -385,7 +397,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	}
 	
 
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EOPERATIONS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EOPERATIONS)
 	public void buildOperationsOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -408,7 +423,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 	}		
 
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EALL_OPERATIONS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EALL_OPERATIONS)
 	public void buildEAllOperationsOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -489,7 +507,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			});
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.ECLASS__EALL_GENERIC_SUPER_TYPES)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASS,
+			referenceID = EcorePackage.ECLASS__EALL_GENERIC_SUPER_TYPES)
 	public void buildEAllGenericSuperTypesOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 

@@ -46,7 +46,10 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 		return super.isCallOutgoingReferenceLabelsSuppliers(eReference);
 	}	
 
-	@OutgoingReferenceBuilder(EcorePackage.EENUM__ELITERALS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.EENUM,
+			referenceID = EcorePackage.EENUM__ELITERALS)
 	public void buildELiteralsOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 

@@ -30,6 +30,7 @@ import org.eclipse.emf.ecore.ETypeParameter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.Diagnostic;
+import org.nasdanika.common.EStructuralFeatureAndEOperationMatcher;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Reflector;
 import org.nasdanika.common.Util;
@@ -58,7 +59,7 @@ import org.nasdanika.persistence.ObjectLoaderResource;
  * @author Pavel
  *
  */
-public class EcoreNodeProcessorFactory extends Reflector {
+public class EcoreNodeProcessorFactory extends Reflector implements EStructuralFeatureAndEOperationMatcher {
 			
 	private Context context;
 	private Consumer<Diagnostic> diagnosticConsumer;
@@ -396,16 +397,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						return false;
 					}
 					EStructuralFeature target = (EStructuralFeature) ((EObjectNode) config.getElement()).get();
-					if (target.getFeatureID() != ann.featureID()) {
-						return false;
-					}
-					int classID = ann.classID();
-					if (classID != -1  &&  classID != target.getEContainingClass().getClassifierID()) {
-						return false;
-					}
-					
-					String nsURI = ann.nsURI();
-					return Util.isBlank(nsURI) || nsURI.equals(target.getEContainingClass().getEPackage().getNsURI());
+					return matchEStructuralFeature(ann.nsURI(), ann.classID(), ann.featureID(), null, target);
 				}).findFirst();
 		
 		if (fo.isEmpty()) {
@@ -464,16 +456,7 @@ public class EcoreNodeProcessorFactory extends Reflector {
 						return false;
 					}
 					EOperation target = (EOperation) ((EObjectNode) config.getElement()).get();
-					if (target.getOperationID() != ann.operationID()) {
-						return false;
-					}
-					int classID = ann.classID();
-					if (classID != -1 && classID != target.getEContainingClass().getClassifierID()) {
-						return false;
-					}
-					
-					String nsURI = ann.nsURI();
-					return Util.isBlank(nsURI) || nsURI.equals(target.getEContainingClass().getEPackage().getNsURI());
+					return matchEOperation(ann.nsURI(), ann.classID(), ann.operationID(), null, target);
 				}).findFirst();
 		
 		if (fo.isPresent()) {

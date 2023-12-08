@@ -98,7 +98,10 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 			});
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.ECLASSIFIER__ETYPE_PARAMETERS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.ECLASSIFIER,
+			referenceID = EcorePackage.ECLASSIFIER__ETYPE_PARAMETERS)
 	public void buildETypeParametersOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 

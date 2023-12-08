@@ -149,7 +149,10 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			});
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.EPACKAGE__ECLASSIFIERS)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.EPACKAGE,
+			referenceID = EcorePackage.EPACKAGE__ECLASSIFIERS)
 	public void buildEClassifiersOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
@@ -183,7 +186,10 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		}
 	}
 	
-	@OutgoingReferenceBuilder(EcorePackage.EPACKAGE__ESUBPACKAGES)
+	@OutgoingReferenceBuilder(
+			nsURI = EcorePackage.eNS_URI,
+			classID = EcorePackage.EPACKAGE,
+			referenceID = EcorePackage.EPACKAGE__ESUBPACKAGES)
 	public void buildESubPackagesOutgoingReference(
 			EReference eReference,
 			List<Entry<EReferenceConnection, WidgetFactory>> referenceOutgoingEndpoints, 
