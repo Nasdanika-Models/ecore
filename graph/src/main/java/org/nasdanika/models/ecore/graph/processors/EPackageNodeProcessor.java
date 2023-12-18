@@ -446,7 +446,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		graphAction.setLocation("default-graph.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("none")
                 .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
@@ -488,7 +488,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		graphAction.setLocation("circular-layout-graph.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("circular")
 				.setCircular(new GraphCircular().setRotateLabel(true))
@@ -531,7 +531,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		graphAction.setLocation("force-layout-graph.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("force")
 				.setForce(new GraphForce().setRepulsion(200).setGravity(0.1).setEdgeLength(200))
@@ -580,7 +580,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		graphAction.setLocation("default-graph-with-dependencies-and-subpackages.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("none")
                 .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
@@ -624,7 +624,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		graphAction.setLocation("circular-layout-graph-with-dependencies-and-subpackages.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("circular")
 				.setCircular(new GraphCircular().setRotateLabel(true))
@@ -669,7 +669,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		graphAction.setLocation("force-layout-graph-with-dependencies-and-subpackages.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("force")
 				.setForce(new GraphForce().setRepulsion(200).setGravity(0.1).setEdgeLength(200))

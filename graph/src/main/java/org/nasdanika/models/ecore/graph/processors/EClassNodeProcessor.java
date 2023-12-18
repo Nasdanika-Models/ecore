@@ -1276,7 +1276,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		graphAction.setLocation("default-graph.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("none")
 	            .setLabel(new SeriesLabel().setShow(true).setPosition("right"))
@@ -1320,7 +1320,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		org.nasdanika.models.echarts.graph.Graph graph = generateGraph(progressMonitor);
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("circular")
 				.setCircular(new GraphCircular().setRotateLabel(true))
@@ -1399,7 +1399,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		graphAction.setLocation("force-layout-graph.html");
 		
 		GraphSeries graphSeries = new org.icepear.echarts.charts.graph.GraphSeries()
-				.setSymbolSize(16)
+				.setSymbolSize(ICON_SIZE)
 				.setDraggable(true)				
 				.setLayout("force")
 				.setForce(new GraphForce().setRepulsion(200).setGravity(0.1).setEdgeLength(200))
