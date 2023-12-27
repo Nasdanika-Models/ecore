@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="EN">
+  <head>
+    <title>Diagram</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/cerulean/bootstrap.min.css" id="nsd-bootstrap-theme-stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Nasdanika/html@master/model/app.gen/web-resources/css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jstree@3.3.11/dist/themes/default/style.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.3.1/build/styles/default.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.css">
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika/html@master/model/app.gen/web-resources/js/common.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika/html@master/model/app.gen/web-resources/js/dark-head.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstree@3.3.11/dist/jstree.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.3.1/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika/html@master/model/app.gen/web-resources/js/components/table.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/components/table.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9BRJVLK8CC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9BRJVLK8CC');
+</script>    
+
+<script src="../../../search-documents.js"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/olivernn/lunr.js@v2.3.9/lunr.js"></script>
+
+<script>
+// Script for full-text search of JsTree
+
+window.nsdJsTreeSearchCallback = function(str, node) { 
+    var sf = new $.vakata.search(str, true, { caseSensitive : false, fuzzy : false }); 
+    if (sf.search(node.text).isMatch) {
+		return true;
+	} 
+    let searchResult = this.search(str); 
+    for (const sr in searchResult) {
+        if (searchResult[sr].ref === node.original['data-nsd-label-uuid']) {
+            return true;
+        } 
+    } 
+    return false; 
+}.bind(lunr(function () {
+			  this.ref('id');
+			  this.field('title');
+			  this.field('content');
+
+			  for (const key in searchDocuments) {
+				  let doc = searchDocuments[key];
+				this.add({
+					id: doc['action-uuid'],
+					title: doc.title,
+					path: doc.path,
+					content: doc.content
+				});  
+			  }
+			}));
+</script>
+</head>
+  <body>
+    <div class="container-fluid nsd-app-container">
+      <div class="row">
+        <div class="col nsd-app-header">
+          <a href="https://github.com/Nasdanika-Models" data-nsd-label-uuid="caabb15d-f389-486b-8592-9159bf4078fe" class="nsd-app-header-title">
+            <img src="https://docs.nasdanika.org/images/nasdanika-logo.png" class="nsd-app-label-icon">Nasdanika Models</a>
+          <ul class="nav nsd-app-header-navs">
+            <li class="nav-item">
+              <a href="../../../search.html" data-nsd-label-uuid="0aaa3e27-65c8-4406-9972-172e54a9671e" class="nav-link"><span class="fas fa-search nsd-app-label-icon"></span>Search</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../../glossary.html" data-nsd-label-uuid="16c4fd54-635e-4e06-9909-1b1b26cf06a2" class="nav-link"><span class="fas fa-book nsd-app-label-icon"></span>Glossary</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col nsd-app-navbar">
+          <ul class="navbar navbar-light navbar-expand-lg">
+            <a href="../../../index.html" data-nsd-label-uuid="efa6e6de-d488-41b4-b8ae-0f3856bda517" class="navbar-brand">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EPackage.gif" class="nsd-app-label-icon">ecore</a>
+            <button type="button" data-toggle="collapse" data-target="#nsd_8bn" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="nsd_8bn" class="collapse navbar-collapse">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                  <a href="../../../classifiers.html" data-nsd-label-uuid="8c93c67a-0785-4e1c-9212-f21439815066" class="nav-link">Classifiers</a>
+                </li>
+                <li class="nav-item">
+                  <a href="../../../diagram.html" data-nsd-label-uuid="706c16de-9c16-4ed9-b322-1c063bfdef56" class="nav-link"><span class="fas fa-project-diagram nsd-app-label-icon"></span>Diagram</a>
+                </li>
+                <li class="nav-item">
+                  </li><li data-nsd-label-uuid="3541cdf0-afa4-42ba-bb4b-fa8f925f2477" class="dropdown">
+                    <a role="button" data-toggle="dropdown" class="nav-link dropdown-toggle">
+                      <img src="https://img.icons8.com/external-dreamstale-lineal-dreamstale/16/external-diagram-seo-media-dreamstale-lineal-dreamstale.png" class="nsd-app-label-icon">Graphs</a>
+                    <div class="dropdown-menu">
+                      <a href="../../../default-graph.html" data-nsd-label-uuid="d5116a17-695d-4712-a375-a83c41681bb0" class="dropdown-item">Default Graph</a>
+                      <a href="../../../circular-layout-graph.html" data-nsd-label-uuid="b7ca6509-9c36-42e0-a335-1defb0301b2c" class="dropdown-item">Circular Graph</a>
+                      <a href="../../../force-layout-graph.html" data-nsd-label-uuid="e553d451-88c3-4792-a204-4d39a4f12a5b" class="dropdown-item">Force Graph</a>
+                      <div title="With dependencies and sub-packages" class="dropdown-divider"></div>
+                      <a href="../../../default-graph-with-dependencies-and-subpackages.html" data-nsd-label-uuid="335aeed4-a20f-4e3d-8c63-bb1b8fc737b6" class="dropdown-item">Default Graph</a>
+                      <a href="../../../circular-layout-graph-with-dependencies-and-subpackages.html" data-nsd-label-uuid="377fbc73-aebb-4871-a00c-bca536eacc38" class="dropdown-item">Circular Graph</a>
+                      <a href="../../../force-layout-graph-with-dependencies-and-subpackages.html" data-nsd-label-uuid="bac525fb-d59b-403b-b432-3b0947ed1401" class="dropdown-item">Force Graph</a>
+                    </div>
+                  </li>
+                
+              </ul>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="row nsd-app-content-row">
+        <div class="col nsd-app-navigation-panel">
+          <div class="list-group list-group-flush">
+            <a href="../1/index.html" data-nsd-label-uuid="9492312d-7ebe-49bb-9bfc-e4c67dd6c259" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EAnnotation</a>
+            <a href="../0/index.html" data-nsd-label-uuid="85611ea3-81fa-4f29-8f45-fb9a3bf506e7" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EAttribute</a>
+            <a href="../20/index.html" data-nsd-label-uuid="8d6db27c-2247-413a-a077-549fd7fddec8" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EBigDecimal</a>
+            <a href="../21/index.html" data-nsd-label-uuid="ce7f8958-91bc-49ce-970d-2322ae17ed9d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EBigInteger</a>
+            <a href="../22/index.html" data-nsd-label-uuid="acfb36a6-8d37-4cf5-877a-cd72d4d9a5bb" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EBoolean</a>
+            <a href="../23/index.html" data-nsd-label-uuid="256bba0d-b3c5-47b8-862d-06915216b962" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EBooleanObject</a>
+            <a href="../24/index.html" data-nsd-label-uuid="393d267f-ece9-4352-a1f8-c838c7a403d9" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EByte</a>
+            <a href="../25/index.html" data-nsd-label-uuid="6775e514-535c-473b-b9b6-677bd6539ee6" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EByteArray</a>
+            <a href="../26/index.html" data-nsd-label-uuid="ff8d7699-30ca-4909-a7aa-029d38c9f295" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EByteObject</a>
+            <a href="../27/index.html" data-nsd-label-uuid="fbbf74a0-35e6-4839-8957-f4c0cfe6aa29" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EChar</a>
+            <a href="../28/index.html" data-nsd-label-uuid="842a9f3c-ffd3-4d6f-b29d-ac2607a0c382" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">ECharacterObject</a>
+            <a href="../2/index.html" data-nsd-label-uuid="aeda6940-2a8e-4a5e-ba9e-8110fc91529e" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EClass</a>
+            <a href="../3/index.html" data-nsd-label-uuid="1065621c-909b-4abf-a560-38f8bf234cb4" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"><i>EClassifier</i></a>
+            <a href="../4/index.html" data-nsd-label-uuid="99f73933-5521-4585-b247-cc68ba679e3b" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EDataType</a>
+            <a href="../29/index.html" data-nsd-label-uuid="9eab5b83-db5c-4b0b-aeb1-b650be730246" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EDate</a>
+            <a href="../30/index.html" data-nsd-label-uuid="bf156886-4d64-4cc5-b42d-72e694b93d72" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EDiagnosticChain</a>
+            <a href="../31/index.html" data-nsd-label-uuid="40b0d727-cf36-416b-940b-c81d683906e4" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EDouble</a>
+            <a href="../32/index.html" data-nsd-label-uuid="5ede2302-4ae5-495f-b388-5b68c8ac042c" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EDoubleObject</a>
+            <a href="../33/index.html" data-nsd-label-uuid="0d43e8a5-c014-42d7-b5cf-ab26e51dfd1d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EEList</a>
+            <a href="../5/index.html" data-nsd-label-uuid="23599f2c-beaa-4010-a7dc-d36522ff095e" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EEnum</a>
+            <a href="../6/index.html" data-nsd-label-uuid="fa627187-7a0b-47e1-aec5-789b412905ab" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EEnumLiteral</a>
+            <a href="../34/index.html" data-nsd-label-uuid="264d3210-3575-4fe8-8c49-82415720a000" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EEnumerator</a>
+            <a href="../7/index.html" data-nsd-label-uuid="6cca171b-9559-43e8-be5e-3431481d7412" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EFactory</a>
+            <a href="../35/index.html" data-nsd-label-uuid="3b4b95d8-2ceb-4e01-84f8-3404cca6ad4d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EFeatureMap</a>
+            <a href="../36/index.html" data-nsd-label-uuid="fd9183c6-f5d2-45de-8505-715ce72cfe05" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EFeatureMapEntry</a>
+            <a href="../37/index.html" data-nsd-label-uuid="2c108802-3c2b-4bc4-a0c3-de0f12421fa8" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EFloat</a>
+            <a href="../38/index.html" data-nsd-label-uuid="b6c47bde-7d8c-4f9e-83a5-b969b080880a" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EFloatObject</a>
+            <a href="../18/index.html" data-nsd-label-uuid="eb07bafb-d226-49f8-be8f-fa2d2da30820" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EGenericType</a>
+            <a href="../39/index.html" data-nsd-label-uuid="d3a1e227-379e-421c-aee7-ee7a5da951b1" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EInt</a>
+            <a href="../40/index.html" data-nsd-label-uuid="e45e5911-fded-4f40-a9c2-af2394b1b3c8" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EIntegerObject</a>
+            <a href="../52/index.html" data-nsd-label-uuid="e1dfd3a1-3152-4521-b739-7341f79d07c8" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EInvocationTargetException</a>
+            <a href="../41/index.html" data-nsd-label-uuid="de0ce6cf-b0cf-4b6e-8158-0d427ca05245" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EJavaClass</a>
+            <a href="../42/index.html" data-nsd-label-uuid="82843e75-42e2-4963-9259-43dc8d9fee4c" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EJavaObject</a>
+            <a href="../43/index.html" data-nsd-label-uuid="53b13f1b-0e88-44ee-8dbf-8a22e57d846f" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">ELong</a>
+            <a href="../44/index.html" data-nsd-label-uuid="0bbd1913-b008-48c5-b0fe-162e29abd3e7" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">ELongObject</a>
+            <a href="../45/index.html" data-nsd-label-uuid="72cdd0a9-01b3-4861-afb1-0573d13ed93e" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EMap</a>
+            <a href="../8/index.html" data-nsd-label-uuid="76b29805-dae7-44ca-afef-6836ef1b09c8" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"><i>EModelElement</i></a>
+            <a href="../9/index.html" data-nsd-label-uuid="819aab90-4027-4bac-b920-bfcaa87ed9b7" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"><i>ENamedElement</i></a>
+            <a href="../10/index.html" data-nsd-label-uuid="5fef8958-c692-4b87-9c8d-2782e1946061" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EObject</a>
+            <a href="../11/index.html" data-nsd-label-uuid="05378a21-8673-49bb-aaaa-697dbe852c43" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EOperation</a>
+            <a href="index.html" data-nsd-label-uuid="c3d5bc26-f201-4cc3-bb1e-9f828766fce1" class="list-group-item list-group-action active">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EPackage</a>
+            <a href="../13/index.html" data-nsd-label-uuid="2fe9ec9d-65f3-4d66-87eb-6a419eceab4d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EParameter</a>
+            <a href="../14/index.html" data-nsd-label-uuid="a9c7711f-7cea-4242-9e70-34a056676461" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EReference</a>
+            <a href="../46/index.html" data-nsd-label-uuid="129885e1-b343-4cb4-95d1-5fcfa85f45f4" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EResource</a>
+            <a href="../47/index.html" data-nsd-label-uuid="4fd3219b-03dd-435c-83dc-dc374d8ad758" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EResourceSet</a>
+            <a href="../48/index.html" data-nsd-label-uuid="e2f7139c-979d-4db8-ac1e-03b2293b0ae6" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EShort</a>
+            <a href="../49/index.html" data-nsd-label-uuid="f2b09ab5-6e7b-4132-ab2d-c451463aa650" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EShortObject</a>
+            <a href="../50/index.html" data-nsd-label-uuid="aa577f12-77f5-4621-8a84-01f8036e6575" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">EString</a>
+            <a href="../17/index.html" data-nsd-label-uuid="5d315f0c-f735-4777-88c0-4710ec736c42" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EStringToStringMapEntry</a>
+            <a href="../15/index.html" data-nsd-label-uuid="836d45f2-740f-4bc2-be00-5b7cca481d7b" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"><i>EStructuralFeature</i></a>
+            <a href="../51/index.html" data-nsd-label-uuid="2d8c0081-704a-432d-b432-f8177e5e9a9a" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon">ETreeIterator</a>
+            <a href="../19/index.html" data-nsd-label-uuid="e6699917-f898-436a-97ec-b54f97972339" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">ETypeParameter</a>
+            <a href="../16/index.html" data-nsd-label-uuid="1cdc5fa4-314a-4aa0-a353-d021aea4fa50" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"><i>ETypedElement</i></a>
+          </div>
+        </div>
+        <div data-nsd-label-uuid="bfc278cb-1f89-46ff-a2da-35a6226198bc" data-nsd-action-uris="uuid:bfc278cb-1f89-46ff-a2da-35a6226198bc" class="col nsd-app-content-panel">
+          <div class="container-fluid">
+            <div class="row nsd-app-content-panel-breadcrumb-row">
+              <div class="col">
+                <nav aria-label="breadcrumb" class="nsd-app-content-panel-breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                      <a href="index.html" data-nsd-label-uuid="c3d5bc26-f201-4cc3-bb1e-9f828766fce1">
+                        <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon">EPackage</a>
+                    </li>
+                    <li class="breadcrumb-item active"><span data-nsd-label-uuid="bfc278cb-1f89-46ff-a2da-35a6226198bc"><span class="fas fa-project-diagram nsd-app-label-icon"></span>Diagram</span>
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+            </div>
+            <div class="row nsd-app-content-panel-title-and-items-row">
+              <div class="col-auto">
+                <h1><span data-nsd-label-uuid="bfc278cb-1f89-46ff-a2da-35a6226198bc" class="nsd-app-content-panel-title"><span class="fas fa-project-diagram nsd-app-label-icon"></span>Diagram</span>
+                </h1>
+              </div>
+            </div>
+            <div class="row nsd-app-content-panel-content-row">
+              <div class="col">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col"><!--?xml version="1.0" encoding="us-ascii" standalone="no"?--><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="524px" preserveAspectRatio="none" style="width:858px;height:524px;background:#FFFFFF;" version="1.1" viewBox="0 0 858 524" width="858px" zoomAndPan="magnify"><defs /><g><!--class DE_1n--><g id="elem_DE_1n"><rect codeLine="1" fill="#DDDDDD" height="100.8281" id="DE_1n" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="281" x="269.5" y="159" /><ellipse cx="373.75" cy="175" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;" /><path d="M376.5156,170.875 Q376.6719,170.6563 376.8594,170.5469 Q377.0469,170.4375 377.2656,170.4375 Q377.6406,170.4375 377.875,170.7031 Q378.1094,170.9531 378.1094,171.5625 L378.1094,173.0156 Q378.1094,173.625 377.875,173.8906 Q377.6406,174.1563 377.2656,174.1563 Q376.9219,174.1563 376.7188,173.9531 Q376.5156,173.7656 376.4063,173.25 Q376.3594,172.8906 376.1719,172.7031 Q375.8438,172.3281 375.2344,172.1094 Q374.625,171.8906 374,171.8906 Q373.2344,171.8906 372.5938,172.2188 Q371.9688,172.5469 371.4688,173.2969 Q370.9844,174.0469 370.9844,175.0781 L370.9844,176.1719 Q370.9844,177.4063 371.875,178.2344 Q372.7656,179.0469 374.3594,179.0469 Q375.2969,179.0469 375.9531,178.7969 Q376.3438,178.6406 376.7656,178.2031 Q377.0313,177.9375 377.1719,177.8594 Q377.3281,177.7813 377.5313,177.7813 Q377.8594,177.7813 378.1094,178.0469 Q378.375,178.2969 378.375,178.6406 Q378.375,178.9844 378.0313,179.3906 Q377.5313,179.9688 376.7344,180.2969 Q375.6563,180.75 374.3594,180.75 Q372.8438,180.75 371.6406,180.125 Q370.6563,179.625 369.9688,178.5625 Q369.2813,177.4844 369.2813,176.2031 L369.2813,175.0469 Q369.2813,173.7188 369.8906,172.5781 Q370.5156,171.4219 371.6094,170.8125 Q372.7031,170.1875 373.9375,170.1875 Q374.6719,170.1875 375.3125,170.3594 Q375.9688,170.5156 376.5156,170.875 Z " fill="#000000" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="64" x="394.25" y="180.7285">EPackage</text><line style="stroke:#181818;stroke-width:0.5;" x1="270.5" x2="549.5" y1="191" y2="191" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="58" x="275.5" y="209.5332">nsPrefix :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="337.5" y="209.5332">EString</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="45" x="275.5" y="227.1426">nsURI :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="324.5" y="227.1426">EString</text></a><line style="stroke:#181818;stroke-width:1.0;" x1="270.5" x2="549.5" y1="234.2188" y2="234.2188" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="135" x="275.5" y="252.752">getEClassifier(name :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="414.5" y="252.752">EString</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="13" x="460.5" y="252.752">) :</text><a href="../3/index.html" target="_top" title="../3/index.html" xlink:actuate="onRequest" xlink:href="../3/index.html" xlink:show="new" xlink:title="../3/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="67" x="477.5" y="252.752">EClassifier</text></a></g><!--class DE_1o--><a href="../9/index.html" target="_top" title="../9/index.html" xlink:actuate="onRequest" xlink:href="../9/index.html" xlink:show="new" xlink:title="../9/index.html" xlink:type="simple"><g id="elem_DE_1o"><rect codeLine="7" fill="#F1F1F1" height="91.2188" id="DE_1o" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="137" x="557.5" y="7" /><ellipse cx="572.5" cy="23" fill="#A9DCDF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;" /><path d="M574.6875,24.7656 L570.5469,24.7656 L570.125,25.7969 L570.5469,25.7969 Q571.1563,25.7969 571.4219,26.0313 Q571.6875,26.2656 571.6875,26.6563 Q571.6875,27.0313 571.4219,27.2656 Q571.1563,27.5 570.5469,27.5 L568.25,27.5 Q567.6406,27.5 567.3906,27.2656 Q567.125,27.0313 567.125,26.6406 Q567.125,26.2656 567.4063,26.0313 Q567.6719,25.7813 568.2969,25.7969 L570.9688,19.1406 L569.8594,19.1406 Q569.25,19.1406 568.9844,18.9063 Q568.7188,18.6719 568.7188,18.2813 Q568.7188,17.9063 568.9844,17.6719 Q569.25,17.4375 569.8594,17.4375 L573.5313,17.4375 L576.9219,25.7969 Q577.5156,25.7969 577.7031,25.9375 Q578.0938,26.2031 578.0938,26.6563 Q578.0938,27.0313 577.8281,27.2656 Q577.5781,27.5 576.9688,27.5 L574.6719,27.5 Q574.0625,27.5 573.7969,27.2656 Q573.5313,27.0313 573.5313,26.6406 Q573.5313,26.2656 573.7969,26.0313 Q574.0625,25.7969 574.6719,25.7969 L575.0938,25.7969 L574.6875,24.7656 Z M573.9688,23.0625 L572.6094,19.6875 L571.2344,23.0625 L573.9688,23.0625 Z " fill="#000000" /><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="105" x="586.5" y="28.7285">ENamedElement</text><line style="stroke:#181818;stroke-width:0.5;" x1="558.5" x2="693.5" y1="39" y2="39" /><a href="../8/index.html" target="_top" title="../8/index.html" xlink:actuate="onRequest" xlink:href="../8/index.html" xlink:show="new" xlink:title="../8/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="98" x="563.5" y="57.5332">EModelElement</text></a><line style="stroke:#181818;stroke-width:1.0;" x1="558.5" x2="693.5" y1="64.6094" y2="64.6094" /><line style="stroke:#181818;stroke-width:1.0;" x1="558.5" x2="693.5" y1="66.6094" y2="66.6094" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="563.5" y="83.1426">name :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="610.5" y="83.1426">EString</text></a><line style="stroke:#181818;stroke-width:1.0;" x1="558.5" x2="693.5" y1="90.2188" y2="90.2188" /></g></a><!--class DE_1p--><a href="../3/index.html" target="_top" title="../3/index.html" xlink:actuate="onRequest" xlink:href="../3/index.html" xlink:show="new" xlink:title="../3/index.html" xlink:type="simple"><g id="elem_DE_1p"><rect codeLine="13" fill="#F1F1F1" height="179.2656" id="DE_1p" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="287" x="564.5" y="338" /><ellipse cx="670.25" cy="354" fill="#A9DCDF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;" /><path d="M672.4375,355.7656 L668.2969,355.7656 L667.875,356.7969 L668.2969,356.7969 Q668.9063,356.7969 669.1719,357.0313 Q669.4375,357.2656 669.4375,357.6563 Q669.4375,358.0313 669.1719,358.2656 Q668.9063,358.5 668.2969,358.5 L666,358.5 Q665.3906,358.5 665.1406,358.2656 Q664.875,358.0313 664.875,357.6406 Q664.875,357.2656 665.1563,357.0313 Q665.4219,356.7813 666.0469,356.7969 L668.7188,350.1406 L667.6094,350.1406 Q667,350.1406 666.7344,349.9063 Q666.4688,349.6719 666.4688,349.2813 Q666.4688,348.9063 666.7344,348.6719 Q667,348.4375 667.6094,348.4375 L671.2813,348.4375 L674.6719,356.7969 Q675.2656,356.7969 675.4531,356.9375 Q675.8438,357.2031 675.8438,357.6563 Q675.8438,358.0313 675.5781,358.2656 Q675.3281,358.5 674.7188,358.5 L672.4219,358.5 Q671.8125,358.5 671.5469,358.2656 Q671.2813,358.0313 671.2813,357.6406 Q671.2813,357.2656 671.5469,357.0313 Q671.8125,356.7969 672.4219,356.7969 L672.8438,356.7969 L672.4375,355.7656 Z M671.7188,354.0625 L670.3594,350.6875 L668.9844,354.0625 L671.7188,354.0625 Z " fill="#000000" /><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="67" x="690.75" y="359.7285">EClassifier</text><line style="stroke:#181818;stroke-width:0.5;" x1="565.5" x2="850.5" y1="370" y2="370" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="87" x="570.5" y="388.5332">defaultValue :</text><a href="../42/index.html" target="_top" title="../42/index.html" xlink:actuate="onRequest" xlink:href="../42/index.html" xlink:show="new" xlink:title="../42/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="79" x="661.5" y="388.5332">EJavaObject</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96" x="570.5" y="406.1426">instanceClass :</text><a href="../41/index.html" target="_top" title="../41/index.html" xlink:actuate="onRequest" xlink:href="../41/index.html" xlink:show="new" xlink:title="../41/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="73" x="670.5" y="406.1426">EJavaClass</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="24" x="743.5" y="406.1426">&lt;?&gt;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="132" x="570.5" y="423.752">instanceClassName :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="706.5" y="423.752">EString</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="129" x="570.5" y="441.3613">instanceTypeName :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="703.5" y="441.3613">EString</text></a><line style="stroke:#181818;stroke-width:1.0;" x1="565.5" x2="850.5" y1="448.4375" y2="448.4375" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="121" x="570.5" y="466.9707">eTypeParameters :</text><a href="../19/index.html" target="_top" title="../19/index.html" xlink:actuate="onRequest" xlink:href="../19/index.html" xlink:show="new" xlink:title="../19/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="107" x="695.5" y="466.9707">ETypeParameter</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="8" x="802.5" y="466.9707">[]</text><line style="stroke:#181818;stroke-width:1.0;" x1="565.5" x2="850.5" y1="474.0469" y2="474.0469" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="109" x="570.5" y="492.5801">getClassifierID() :</text><a href="../39/index.html" target="_top" title="../39/index.html" xlink:actuate="onRequest" xlink:href="../39/index.html" xlink:show="new" xlink:title="../39/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="24" x="683.5" y="492.5801">EInt</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="114" x="570.5" y="510.1895">isInstance(object :</text><a href="../42/index.html" target="_top" title="../42/index.html" xlink:actuate="onRequest" xlink:href="../42/index.html" xlink:show="new" xlink:title="../42/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="79" x="688.5" y="510.1895">EJavaObject</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="13" x="767.5" y="510.1895">) :</text><a href="../22/index.html" target="_top" title="../22/index.html" xlink:actuate="onRequest" xlink:href="../22/index.html" xlink:show="new" xlink:title="../22/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="61" x="784.5" y="510.1895">EBoolean</text></a></g></a><!--class DE_1q--><a href="../7/index.html" target="_top" title="../7/index.html" xlink:actuate="onRequest" xlink:href="../7/index.html" xlink:show="new" xlink:title="../7/index.html" xlink:type="simple"><g id="elem_DE_1q"><rect codeLine="24" fill="#F1F1F1" height="126.4375" id="DE_1q" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="522" x="7" y="364.5" /><ellipse cx="235.25" cy="380.5" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;" /><path d="M238.0156,376.375 Q238.1719,376.1563 238.3594,376.0469 Q238.5469,375.9375 238.7656,375.9375 Q239.1406,375.9375 239.375,376.2031 Q239.6094,376.4531 239.6094,377.0625 L239.6094,378.5156 Q239.6094,379.125 239.375,379.3906 Q239.1406,379.6563 238.7656,379.6563 Q238.4219,379.6563 238.2188,379.4531 Q238.0156,379.2656 237.9063,378.75 Q237.8594,378.3906 237.6719,378.2031 Q237.3438,377.8281 236.7344,377.6094 Q236.125,377.3906 235.5,377.3906 Q234.7344,377.3906 234.0938,377.7188 Q233.4688,378.0469 232.9688,378.7969 Q232.4844,379.5469 232.4844,380.5781 L232.4844,381.6719 Q232.4844,382.9063 233.375,383.7344 Q234.2656,384.5469 235.8594,384.5469 Q236.7969,384.5469 237.4531,384.2969 Q237.8438,384.1406 238.2656,383.7031 Q238.5313,383.4375 238.6719,383.3594 Q238.8281,383.2813 239.0313,383.2813 Q239.3594,383.2813 239.6094,383.5469 Q239.875,383.7969 239.875,384.1406 Q239.875,384.4844 239.5313,384.8906 Q239.0313,385.4688 238.2344,385.7969 Q237.1563,386.25 235.8594,386.25 Q234.3438,386.25 233.1406,385.625 Q232.1563,385.125 231.4688,384.0625 Q230.7813,382.9844 230.7813,381.7031 L230.7813,380.5469 Q230.7813,379.2188 231.3906,378.0781 Q232.0156,376.9219 233.1094,376.3125 Q234.2031,375.6875 235.4375,375.6875 Q236.1719,375.6875 236.8125,375.8594 Q237.4688,376.0156 238.0156,376.375 Z " fill="#000000" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57" x="255.75" y="386.2285">EFactory</text><line style="stroke:#181818;stroke-width:0.5;" x1="8" x2="528" y1="396.5" y2="396.5" /><a href="../8/index.html" target="_top" title="../8/index.html" xlink:actuate="onRequest" xlink:href="../8/index.html" xlink:show="new" xlink:title="../8/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="98" x="13" y="415.0332">EModelElement</text></a><line style="stroke:#181818;stroke-width:1.0;" x1="8" x2="528" y1="422.1094" y2="422.1094" /><line style="stroke:#181818;stroke-width:1.0;" x1="8" x2="528" y1="424.1094" y2="424.1094" /><line style="stroke:#181818;stroke-width:1.0;" x1="8" x2="528" y1="430.1094" y2="430.1094" /><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="184" x="13" y="448.6426">convertToString(eDataType :</text><a href="../4/index.html" target="_top" title="../4/index.html" xlink:actuate="onRequest" xlink:href="../4/index.html" xlink:show="new" xlink:title="../4/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="71" x="201" y="448.6426">EDataType</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="105" x="272" y="448.6426">, instanceValue :</text><a href="../42/index.html" target="_top" title="../42/index.html" xlink:actuate="onRequest" xlink:href="../42/index.html" xlink:show="new" xlink:title="../42/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="79" x="381" y="448.6426">EJavaObject</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="13" x="460" y="448.6426">) :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="477" y="448.6426">EString</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96" x="13" y="466.252">create(eClass :</text><a href="../2/index.html" target="_top" title="../2/index.html" xlink:actuate="onRequest" xlink:href="../2/index.html" xlink:show="new" xlink:title="../2/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="44" x="113" y="466.252">EClass</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="13" x="157" y="466.252">) :</text><a href="../10/index.html" target="_top" title="../10/index.html" xlink:actuate="onRequest" xlink:href="../10/index.html" xlink:show="new" xlink:title="../10/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="50" x="174" y="466.252">EObject</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="193" x="13" y="483.8613">createFromString(eDataType :</text><a href="../4/index.html" target="_top" title="../4/index.html" xlink:actuate="onRequest" xlink:href="../4/index.html" xlink:show="new" xlink:title="../4/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="71" x="210" y="483.8613">EDataType</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="281" y="483.8613">, literalValue :</text><a href="../50/index.html" target="_top" title="../50/index.html" xlink:actuate="onRequest" xlink:href="../50/index.html" xlink:show="new" xlink:title="../50/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="46" x="371" y="483.8613">EString</text></a><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="13" x="417" y="483.8613">) :</text><a href="../42/index.html" target="_top" title="../42/index.html" xlink:actuate="onRequest" xlink:href="../42/index.html" xlink:show="new" xlink:title="../42/index.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" text-decoration="underline" textLength="79" x="434" y="483.8613">EJavaObject</text></a></g></a><!--link DE_1n to DE_1n--><g id="link_DE_1n_DE_1n"><path codeLine="32" d="M562.784,203.3289 C583.504,204.3989 585.5,206.04 585.5,209.5 C585.5,212.96 577.512,214.9106 556.792,215.9806 " fill="none" id="DE_1n-DE_1n" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="550.8,202.71,556.5857,207.0141,562.784,203.3289,556.9983,199.0248,550.8,202.71" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="550.8,216.29,559.9943,219.8205,555.7933,216.0321,559.5817,211.8312,550.8,216.29" style="stroke:#181818;stroke-width:1.0;" /><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="86" x="591.5" y="214.9951">eSubpackages</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="558.6367" y="213.7333">*</text></g><!--link DE_1n to DE_1n--><g id="link_DE_1n_DE_1n"><path codeLine="33" d="M550.74,194.73 C619.39,193.35 683.5,198.27 683.5,209.5 C683.5,220.73 625.3888,225.7706 556.7388,224.3906 " fill="none" id="DE_1n-to-DE_1n" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="550.74,224.27,559.6578,228.4501,555.739,224.3705,559.8186,220.4517,550.74,224.27" style="stroke:#181818;stroke-width:1.0;" /><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92" x="689.5" y="214.9951">eSuperPackage</text></g><!--reverse link DE_1o to DE_1n--><g id="link_DE_1o_DE_1n"><path codeLine="34" d="M549.186,108.6147 C522.766,127.5747 506.48,139.27 479.33,158.75 " fill="none" id="DE_1o-backto-DE_1n" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="none" points="563.81,98.12,545.6878,103.7401,552.6843,113.4894,563.81,98.12" style="stroke:#181818;stroke-width:1.0;" /></g><!--link DE_1n to DE_1p--><g id="link_DE_1n_DE_1p"><path codeLine="35" d="M561.3217,263.3793 C579.8217,272.5493 587.1,277.84 603,290 C620.46,303.35 632.7621,315.6287 646.8321,332.9887 " fill="none" id="DE_1n-DE_1p" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="550.57,258.05,554.1694,264.2986,561.3217,263.3793,557.7223,257.1308,550.57,258.05" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="650.61,337.65,648.0507,328.1395,647.4618,333.7656,641.8356,333.1767,650.61,337.65" style="stroke:#181818;stroke-width:1.0;" /><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="67" x="621" y="304.4951">eClassifiers</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="640.6504" y="327.0455">*</text></g><!--link DE_1p to DE_1n--><g id="link_DE_1p_DE_1n"><path codeLine="38" d="M576.57,337.73 C562.45,327.82 548.37,317.78 535,308 C514.23,292.81 496.6841,279.4091 476.7741,263.8191 " fill="none" id="DE_1p-to-DE_1n" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="472.05,260.12,476.6701,268.818,475.9867,263.2026,481.6022,262.5192,472.05,260.12" style="stroke:#181818;stroke-width:1.0;" /><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="58" x="536" y="304.4951">ePackage</text></g><!--link DE_1n to DE_1q--><g id="link_DE_1n_DE_1q"><path codeLine="36" d="M291.28,260.01 C280.92,268.58 271.8,278.51 265,290 C251.96,312.03 249.8174,333.7934 252.4374,358.5034 " fill="none" id="DE_1n-to-DE_1q" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="253.07,364.47,256.0988,355.0984,252.5428,359.4979,248.1433,355.9419,253.07,364.47" style="stroke:#181818;stroke-width:1.0;" /><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100" x="266" y="304.4951">eFactoryInstance</text></g><!--link DE_1q to DE_1n--><g id="link_DE_1q_DE_1n"><path codeLine="39" d="M328.85,364.37 C343.88,347.02 359.07,327.54 371,308 C380.02,293.22 385.5607,281.578 391.6707,265.738 " fill="none" id="DE_1q-to-DE_1n" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="#181818" points="393.83,260.14,386.859,267.0974,392.0306,264.805,394.323,269.9765,393.83,260.14" style="stroke:#181818;stroke-width:1.0;" /><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="58" x="382" y="304.4951">ePackage</text></g><!--reverse link DE_1o to DE_1p--><g id="link_DE_1o_DE_1p"><path codeLine="37" d="M711.2973,81.113 C751.4573,97.283 782.14,117.36 806,159 C838.27,215.32 811.69,284.21 778.13,337.97 " fill="none" id="DE_1o-backto-DE_1p" style="stroke:#181818;stroke-width:1.0;" /><polygon fill="none" points="694.6,74.39,709.0563,86.6788,713.5383,75.5472,694.6,74.39" style="stroke:#181818;stroke-width:1.0;" /></g><!--SRC=[dLJRJi9047tdApRuKer5GOsNU4cKcc2Y4aLVoCOCPS3gibksYz6e_swxszi2iIYFp9mpvyoShiyWYaZRUsfo0X6fUrtmNs6CTKBMslf7Fck4yAWhSHIyaoFIxpSQMtlRMm4VudlZMKqOyUwL3FYOKjtvSDUfQdFTk7ECohj8nWUZ0AN3OO8LkFMilcEL2vAO-hi6WqX9y1NnSs_2UBk9HmmzXXFaAZQegGvBL9Hgi_h_0sl4jHWYIv7na9EJn6cruCJeKa6X4LGep-JiBCePuWXcJ3q2c-NpTblMl2juWzl12_fAto3WaGBkewRF8Sq5YAvJUdnsEW-wMS5R0UbzXBWQGXzUztT1nWY5CXVOFBHGLXEb_I8rnTOwRQV8X0tly7GNKITLwGYzeHLMc7Esx9vp8HW2roahRZarjxoCBopaHtR8_N_cIflq1Nz3gNh2hCx1DYX85fABjrYoAgMR-KrMZSjwzT5yYQ3GiUFKMlm4IsHDcwoKJKDsASNaxzvO44S1c6MjwgduxKlvhfc7RyDrJqbzevw-WqS4xsU3q3o4KTgJj9JA8ShqfSpgiz3zCYrY6MsOu8hapjDEat8QeIomDODRO0vjCMKTq-Mb7m00]--></g></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col nsd-app-footer">
+          <ul class="nav nsd-app-footer-navs">
+            <li class="nav-item">
+              <a href="https://github.com/Nasdanika-Models/ecore" data-nsd-label-uuid="a172eff1-9c07-4f15-9937-425332212eb4" class="nav-link"><span class="fab fa-github nsd-app-label-icon"></span>Sources</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
