@@ -10,6 +10,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.nasdanika.html.model.app.graph.emf.ActionGenerator;
+import org.nasdanika.models.ecore.graph.EcoreGraphFactory;
 
 public class EcoreActionGenerator extends ActionGenerator<EcoreNodeProcessorFactory> {
 
@@ -46,6 +47,11 @@ public class EcoreActionGenerator extends ActionGenerator<EcoreNodeProcessorFact
 				URI.createURI("tmp://" + UUID.randomUUID() + "/" + UUID.randomUUID() + "/"),
 				references,
 				nodeProcessorFactory);
+	}
+	
+	@Override
+	protected Object createGraphFactory() {
+		return new EcoreGraphFactory();
 	}
 	
 }
