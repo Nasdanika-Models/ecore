@@ -1,6 +1,7 @@
 package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -95,7 +96,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 		this.prototypeProvider = prototypeProvider;
 		this.diagnosticConsumer = diagnosticConsumer;
 		for (Object target: targets) {
-			getAnnotatedElementRecords(target).forEach(annotatedElementRecords::add);
+			getAnnotatedElementRecords(target, Collections.singletonList(target)).forEach(annotatedElementRecords::add);
 		}
 	}
 	
