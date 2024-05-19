@@ -22,10 +22,6 @@ import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.jgrapht.alg.drawing.FRLayoutAlgorithm2D;
-import org.jgrapht.alg.drawing.model.Box2D;
-import org.jgrapht.alg.drawing.model.MapLayoutModel2D;
-import org.jgrapht.alg.drawing.model.Point2D;
-import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Util;
@@ -41,7 +37,7 @@ import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
 import org.nasdanika.html.model.app.graph.WidgetFactory;
 import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.models.echarts.graph.Graph;
-import org.nasdanika.models.echarts.graph.Node;
+import org.nasdanika.models.echarts.graph.util.GraphUtil;
 import org.nasdanika.ncore.util.NcoreUtil;
 
 public class EModelElementNodeProcessor<T extends EModelElement> extends EObjectNodeProcessor<T> {
@@ -354,32 +350,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	 * @param graph
 	 */
 	protected void forceLayout(Graph graph) {
-		// Using JGraphT for force layout
-		DefaultUndirectedGraph<Node, org.nasdanika.models.echarts.graph.Link> dGraph = new DefaultUndirectedGraph<>(org.nasdanika.models.echarts.graph.Link.class);
-		
-		// Populating
-		for (Node node: graph.getNodes()) {
-			dGraph.addVertex(node);
-		}	
-		
-		for (Node node: graph.getNodes()) {
-			for (org.nasdanika.models.echarts.graph.Link link: node.getOutgoingLinks()) {
-				if (dGraph.getEdge(link.getTarget(), node) == null) { // Not yet connected, connect
-					dGraph.addEdge(node, link.getTarget(), link);
-				}
-			}
-		}		
-		
-		FRLayoutAlgorithm2D<Node, org.nasdanika.models.echarts.graph.Link> forceLayout = new FRLayoutAlgorithm2D<>();
-		MapLayoutModel2D<Node> model = new MapLayoutModel2D<>(new Box2D(getLayoutWidth(), getLayoutHeight()));
-		forceLayout.layout(dGraph, model);
-		model.forEach(ne -> {
-			Node node = ne.getKey();
-			Point2D point = ne.getValue();
-			node.setX(point.getX());
-			node.setY(point.getY());
-		});
-		
+		GraphUtil.forceLayout(graph, getLayoutWidth(), getLayoutHeight());
 	}	
 	
 }
