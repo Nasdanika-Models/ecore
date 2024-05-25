@@ -12,14 +12,14 @@ import org.eclipse.emf.ecore.EPackage;
 import org.nasdanika.html.model.app.graph.emf.ActionGenerator;
 import org.nasdanika.models.ecore.graph.EcoreGraphFactory;
 
-public class EcoreActionGenerator extends ActionGenerator<EcoreNodeProcessorFactory> {
+public class EcoreActionGenerator extends ActionGenerator {
 
 	public EcoreActionGenerator(
 			Collection<? extends EObject> sources,
-			EcoreNodeProcessorFactory nodeProcessorFactory, 
 			Collection<? extends EObject> references,
-			Function<? super EObject, URI> uriResolver) {
-		super(sources, nodeProcessorFactory, references, uriResolver);
+			Function<? super EObject, URI> uriResolver,
+			EcoreNodeProcessorFactory nodeProcessorFactory) {
+		super(sources, references, uriResolver, nodeProcessorFactory);
 	}
 	
 	public EcoreActionGenerator(
@@ -29,14 +29,14 @@ public class EcoreActionGenerator extends ActionGenerator<EcoreNodeProcessorFact
 			EcoreNodeProcessorFactory nodeProcessorFactory) {
 		super(
 			Collections.singleton(source),
-			nodeProcessorFactory, 
 			references.keySet(), 
 			eObj -> {
 				if (eObj == source) {
 					return baseURI;
 				}
 				return references.get(eObj);
-			});
+			},
+			nodeProcessorFactory);
 	}
 		
 	public EcoreActionGenerator(
