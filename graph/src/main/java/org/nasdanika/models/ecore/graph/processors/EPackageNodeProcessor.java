@@ -133,8 +133,8 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	 * @return
 	 */
 	protected Action getSubPackagesAction(Action parent) {
-		Action pAction = (Action) parent;
-		return pAction.getNavigation()
+//		Action pAction = (Action) parent;
+		return parent.getNavigation()
 			.stream()
 			.filter(e -> e instanceof Action && "sub-packages.html".equals(((Action) e).getLocation()))
 			.findFirst()
@@ -144,7 +144,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				subPackagesAction.setText("Sub-packages");
 				subPackagesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EPackage.gif");
 				subPackagesAction.setLocation("sub-packages.html");
-				pAction.getNavigation().add(subPackagesAction);
+				parent.getNavigation().add(subPackagesAction);
 				return subPackagesAction;
 			});
 	}

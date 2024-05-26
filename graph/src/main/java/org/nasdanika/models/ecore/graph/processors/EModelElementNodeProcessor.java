@@ -186,7 +186,7 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 			isDirect = tt.eContainer() == getTarget();			
 		}
 		String linkStr = widgetFactory.createLinkString(progressMonitor);
-		String name = Util.isBlank(linkStr) ? ((ENamedElement) connection.getTarget().get()).getName() : linkStr;
+		String name = Util.isBlank(linkStr) ? ((ENamedElement) tt).getName() : linkStr;
 		return isDirect ? TagName.b.create(name).toString() : name;
 	}
 		
