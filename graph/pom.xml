@@ -4,7 +4,7 @@
 	  <parent>
 	    <artifactId>parent</artifactId>
 		<groupId>org.nasdanika.models.ecore</groupId>
-		<version>2024.5.1</version>
+		<version>2024.6.0</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<artifactId>graph</artifactId>
@@ -60,12 +60,12 @@
 		<dependency>
 			<groupId>org.nasdanika.models.echarts</groupId>
 			<artifactId>graph</artifactId>
-			<version>2024.5.1</version>			
+			<version>2024.6.0</version>			
 		</dependency>		
 		<dependency>
 		  <groupId>commons-codec</groupId>
 		  <artifactId>commons-codec</artifactId>
-		  <version>1.16.1</version>
+		  <version>1.17.0</version>
 		</dependency>
 				
 
@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.25.3</version>
+			<version>3.26.0</version>
 			<scope>test</scope>
 		</dependency>				
 	</dependencies>
