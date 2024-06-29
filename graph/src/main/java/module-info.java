@@ -1,3 +1,6 @@
+import org.nasdanika.capability.CapabilityFactory;
+import org.nasdanika.models.ecore.graph.processors.EcoreNodeProcessorFactoryCapabilityFactory;
+
 module org.nasdanika.models.ecore.graph {
 	
 	requires transitive org.nasdanika.html.model.app.graph;
@@ -14,5 +17,7 @@ module org.nasdanika.models.ecore.graph {
 	
 	exports org.nasdanika.models.ecore.graph;
 	exports org.nasdanika.models.ecore.graph.processors;
+	
+	provides CapabilityFactory with EcoreNodeProcessorFactoryCapabilityFactory;
 	
 }
