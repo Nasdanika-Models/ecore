@@ -111,6 +111,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	
 	@Override
 	public URI getLoadSpecRef(URI base) {
+		URI uri = getUri();
 		if (uri == null) {
 			return null;
 		}

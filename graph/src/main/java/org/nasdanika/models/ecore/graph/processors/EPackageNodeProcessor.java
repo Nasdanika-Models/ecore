@@ -288,7 +288,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 			CompletableFuture<DiagramElement> eccf = diagramElementProvider.apply(eClassifier);
 			if (!eccf.isDone()) {
-				DiagramElement ecde = cwf.select(eClassifierDiagramElementSelector, uri, progressMonitor);
+				DiagramElement ecde = cwf.select(eClassifierDiagramElementSelector, getUri(), progressMonitor);
 				classDiagram.getDiagramElements().add(ecde);
 				eccf.complete(ecde);
 			}
@@ -409,7 +409,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 				CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
 				if (!eccf.isDone()) {
-					org.nasdanika.models.echarts.graph.Node ecn = cwf.select(eClassifierNodeSelector, uri, progressMonitor);
+					org.nasdanika.models.echarts.graph.Node ecn = cwf.select(eClassifierNodeSelector, getUri(), progressMonitor);
 					graph.getNodes().add(ecn);
 					eccf.complete(ecn);
 				}

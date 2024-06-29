@@ -635,7 +635,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	
 	protected Object parameterTypes(WidgetFactory widgetFactory, URI base, ProgressMonitor progressMonitor) {
 		if (base == null) {
-			base = uri;
+			base = getUri();
 		}
 		EOperationNodeProcessor eOperationNodeProcessor = (EOperationNodeProcessor) widgetFactory;
 		Map<EReferenceConnection, WidgetFactory> eParameterWidgetFactories = eOperationNodeProcessor.getEParameterWidgetFactories();
@@ -703,7 +703,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 					key = "<b>" + key + "</b>";
 				}
 				if (featureWidgetFactory.hasLoadSpecificationAction()) {
-					URI loadSpecURI = featureWidgetFactory.getLoadSpecRef(uri);
+					URI loadSpecURI = featureWidgetFactory.getLoadSpecRef(getUri());
 					key = "<a href=\"" + loadSpecURI + "\">" + key + "</a>";
 				}
 				return key;
@@ -1077,7 +1077,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		Function<EClassifier, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(new EClassifierKey(k.getEPackage().getNsURI(), k.getName()), kk -> new CompletableFuture<>());
 		Function<EClassifier, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
 		
-		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(uri, diagramElementCompletionStageProvider, progressMonitor);		
+		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(getUri(), diagramElementCompletionStageProvider, progressMonitor);		
 		thisType.setStyle("#DDDDDD");
 		classDiagram.getDiagramElements().add(thisType);
 		diagramElementProvider.apply(getTarget()).complete(thisType);
@@ -1094,7 +1094,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			EClassifier st = sgt.getEClassifier();
 			CompletableFuture<DiagramElement> stcf = diagramElementProvider.apply(st);
 			if (!stcf.isDone()) {
-				DiagramElement stde = swf.select(genericTypeClassifierDiagramElementSelector, uri, progressMonitor);
+				DiagramElement stde = swf.select(genericTypeClassifierDiagramElementSelector, getUri(), progressMonitor);
 				classDiagram.getDiagramElements().add(stde);
 				stcf.complete(stde);
 			}
@@ -1110,7 +1110,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				EClassifier st = subTypeRecord.subType();
 				CompletableFuture<DiagramElement> stcf = diagramElementProvider.apply(st);
 				if (!stcf.isDone()) {
-					DiagramElement stde = subTypeRecord.subTypeWidgetFactory().select(subTypeDiagramElementSelector, uri, progressMonitor);
+					DiagramElement stde = subTypeRecord.subTypeWidgetFactory().select(subTypeDiagramElementSelector, getUri(), progressMonitor);
 					classDiagram.getDiagramElements().add(stde);
 					stcf.complete(stde);
 				}
@@ -1125,11 +1125,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		
 		// Outgoing
 		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
-			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, uri, progressMonitor); 
+			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, getUri(), progressMonitor); 
 			EClass refClass = eRef.getEReferenceType();
 			CompletableFuture<DiagramElement> rccf = diagramElementProvider.apply(refClass);
 			if (!rccf.isDone()) {
-				DiagramElement rtde = rwf.select(referenceTypeDiagramElementSelector, uri, progressMonitor);
+				DiagramElement rtde = rwf.select(referenceTypeDiagramElementSelector, getUri(), progressMonitor);
 				classDiagram.getDiagramElements().add(rtde);
 				rccf.complete(rtde);
 			}
@@ -1151,7 +1151,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				if (declaringClass != null) {
 					CompletableFuture<DiagramElement> dccf = diagramElementProvider.apply(declaringClass);
 					if (!dccf.isDone()) {
-						DiagramElement dcde = rte.getValue().select(declaringClassDiagramElementSelector, uri, progressMonitor);
+						DiagramElement dcde = rte.getValue().select(declaringClassDiagramElementSelector, getUri(), progressMonitor);
 						classDiagram.getDiagramElements().add(dcde);
 						dccf.complete(dcde);
 					}
@@ -1168,7 +1168,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 					if (declaringClass != null) {
 						CompletableFuture<DiagramElement> dccf = diagramElementProvider.apply(declaringClass);
 						if (!dccf.isDone()) {
-							DiagramElement dcde = typedElementWidgetFactoryEntry.getValue().select(declaringClassDiagramElementSelector, uri, progressMonitor);
+							DiagramElement dcde = typedElementWidgetFactoryEntry.getValue().select(declaringClassDiagramElementSelector, getUri(), progressMonitor);
 							classDiagram.getDiagramElements().add(dcde);
 							dccf.complete(dcde);
 						}
@@ -1383,7 +1383,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
 			CompletableFuture<org.nasdanika.models.echarts.graph.Node> eccf = nodeProvider.apply(eClassifier);
 			if (!eccf.isDone()) {
-				org.nasdanika.models.echarts.graph.Node ecn = cwf.select(eClassifierNodeSelector, uri, progressMonitor);
+				org.nasdanika.models.echarts.graph.Node ecn = cwf.select(eClassifierNodeSelector, getUri(), progressMonitor);
 				graph.getNodes().add(ecn);
 				eccf.complete(ecn);
 			}

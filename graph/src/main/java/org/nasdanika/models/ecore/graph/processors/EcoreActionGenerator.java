@@ -4,11 +4,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.nasdanika.capability.CapabilityLoader;
+import org.nasdanika.common.Context;
+import org.nasdanika.common.Diagnostic;
+import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.graph.emf.ActionGenerator;
 import org.nasdanika.models.ecore.graph.EcoreGraphFactory;
 
@@ -20,6 +27,14 @@ public class EcoreActionGenerator extends ActionGenerator {
 			Function<? super EObject, URI> uriResolver,
 			EcoreNodeProcessorFactory nodeProcessorFactory) {
 		super(sources, references, uriResolver, nodeProcessorFactory);
+	}
+
+	private EcoreActionGenerator(
+			Collection<? extends EObject> sources,
+			Collection<? extends EObject> references,
+			Function<? super EObject, URI> uriResolver,
+			Object[] nodeProcessorFactories) {
+		super(sources, references, uriResolver, nodeProcessorFactories);
 	}
 	
 	public EcoreActionGenerator(
@@ -52,6 +67,65 @@ public class EcoreActionGenerator extends ActionGenerator {
 	@Override
 	protected Object createGraphFactory() {
 		return new EcoreGraphFactory();
+	}
+	
+	/**
+	 * Loads mapping of {@link EPackage}s to doc URI's and node processor factories from {@link CapabilityLoader}. 
+	 * @param sources
+	 * @param references
+	 * @param capabilityLoader
+	 * @param progressMonitor
+	 * @return
+	 */
+	public static EcoreActionGenerator loadEcoreActionGenerator(
+			EObject source,
+			Context context, 
+			java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider,			
+			Predicate<Object> factoryPredicate,
+			Predicate<EPackage> ePackagePredicate,
+			Consumer<Diagnostic> diagnosticConsumer,
+			ProgressMonitor progressMonitor) {
+
+		return loadEcoreActionGenerator(
+				source,
+				context, 
+				prototypeProvider,
+				factoryPredicate,
+				ePackagePredicate,
+				new CapabilityLoader(),
+				diagnosticConsumer,
+				progressMonitor);
+	}	
+	
+	/**
+	 * Loads mapping of {@link EPackage}s to doc URI's and node processor factories from {@link CapabilityLoader}. 
+	 * @param sources
+	 * @param references
+	 * @param capabilityLoader
+	 * @param progressMonitor
+	 * @return
+	 */
+	public static EcoreActionGenerator loadEcoreActionGenerator(
+			EObject source,
+			Context context, 
+			java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider,			
+			Predicate<Object> factoryPredicate,
+			Predicate<EPackage> ePackagePredicate,
+			CapabilityLoader capabilityLoader, 
+			Consumer<Diagnostic> diagnosticConsumer,
+			ProgressMonitor progressMonitor) {
+
+		return load(
+				source,
+				context, 
+				prototypeProvider,			
+				factoryPredicate,
+				ePackagePredicate,
+				capabilityLoader, 
+				diagnosticConsumer,
+				EcoreActionGenerator::new,
+				progressMonitor);
+		
 	}
 	
 }
