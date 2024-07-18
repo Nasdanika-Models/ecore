@@ -160,6 +160,7 @@
 	<modules>
 		<module>graph</module>
 		<module>processors-doc</module>
+		<module>cli</module>
 	</modules>	
 
 	 <profiles>
