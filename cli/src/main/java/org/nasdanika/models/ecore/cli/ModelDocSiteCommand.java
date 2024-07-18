@@ -17,6 +17,7 @@ import org.nasdanika.exec.util.ModelMixIn;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.gen.cli.AbstractSiteCommand;
 import org.nasdanika.html.model.app.graph.emf.ActionGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreActionGenerator;
 
