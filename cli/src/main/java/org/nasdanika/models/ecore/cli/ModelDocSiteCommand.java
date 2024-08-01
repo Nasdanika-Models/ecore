@@ -40,9 +40,7 @@ public class ModelDocSiteCommand extends AbstractSiteCommand {
 		index =  "0",	
 		description = {  
 			"Model URI, resolved relative",
-			"to the current directory",
-			"or looked up in registered rule sets",
-			"if -R option is provided"
+			"to the current directory"
 		})
 	private String model;
 			
