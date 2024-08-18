@@ -13,7 +13,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.Diagnostic;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.exec.util.ModelMixIn;
+import org.nasdanika.emf.ModelMixIn;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.AppFactory;
 import org.nasdanika.html.model.app.Label;
