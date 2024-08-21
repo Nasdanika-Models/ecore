@@ -17,7 +17,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
-
 @Command(
 		description = "Generates model documentation action model",
 		versionProvider = ModuleVersionProvider.class,		
@@ -26,7 +25,7 @@ import picocli.CommandLine.Parameters;
 public class ActionModelCommand extends CommandBase {
 	
 	@Mixin
-	private ModelMixIn architectureModelMixIn;
+	private ModelMixIn modelMixIn;
 	
 	@Mixin
 	private ProgressMonitorMixIn progressMonitorMixIn;
@@ -49,7 +48,7 @@ public class ActionModelCommand extends CommandBase {
 	@Override
 	public Integer call() throws Exception {
 		try (ProgressMonitor progressMonitor = progressMonitorMixIn.createProgressMonitor(4)) {
-			EObject eObj = architectureModelMixIn.getEObject(model, progressMonitor.split("Loading architecture model", 1));
+			EObject eObj = modelMixIn.getEObject(model, progressMonitor.split("Loading architecture model", 1));
 			
 			Consumer<Diagnostic> diagnosticConsumer = d -> d.dump(progressMonitor.split("Diagnostic", 1));		
 			Context context = contextMixIn.createContext(progressMonitor.split("Creating context", 1));
