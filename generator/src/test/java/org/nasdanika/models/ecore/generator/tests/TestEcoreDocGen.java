@@ -22,7 +22,7 @@ import org.nasdanika.common.MutableContext;
 import org.nasdanika.common.NullProgressMonitor;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.gen.ActionSiteGenerator;
+import org.nasdanika.html.model.app.gen.AppSiteGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreActionGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreNodeProcessorFactory;
 import org.nasdanika.models.ecore.processors.doc.EcoreDocProcessorFactory;
@@ -74,7 +74,7 @@ public class TestEcoreDocGen {
 		
 		String siteMapDomain = "https://models.nasdanika.org/ecore";
 		
-		ActionSiteGenerator actionSiteGenerator = new ActionSiteGenerator() {
+		AppSiteGenerator actionSiteGenerator = new AppSiteGenerator() {
 			
 			protected boolean isDeleteOutputPath(String path) {
 				return !"CNAME".equals(path);				

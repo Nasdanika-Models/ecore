@@ -91,7 +91,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 
 	@Override
 	public String getLoadKey(EClass eClass) {
-		return NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), EObjectLoader.LOAD_KEY, NcoreUtil.getFeatureKey(eClass, getTarget()));
+		return NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), NcoreUtil.LOAD_KEY, NcoreUtil.getFeatureKey(eClass, getTarget()));
 	}
 	
 	@Override
