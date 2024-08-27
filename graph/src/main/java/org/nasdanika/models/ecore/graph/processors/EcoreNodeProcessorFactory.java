@@ -64,15 +64,15 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 			
 	private Context context;
 	private Consumer<Diagnostic> diagnosticConsumer;
-	private java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider;
+	private java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider;
 	
 	protected java.util.function.Function<ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory> config) {
 		return progressMonitor -> {
 			if (prototypeProvider != null) {
 				for (URI identifier: NcoreUtil.getIdentifiers(((EObjectNode) config.getElement()).get())) {
-					Action prototype = prototypeProvider.apply(identifier, progressMonitor);
-					if (prototype != null) {
-						return prototype;
+					Label prototype = prototypeProvider.apply(identifier, progressMonitor);
+					if (prototype instanceof Action) {
+						return (Action) prototype;
 					}				
 				}			
 			}
@@ -89,7 +89,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 	 */
 	public EcoreNodeProcessorFactory(
 			Context context, 
-			java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider,
+			java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider,
 			Consumer<Diagnostic> diagnosticConsumer,
 			Object... targets)  {
 		this.context = context;

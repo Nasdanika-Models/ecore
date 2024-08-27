@@ -23,7 +23,7 @@ import org.nasdanika.common.NullProgressMonitor;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.html.model.app.Action;
 import org.nasdanika.html.model.app.gen.AppSiteGenerator;
-import org.nasdanika.models.ecore.graph.processors.EcoreActionGenerator;
+import org.nasdanika.models.ecore.graph.processors.EcoreHtmlAppGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreNodeProcessorFactory;
 import org.nasdanika.models.ecore.processors.doc.EcoreDocProcessorFactory;
 
@@ -55,7 +55,7 @@ public class TestEcoreDocGen {
 				diagnosticConsumer,
 				ecoreDocProcessorFactory);
 
-		EcoreActionGenerator eCoreActionGenerator = new EcoreActionGenerator(
+		EcoreHtmlAppGenerator eCoreActionGenerator = new EcoreHtmlAppGenerator(
 				EcorePackage.eINSTANCE, 
 				Collections.emptyMap(), 
 				ecoreNodeProcessorFactory);
@@ -64,7 +64,7 @@ public class TestEcoreDocGen {
 		actionModelsDir.mkdirs();		
 		File output = new File(actionModelsDir, "ecore.xmi");
 		
-		eCoreActionGenerator.generateActionModel(diagnosticConsumer, output, progressMonitor);
+		eCoreActionGenerator.generateHtmlAppModel(diagnosticConsumer, output, progressMonitor);
 				
 		String rootActionResource = "actions.yml";
 		URI rootActionURI = URI.createFileURI(new File(rootActionResource).getAbsolutePath());//.appendFragment("/");

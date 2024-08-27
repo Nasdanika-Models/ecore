@@ -15,13 +15,13 @@ import org.nasdanika.capability.CapabilityLoader;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.Diagnostic;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.graph.emf.ActionGenerator;
+import org.nasdanika.html.model.app.Label;
+import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator;
 import org.nasdanika.models.ecore.graph.EcoreGraphFactory;
 
-public class EcoreActionGenerator extends ActionGenerator {
+public class EcoreHtmlAppGenerator extends HtmlAppGenerator {
 
-	public EcoreActionGenerator(
+	public EcoreHtmlAppGenerator(
 			Collection<? extends EObject> sources,
 			Collection<? extends EObject> references,
 			Function<? super EObject, URI> uriResolver,
@@ -29,7 +29,7 @@ public class EcoreActionGenerator extends ActionGenerator {
 		super(sources, references, uriResolver, nodeProcessorFactory);
 	}
 
-	private EcoreActionGenerator(
+	private EcoreHtmlAppGenerator(
 			Collection<? extends EObject> sources,
 			Collection<? extends EObject> references,
 			Function<? super EObject, URI> uriResolver,
@@ -37,7 +37,7 @@ public class EcoreActionGenerator extends ActionGenerator {
 		super(sources, references, uriResolver, nodeProcessorFactories);
 	}
 	
-	public EcoreActionGenerator(
+	public EcoreHtmlAppGenerator(
 			EObject source,
 			URI baseURI,
 			Map<EPackage, URI> references,
@@ -54,7 +54,7 @@ public class EcoreActionGenerator extends ActionGenerator {
 			nodeProcessorFactory);
 	}
 		
-	public EcoreActionGenerator(
+	public EcoreHtmlAppGenerator(
 			EObject source, 
 			Map<EPackage, URI> references,
 			EcoreNodeProcessorFactory nodeProcessorFactory) {
@@ -77,16 +77,16 @@ public class EcoreActionGenerator extends ActionGenerator {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static EcoreActionGenerator loadEcoreActionGenerator(
+	public static EcoreHtmlAppGenerator loadEcoreHtmlAppGenerator(
 			EObject source,
 			Context context, 
-			java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider,			
+			java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider,			
 			Predicate<Object> factoryPredicate,
 			Predicate<EPackage> ePackagePredicate,
 			Consumer<Diagnostic> diagnosticConsumer,
 			ProgressMonitor progressMonitor) {
 
-		return loadEcoreActionGenerator(
+		return loadEcoreHtmlAppGenerator(
 				source,
 				context, 
 				prototypeProvider,
@@ -105,10 +105,10 @@ public class EcoreActionGenerator extends ActionGenerator {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static EcoreActionGenerator loadEcoreActionGenerator(
+	public static EcoreHtmlAppGenerator loadEcoreHtmlAppGenerator(
 			EObject source,
 			Context context, 
-			java.util.function.BiFunction<URI, ProgressMonitor, Action> prototypeProvider,			
+			java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider,			
 			Predicate<Object> factoryPredicate,
 			Predicate<EPackage> ePackagePredicate,
 			CapabilityLoader capabilityLoader, 
@@ -123,7 +123,7 @@ public class EcoreActionGenerator extends ActionGenerator {
 				ePackagePredicate,
 				capabilityLoader, 
 				diagnosticConsumer,
-				EcoreActionGenerator::new,
+				EcoreHtmlAppGenerator::new,
 				progressMonitor);
 		
 	}

@@ -9,12 +9,12 @@ import java.util.function.BiFunction;
 import org.nasdanika.capability.CapabilityFactory;
 import org.nasdanika.capability.CapabilityProvider;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.graph.emf.ActionGenerator;
-import org.nasdanika.html.model.app.graph.emf.ActionGenerator.NodeProcessorFactoryRequirement;
+import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator;
+import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator.NodeProcessorFactoryRequirement;
 
 import reactor.core.publisher.Flux;
 
-public class EcoreNodeProcessorFactoryCapabilityFactory implements CapabilityFactory<ActionGenerator.NodeProcessorFactoryRequirement, Object> {
+public class EcoreNodeProcessorFactoryCapabilityFactory implements CapabilityFactory<NodeProcessorFactoryRequirement, Object> {
 	
 	/**
 	 * Requirement for a {@link EcoreNodeProcessorFactoryCapabilityFactory} target
@@ -25,7 +25,7 @@ public class EcoreNodeProcessorFactoryCapabilityFactory implements CapabilityFac
 
 	@Override
 	public boolean canHandle(Object requirement) {
-		return requirement instanceof ActionGenerator.NodeProcessorFactoryRequirement;
+		return requirement instanceof NodeProcessorFactoryRequirement;
 	}
 
 	@Override

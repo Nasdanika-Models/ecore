@@ -1,5 +1,5 @@
 import org.nasdanika.capability.CapabilityFactory;
-import org.nasdanika.models.ecore.cli.ModelCommandFactory;
+import org.nasdanika.models.ecore.cli.EcoreHtmlAppGeneratorCommandFactory;
 
 module org.nasdanika.models.ecore.cli {
 	
@@ -10,6 +10,6 @@ module org.nasdanika.models.ecore.cli {
 	
 	opens org.nasdanika.models.ecore.cli to info.picocli;
 	
-	provides CapabilityFactory with	ModelCommandFactory;
+	provides CapabilityFactory with	EcoreHtmlAppGeneratorCommandFactory;
 
 }
