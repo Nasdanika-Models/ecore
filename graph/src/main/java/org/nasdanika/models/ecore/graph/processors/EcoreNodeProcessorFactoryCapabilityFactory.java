@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CompletionStage;
-import java.util.function.BiFunction;
 
 import org.nasdanika.capability.CapabilityFactory;
 import org.nasdanika.capability.CapabilityProvider;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator;
 import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator.NodeProcessorFactoryRequirement;
 
 import reactor.core.publisher.Flux;
@@ -31,17 +29,17 @@ public class EcoreNodeProcessorFactoryCapabilityFactory implements CapabilityFac
 	@Override
 	public CompletionStage<Iterable<CapabilityProvider<Object>>> create(
 			NodeProcessorFactoryRequirement requirement,
-			BiFunction<Object, ProgressMonitor, CompletionStage<Iterable<CapabilityProvider<Object>>>> resolver,
+			Loader loader,
 			ProgressMonitor progressMonitor) {
 		
 		TargetRequirement targetRequirement = new TargetRequirement(requirement);		
-		CompletionStage<Iterable<CapabilityProvider<Object>>> targetsCS = resolver.apply(targetRequirement, progressMonitor);
-		return targetsCS.thenApply(targets -> createFactory(requirement, resolver, targets, progressMonitor));
+		CompletionStage<Iterable<CapabilityProvider<Object>>> targetsCS = loader.load(targetRequirement, progressMonitor);
+		return targetsCS.thenApply(targets -> createFactory(requirement, loader, targets, progressMonitor));
 	}
 	
 	protected Iterable<CapabilityProvider<Object>> createFactory(
 			NodeProcessorFactoryRequirement requirement,
-			BiFunction<Object, ProgressMonitor, CompletionStage<Iterable<CapabilityProvider<Object>>>> resolver,
+			Loader loader,
 			Iterable<CapabilityProvider<Object>> targetCapabilityProviders, 
 			ProgressMonitor progressMonitor) {
 				

@@ -78,7 +78,7 @@ public class EcoreHtmlAppGenerator extends HtmlAppGenerator {
 	 * @return
 	 */
 	public static EcoreHtmlAppGenerator loadEcoreHtmlAppGenerator(
-			EObject source,
+			Collection<EObject> sources,
 			Context context, 
 			java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider,			
 			Predicate<Object> factoryPredicate,
@@ -87,7 +87,7 @@ public class EcoreHtmlAppGenerator extends HtmlAppGenerator {
 			ProgressMonitor progressMonitor) {
 
 		return loadEcoreHtmlAppGenerator(
-				source,
+				sources,
 				context, 
 				prototypeProvider,
 				factoryPredicate,
@@ -106,7 +106,7 @@ public class EcoreHtmlAppGenerator extends HtmlAppGenerator {
 	 * @return
 	 */
 	public static EcoreHtmlAppGenerator loadEcoreHtmlAppGenerator(
-			EObject source,
+			Collection<EObject> sources,
 			Context context, 
 			java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider,			
 			Predicate<Object> factoryPredicate,
@@ -116,7 +116,7 @@ public class EcoreHtmlAppGenerator extends HtmlAppGenerator {
 			ProgressMonitor progressMonitor) {
 
 		return load(
-				source,
+				sources,
 				context, 
 				prototypeProvider,			
 				factoryPredicate,
@@ -124,8 +124,9 @@ public class EcoreHtmlAppGenerator extends HtmlAppGenerator {
 				capabilityLoader, 
 				diagnosticConsumer,
 				EcoreHtmlAppGenerator::new,
-				progressMonitor);
+				progressMonitor);			
 		
 	}
+	
 	
 }

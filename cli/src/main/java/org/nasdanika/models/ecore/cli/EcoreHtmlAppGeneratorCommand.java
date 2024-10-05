@@ -1,5 +1,6 @@
 package org.nasdanika.models.ecore.cli;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.eclipse.emf.ecore.EObject;
@@ -24,13 +25,13 @@ public class EcoreHtmlAppGeneratorCommand extends HtmlAppGeneratorCommand {
 	
 	@Override
 	protected HtmlAppGenerator createHtmlAppGenerator(
+			Collection<EObject> sources, 
+			Context context,
 			ProgressMonitor progressMonitor, 
-			Context context, 
-			EObject source,
 			Consumer<Diagnostic> diagnosticConsumer) {
 		
 		return EcoreHtmlAppGenerator.loadEcoreHtmlAppGenerator(
-				source, 
+				sources, 
 				context, 
 				createPrototypeProvider(progressMonitor), 
 				createFactoryPredicate(progressMonitor),
