@@ -23,12 +23,12 @@ import org.nasdanika.diagram.plantuml.clazz.Parameter;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.AppFactory;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.AppFactory;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.gen.DynamicTableBuilder;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
 
 public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperation> {
 
@@ -131,7 +131,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> parametersTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				buildTypedElementColumns(parametersTableBuilder, progressMonitor);
 				
-				org.nasdanika.html.model.html.Tag operationsTable = parametersTableBuilder.build(
+				org.nasdanika.models.html.Tag operationsTable = parametersTableBuilder.build(
 						referenceOutgoingEndpoints,  
 						"eoperation-parameters", 
 						"parameters-table", 
@@ -190,7 +190,7 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 				buildNamedElementColumns(typeParametersTableBuilder, progressMonitor);
 				// TODO - bounds
 				
-				org.nasdanika.html.model.html.Tag operationsTable = typeParametersTableBuilder.build(
+				org.nasdanika.models.html.Tag operationsTable = typeParametersTableBuilder.build(
 						referenceOutgoingEndpoints,  
 						"eoperation-type-parameters", 
 						"type-parameters-table", 
@@ -302,8 +302,8 @@ public class EOperationNodeProcessor extends ETypedElementNodeProcessor<EOperati
 		if (link instanceof Label) {
 			operation.setTooltip(((Label) link).getTooltip());
 		}
-		if (link instanceof org.nasdanika.html.model.app.Link) {
-			operation.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		if (link instanceof org.nasdanika.models.app.Link) {
+			operation.setLocation(((org.nasdanika.models.app.Link) link).getLocation());
 		}
 				
 		Selector<Parameter> parameterSelector = (widgetFactory, sBase, pm) -> {

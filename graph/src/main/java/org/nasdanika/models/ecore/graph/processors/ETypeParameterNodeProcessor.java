@@ -18,12 +18,12 @@ import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.AppFactory;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.AppFactory;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.gen.DynamicTableBuilder;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
 
 // <name> extends <bound 1> [& <bound 2> ...]
 public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETypeParameter> implements EClassifierNodeProcessorProvider {
@@ -101,7 +101,7 @@ public class ETypeParameterNodeProcessor extends EModelElementNodeProcessor<ETyp
 					.addStringColumnBuilder("bound", true, false, "Bound", endpoint -> targetNameLink(endpoint.getKey(), endpoint.getValue(), progressMonitor)) 
 					.addStringColumnBuilder("description", true, false, "Description", endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
 				
-				org.nasdanika.html.model.html.Tag attributesTable = boundsTableBuilder.build(
+				org.nasdanika.models.html.Tag attributesTable = boundsTableBuilder.build(
 						referenceOutgoingEndpoints,  
 						"etypeparameter-bounds", 
 						"type-parameter-bounds-table", 

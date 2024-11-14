@@ -31,11 +31,11 @@ import org.nasdanika.graph.emf.EObjectConnection;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.html.TagName;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.gen.DynamicTableBuilder;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.models.echarts.graph.Graph;
 import org.nasdanika.models.echarts.graph.util.GraphUtil;
 import org.nasdanika.ncore.util.NcoreUtil;
@@ -321,8 +321,8 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 			Label label = (Label) link;
 			org.nasdanika.diagram.plantuml.Link dLink = new org.nasdanika.diagram.plantuml.Link(label.getText());
 			dLink.setTooltip(label.getTooltip());
-			if (label instanceof org.nasdanika.html.model.app.Link) {
-				dLink.setLocation(((org.nasdanika.html.model.app.Link) label).getLocation());
+			if (label instanceof org.nasdanika.models.app.Link) {
+				dLink.setLocation(((org.nasdanika.models.app.Link) label).getLocation());
 			}
 			ret.add(dLink);
 		} else if (link instanceof Collection) {

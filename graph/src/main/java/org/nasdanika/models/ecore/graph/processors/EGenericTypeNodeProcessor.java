@@ -26,10 +26,10 @@ import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.IncomingEndpoint;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.models.ecore.graph.ReifiedTypeConnection;
 
 public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType> implements EClassifierNodeProcessorProvider {
@@ -182,8 +182,8 @@ public class EGenericTypeNodeProcessor extends EObjectNodeProcessor<EGenericType
 			String labelText = label.getText();			
 			org.nasdanika.diagram.plantuml.Link dLink = new org.nasdanika.diagram.plantuml.Link(Jsoup.parse(labelText).text());
 			dLink.setTooltip(label.getTooltip());
-			if (label instanceof org.nasdanika.html.model.app.Link) {
-				dLink.setLocation(((org.nasdanika.html.model.app.Link) label).getLocation());
+			if (label instanceof org.nasdanika.models.app.Link) {
+				dLink.setLocation(((org.nasdanika.models.app.Link) label).getLocation());
 			}
 			ret.add(dLink);
 		} else if (link instanceof Collection) {

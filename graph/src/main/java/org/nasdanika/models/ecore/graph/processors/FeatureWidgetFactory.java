@@ -4,7 +4,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.WidgetFactory;
 import org.nasdanika.persistence.Feature;
 
 /**

@@ -28,15 +28,15 @@ import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.Tag;
 import org.nasdanika.html.TagName;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.AppFactory;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.bootstrap.BootstrapFactory;
-import org.nasdanika.html.model.bootstrap.Table;
-import org.nasdanika.html.model.bootstrap.TableCell;
-import org.nasdanika.html.model.bootstrap.TableRow;
-import org.nasdanika.html.model.bootstrap.TableSection;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.AppFactory;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.bootstrap.BootstrapFactory;
+import org.nasdanika.models.bootstrap.Table;
+import org.nasdanika.models.bootstrap.TableCell;
+import org.nasdanika.models.bootstrap.TableRow;
+import org.nasdanika.models.bootstrap.TableSection;
 import org.nasdanika.ncore.util.NcoreUtil;
 
 public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extends ENamedElementNodeProcessor<T> implements FeatureWidgetFactory, EClassifierNodeProcessorProvider {
@@ -440,7 +440,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 //			.addStringColumnBuilder("description", true, false, "Description", this::getEStructuralFeatureFirstLoadDocSentence);
 //			// Other things not visible?
 //		
-//		org.nasdanika.html.model.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(sortedFeatures, eObject.getEPackage().getNsURI().hashCode() + "-" + eObject.getName() + "-load-specification", "load-specification-table", progressMonitor);						
+//		org.nasdanika.models.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(sortedFeatures, eObject.getEPackage().getNsURI().hashCode() + "-" + eObject.getName() + "-load-specification", "load-specification-table", progressMonitor);						
 //		
 //		for (EStructuralFeature sf: sortedFeatures) {
 //			Action featureAction = AppFactory.eINSTANCE.createAction();

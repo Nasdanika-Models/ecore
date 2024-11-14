@@ -9,8 +9,8 @@ import org.nasdanika.common.Context;
 import org.nasdanika.common.Diagnostic;
 import org.nasdanika.common.EObjectSupplier;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.gen.cli.HtmlAppGeneratorCommand;
-import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator;
+import org.nasdanika.models.app.cli.HtmlAppGeneratorCommand;
+import org.nasdanika.models.app.graph.emf.HtmlAppGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreHtmlAppGenerator;
 
 import picocli.CommandLine.Command;

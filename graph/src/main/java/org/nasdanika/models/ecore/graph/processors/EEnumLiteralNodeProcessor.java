@@ -7,9 +7,9 @@ import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.Link;
 import org.nasdanika.diagram.plantuml.clazz.EnumLiteral;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.graph.WidgetFactory;
 
 public class EEnumLiteralNodeProcessor extends EModelElementNodeProcessor<EEnumLiteral> {
 
@@ -28,8 +28,8 @@ public class EEnumLiteralNodeProcessor extends EModelElementNodeProcessor<EEnumL
 		if (link instanceof Label) {
 			litaral.setTooltip(((Label) link).getTooltip());
 		}
-		if (link instanceof org.nasdanika.html.model.app.Link) {
-			litaral.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		if (link instanceof org.nasdanika.models.app.Link) {
+			litaral.setLocation(((org.nasdanika.models.app.Link) link).getLocation());
 		}
 		return litaral;
 	}	

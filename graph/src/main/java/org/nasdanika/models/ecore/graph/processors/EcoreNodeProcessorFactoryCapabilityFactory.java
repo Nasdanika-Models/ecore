@@ -8,7 +8,7 @@ import java.util.concurrent.CompletionStage;
 import org.nasdanika.capability.CapabilityFactory;
 import org.nasdanika.capability.CapabilityProvider;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.graph.emf.HtmlAppGenerator.NodeProcessorFactoryRequirement;
+import org.nasdanika.models.app.graph.emf.HtmlAppGenerator.NodeProcessorFactoryRequirement;
 
 import reactor.core.publisher.Flux;
 

@@ -62,14 +62,14 @@ import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.TagName;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.AppFactory;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
-import org.nasdanika.html.model.app.graph.emf.IncomingReferenceBuilder;
-import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.AppFactory;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.gen.DynamicTableBuilder;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.app.graph.emf.IncomingReferenceBuilder;
+import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
 import org.nasdanika.models.echarts.graph.GraphFactory;
 import org.nasdanika.models.echarts.graph.Item;
 import org.nasdanika.models.ecore.graph.ReifiedTypeConnection;
@@ -267,7 +267,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				attributesTableBuilder.setProperty("transitive-label", "Inherited");
 				buildStructuralFeatureColumns(attributesTableBuilder, progressMonitor);
 				
-				org.nasdanika.html.model.html.Tag attributesTable = attributesTableBuilder.build(
+				org.nasdanika.models.html.Tag attributesTable = attributesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
@@ -359,7 +359,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 //					isContainment()
 //					isResolveProxies()
 				
-				org.nasdanika.html.model.html.Tag referencesTable = referencesTableBuilder.build(
+				org.nasdanika.models.html.Tag referencesTable = referencesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
@@ -474,7 +474,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 						}
 					});
 				
-				org.nasdanika.html.model.html.Tag operationsTable = operationsTableBuilder.build(
+				org.nasdanika.models.html.Tag operationsTable = operationsTableBuilder.build(
 						sorted,  
 						"eclass-operations", 
 						"operations-table", 
@@ -526,7 +526,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 					.addStringColumnBuilder("name", true, false, "Name", endpoint -> targetNameLink(endpoint.getKey(), endpoint.getValue(), progressMonitor))   
 					.addStringColumnBuilder("description", true, false, "Description", endpoint -> description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
 				
-				org.nasdanika.html.model.html.Tag superTypesTable = superTypesTableBuilder.build(
+				org.nasdanika.models.html.Tag superTypesTable = superTypesTableBuilder.build(
 						referenceOutgoingEndpoints,  
 						"eclass-supertypes", 
 						"supertypes-table", 
@@ -572,7 +572,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 
 					// TODO Description from the generic type?
 	
-					org.nasdanika.html.model.html.Tag subTypesTable = subTypesTableBuilder.build(subTypes, "eclass-subtypes", "subtypes-table", progressMonitor);
+					org.nasdanika.models.html.Tag subTypesTable = subTypesTableBuilder.build(subTypes, "eclass-subtypes", "subtypes-table", progressMonitor);
 	
 					Action subTypesSection = AppFactory.eINSTANCE.createAction();
 					subTypesSection.setText("Subtypes");
@@ -723,7 +723,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		loadSpecificationTableBuilder.addStringColumnBuilder("exclusive", true, true, "Exclusive With", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getExclusiveWith(getTarget()));
 		loadSpecificationTableBuilder.addStringColumnBuilder("description", true, false, "Description", featureWidgetFactoryEntry -> ((ETypedElementNodeProcessor<?>) featureWidgetFactoryEntry.getValue()).getLoadDescription());
 		
-		org.nasdanika.html.model.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(
+		org.nasdanika.models.html.Tag loadSpecificationTable = loadSpecificationTableBuilder.build(
 				features, 
 				getTarget().getEPackage().getNsURI().hashCode() + "-" + getTarget().getName() + "-load-specification", 
 				"load-specification-table", 
@@ -986,8 +986,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 						if (refLink instanceof Label) {
 							refRelation.setTooltip(((Label) refLink).getTooltip());
 						}
-						if (refLink instanceof org.nasdanika.html.model.app.Link) {
-							refRelation.setLocation(((org.nasdanika.html.model.app.Link) refLink).getLocation());
+						if (refLink instanceof org.nasdanika.models.app.Link) {
+							refRelation.setLocation(((org.nasdanika.models.app.Link) refLink).getLocation());
 						}				
 						
 						if (targetMultiplicity != null) {
@@ -1000,8 +1000,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 						if (refLink instanceof Label) {
 							targetLink.setTooltip(((Label) refLink).getTooltip());
 						}
-						if (refLink instanceof org.nasdanika.html.model.app.Link) {
-							targetLink.setLocation(((org.nasdanika.html.model.app.Link) refLink).getLocation());
+						if (refLink instanceof org.nasdanika.models.app.Link) {
+							targetLink.setLocation(((org.nasdanika.models.app.Link) refLink).getLocation());
 						}				
 						
 						if (targetMultiplicity == null) {
@@ -1022,8 +1022,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 						if (refOppositeLink instanceof Label) {
 							sourceLink.setTooltip(((Label) refOppositeLink).getTooltip());
 						}
-						if (refOppositeLink instanceof org.nasdanika.html.model.app.Link) {
-							sourceLink.setLocation(((org.nasdanika.html.model.app.Link) refOppositeLink).getLocation());
+						if (refOppositeLink instanceof org.nasdanika.models.app.Link) {
+							sourceLink.setLocation(((org.nasdanika.models.app.Link) refOppositeLink).getLocation());
 						}				
 						
 						if (sourceMultiplicity == null) {
@@ -1052,8 +1052,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		if (link instanceof Label) {
 			type.setTooltip(((Label) link).getTooltip());
 		}
-		if (link instanceof org.nasdanika.html.model.app.Link) {
-			type.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		if (link instanceof org.nasdanika.models.app.Link) {
+			type.setLocation(((org.nasdanika.models.app.Link) link).getLocation());
 		}
 		
 		return type;

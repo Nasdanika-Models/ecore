@@ -6,7 +6,7 @@ import java.util.concurrent.CompletionStage;
 
 import org.nasdanika.cli.SubCommandCapabilityFactory;
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.util.LabelSupplier;
+import org.nasdanika.models.app.util.LabelSupplier;
 
 import picocli.CommandLine;
 

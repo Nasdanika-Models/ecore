@@ -23,11 +23,11 @@ import org.nasdanika.diagram.plantuml.clazz.EnumLiteral;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.gen.DynamicTableBuilder;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
 
 public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 
@@ -74,7 +74,7 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 				literalsTableBuilder.addStringColumnBuilder("literal", true, false, "Literal", endpoint -> endpoint.getValue().selectString((Selector<String>) this::getLiteral, progressMonitor));
 				literalsTableBuilder.addStringColumnBuilder("value", true, true, "Value", endpoint -> endpoint.getValue().selectString((Selector<String>) this::getValue, progressMonitor));
 				
-				org.nasdanika.html.model.html.Tag operationsTable = literalsTableBuilder.build(
+				org.nasdanika.models.html.Tag operationsTable = literalsTableBuilder.build(
 						referenceOutgoingEndpoints,  
 						"eenum-literals", 
 						"literals-table", 
@@ -120,8 +120,8 @@ public class EEnumNodeProcessor extends EDataTypeNodeProcessor<EEnum> {
 		if (link instanceof Label) {
 			ret.setTooltip(((Label) link).getTooltip());
 		}
-		if (link instanceof org.nasdanika.html.model.app.Link) {
-			ret.setLocation(((org.nasdanika.html.model.app.Link) link).getLocation());
+		if (link instanceof org.nasdanika.models.app.Link) {
+			ret.setLocation(((org.nasdanika.models.app.Link) link).getLocation());
 		}
 		
 		

@@ -40,13 +40,13 @@ import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
-import org.nasdanika.html.model.app.Action;
-import org.nasdanika.html.model.app.AppFactory;
-import org.nasdanika.html.model.app.Label;
-import org.nasdanika.html.model.app.gen.DynamicTableBuilder;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.emf.EObjectNodeProcessor;
-import org.nasdanika.html.model.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.app.Action;
+import org.nasdanika.models.app.AppFactory;
+import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.gen.DynamicTableBuilder;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
 import org.nasdanika.models.echarts.graph.GraphFactory;
 import org.nasdanika.models.echarts.graph.Item;
 
@@ -172,7 +172,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				DynamicTableBuilder<Entry<EReferenceConnection, WidgetFactory>> classifiersTableBuilder = new DynamicTableBuilder<>("nsd-ecore-doc-table");
 				buildClassifierColumns(classifiersTableBuilder, progressMonitor);
 				
-				org.nasdanika.html.model.html.Tag classifiersTable = classifiersTableBuilder.build(
+				org.nasdanika.models.html.Tag classifiersTable = classifiersTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();
@@ -213,7 +213,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 				// getNsURI()
 //				subPackagesTableBuilder.addStringColumnBuilder("nsUri", true, false, "Namespace URI", endpoint -> endpoint.get description(endpoint.getKey(), endpoint.getValue(), progressMonitor));
 				
-				org.nasdanika.html.model.html.Tag subPackagesTable = subPackagesTableBuilder.build(
+				org.nasdanika.models.html.Tag subPackagesTable = subPackagesTableBuilder.build(
 						referenceOutgoingEndpoints.stream().sorted((a,b) -> {
 							ENamedElement ane = (ENamedElement) a.getKey().getTarget().get();
 							ENamedElement bne = (ENamedElement) b.getKey().getTarget().get();

@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.function.Predicate;
 
 import org.nasdanika.common.ProgressMonitor;
-import org.nasdanika.html.model.app.graph.WidgetFactory;
-import org.nasdanika.html.model.app.graph.WidgetFactory.Selector;
+import org.nasdanika.models.app.graph.WidgetFactory;
+import org.nasdanika.models.app.graph.WidgetFactory.Selector;
 
 /**
  * Something that references EClassifiers - generic type, typed element 
