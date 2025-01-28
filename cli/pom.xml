@@ -4,7 +4,7 @@
 	  <parent>
 	    <artifactId>parent</artifactId>
 		<groupId>org.nasdanika.models.ecore</groupId>
-		<version>2024.12.0</version>
+		<version>2025.1.0</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<artifactId>cli</artifactId>
@@ -15,12 +15,12 @@
 		<dependency>
 			<groupId>org.nasdanika.models.app</groupId>
 			<artifactId>cli</artifactId>
-			<version>2024.12.0</version>
+			<version>2025.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.nasdanika.models.app</groupId>
 			<artifactId>graph</artifactId>
-			<version>2024.12.0</version>
+			<version>2025.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
