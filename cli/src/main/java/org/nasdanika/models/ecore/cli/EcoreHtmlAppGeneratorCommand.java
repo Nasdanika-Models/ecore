@@ -18,7 +18,10 @@ import org.nasdanika.models.ecore.graph.processors.EcoreHtmlAppGenerator;
 import picocli.CommandLine.Command;
 
 @Command(
-		description = "Generates Ecore model documentation html app model",
+		description = {
+				"Generates html application model from a model",
+				"with links to type documentation"
+		},
 		versionProvider = ModuleVersionProvider.class,		
 		mixinStandardHelpOptions = true,
 		name = "html-app")
