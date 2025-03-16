@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.eclipse.emf.ecore.EObject;
+import org.nasdanika.cli.Overrides;
 import org.nasdanika.cli.ParentCommands;
 import org.nasdanika.common.Context;
+import org.nasdanika.common.Description;
 import org.nasdanika.common.Diagnostic;
 import org.nasdanika.common.EObjectSupplier;
 import org.nasdanika.common.ProgressMonitor;
@@ -19,8 +21,10 @@ import picocli.CommandLine.Command;
 		description = "Generates Ecore model documentation html app model",
 		versionProvider = ModuleVersionProvider.class,		
 		mixinStandardHelpOptions = true,
-		name = "ecore-html-app")
+		name = "html-app")
 @ParentCommands(EObjectSupplier.class)
+@Overrides(HtmlAppGeneratorCommand.class)
+@Description(icon = "https://docs.nasdanika.org/images/html-application.svg")
 public class EcoreHtmlAppGeneratorCommand extends HtmlAppGeneratorCommand {
 	
 	@Override
