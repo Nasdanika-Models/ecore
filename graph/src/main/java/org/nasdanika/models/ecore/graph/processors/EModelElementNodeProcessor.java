@@ -36,6 +36,7 @@ import org.nasdanika.models.app.Label;
 import org.nasdanika.models.app.gen.DynamicTableBuilder;
 import org.nasdanika.models.app.graph.WidgetFactory;
 import org.nasdanika.models.app.graph.emf.EObjectNodeProcessor;
+import org.nasdanika.models.bootstrap.Table;
 import org.nasdanika.models.echarts.graph.Graph;
 import org.nasdanika.models.echarts.graph.util.GraphUtil;
 import org.nasdanika.ncore.util.NcoreUtil;
@@ -71,6 +72,12 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 	
 	@Override
 	public void configureLabel(Object source, Label label, ProgressMonitor progressMonitor) {
+		if (label instanceof Action && source == getTarget()) {
+			Table propertiesTable = createPropertiesTable(progressMonitor);
+			if (propertiesTable != null) {
+				((Action) label).getContent().add(0, propertiesTable);
+			}
+		}
 		if (source instanceof EObject) {
 			EObject eObject = (EObject) source;
 			if (eObject instanceof EModelElement) {

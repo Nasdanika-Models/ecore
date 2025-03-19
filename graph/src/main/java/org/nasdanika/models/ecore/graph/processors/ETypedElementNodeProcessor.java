@@ -3,6 +3,8 @@ package org.nasdanika.models.ecore.graph.processors;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -85,6 +87,17 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 		}		
 		
 		return super.select(selector, base, progressMonitor);
+	}
+	
+	@Override
+	protected Collection<Entry<String, Collection<EObject>>> getProperties(ProgressMonitor progressMonitor) {
+		Collection<Entry<String, Collection<EObject>>> properties = super.getProperties(progressMonitor);
+		String link = genericTypeWidgetFactory.createLinkString(progressMonitor);
+		if (link != null) {
+			properties.add(Map.entry("Type", Collections.singleton(createText(link))));
+		}
+		properties.add(Map.entry("Multiplicity", Collections.singleton(createText(cardinality(getTarget())))));
+		return properties;
 	}
 
 	// 

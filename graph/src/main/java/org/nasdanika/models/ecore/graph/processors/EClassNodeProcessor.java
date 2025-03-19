@@ -207,7 +207,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	 * @return
 	 */
 	protected Action getAttributesAction(Action parent) {
-		return parent.getNavigation()
+		EList<? super Action> membersActionCollection = getTarget().getEAttributes().isEmpty() ? parent.getNavigation() : getMembersActionCollection(parent);
+		return membersActionCollection
 			.stream()
 			.filter(e -> e instanceof Action && "attributes.html".equals(((Action) e).getLocation()))
 			.findFirst()
@@ -217,9 +218,24 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				attributesAction.setText("Attributes");
 				attributesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EAttribute.gif");
 				attributesAction.setLocation("attributes.html");
-				parent.getNavigation().add(attributesAction);
+				membersActionCollection.add(attributesAction);
 				return attributesAction;
 			});
+	}
+
+	/**
+	 * Override to put attributes, reference, and operations actions to another parent action collection, e.g. children.
+	 * @param parent
+	 * @return
+	 */
+	protected EList<? super Action> getMembersActionCollection(Action parent) {
+		return parent.getNavigation();
+	}
+	
+	protected int compareStructuralFeatureEntries(Entry<EReferenceConnection, Collection<Label>> a, Entry<EReferenceConnection, Collection<Label>>b) {
+		EStructuralFeature af = (EStructuralFeature) a.getKey().getTarget().get();
+		EStructuralFeature bf = (EStructuralFeature) b.getKey().getTarget().get();
+		return af.getName().compareTo(bf.getName());
 	}
 
 	@OutgoingReferenceBuilder(
@@ -233,15 +249,15 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			Map<EReferenceConnection, Collection<Label>> outgoingLabels, 
 			ProgressMonitor progressMonitor) {
 		
-		// Own attributes 
+		// Own attributes. 
 		for (Label tLabel: labels) {
 			if (tLabel instanceof Action) {
 				Action attributesAction = getAttributesAction((Action) tLabel);
-				EList<Action> tAnonymous = attributesAction.getAnonymous();
-				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet()) {
+				EList<EObject> tChildren = attributesAction.getChildren();
+				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet().stream().sorted(this::compareStructuralFeatureEntries).toList()) {
 					for (Label childLabel: re.getValue()) {
-						if (childLabel instanceof Action && !((Action) childLabel).getContent().isEmpty()) {
-							tAnonymous.add((Action) childLabel);
+						if (childLabel instanceof Action) { // && !((Action) childLabel).getContent().isEmpty()) {
+							tChildren.add((Action) childLabel);
 						}
 					}
 				}
@@ -293,7 +309,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	 * @return
 	 */
 	protected Action getReferencesAction(Action parent) {
-		return parent.getNavigation()
+		EList<? super Action> membersActionCollection = getTarget().getEReferences().isEmpty() ? parent.getNavigation() : getMembersActionCollection(parent);
+		return membersActionCollection
 			.stream()
 			.filter(e -> e instanceof Action && "references.html".equals(((Action) e).getLocation()))
 			.findFirst()
@@ -303,7 +320,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				referencesAction.setText("References");
 				referencesAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EReference.gif");
 				referencesAction.setLocation("references.html");
-				parent.getNavigation().add(referencesAction);
+				membersActionCollection.add(referencesAction);
 				return referencesAction;
 			});
 	}
@@ -322,11 +339,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		for (Label tLabel: labels) {
 			if (tLabel instanceof Action) {
 				Action referencesAction = getReferencesAction((Action) tLabel);
-				EList<Action> tAnonymous = referencesAction.getAnonymous();
-				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet()) {
+				EList<EObject> tChildren = referencesAction.getChildren();
+				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet().stream().sorted(this::compareStructuralFeatureEntries).toList()) {
 					for (Label childLabel: re.getValue()) {
-						if (childLabel instanceof Action && !((Action) childLabel).getContent().isEmpty()) {
-							tAnonymous.add((Action) childLabel);
+						if (childLabel instanceof Action) { // && !((Action) childLabel).getContent().isEmpty()) {
+							tChildren.add((Action) childLabel);
 						}
 					}
 				}
@@ -381,7 +398,8 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	 * @return
 	 */
 	protected Action getOperationsAction(Action parent) {
-		return parent.getNavigation()
+		EList<? super Action> membersActionCollection = getTarget().getEOperations().isEmpty() ? parent.getNavigation() : getMembersActionCollection(parent);
+		return membersActionCollection
 			.stream()
 			.filter(e -> e instanceof Action && "operations.html".equals(((Action) e).getLocation()))
 			.findFirst()
@@ -391,12 +409,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				operationsAction.setText("Operations");
 				operationsAction.setIcon("https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EOperation.gif");
 				operationsAction.setLocation("operations.html");
-				parent.getNavigation().add(operationsAction);
+				membersActionCollection.add(operationsAction);
 				return operationsAction;
 			});
 	}
 	
-
 	@OutgoingReferenceBuilder(
 			nsURI = EcorePackage.eNS_URI,
 			classID = EcorePackage.ECLASS,
@@ -414,7 +431,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				EList<Action> tAnonymous = operationsAction.getAnonymous();
 				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet()) {
 					for (Label childLabel: re.getValue()) {
-						if (childLabel instanceof Action && !((Action) childLabel).getContent().isEmpty()) {
+						if (childLabel instanceof Action) { // && !((Action) childLabel).getContent().isEmpty()) {
 							tAnonymous.add((Action) childLabel);
 						}
 					}
