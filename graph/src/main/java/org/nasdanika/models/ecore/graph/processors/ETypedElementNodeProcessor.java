@@ -92,11 +92,13 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	@Override
 	protected Collection<Entry<String, Collection<EObject>>> getProperties(ProgressMonitor progressMonitor) {
 		Collection<Entry<String, Collection<EObject>>> properties = super.getProperties(progressMonitor);
-		String link = genericTypeWidgetFactory.createLinkString(progressMonitor);
-		if (link != null) {
-			properties.add(Map.entry("Type", Collections.singleton(createText(link))));
+		if (genericTypeWidgetFactory != null) {
+			String link = genericTypeWidgetFactory.createLinkString(progressMonitor);
+			if (link != null) {
+				properties.add(Map.entry("Type", Collections.singleton(createText(link))));
+			}
+			properties.add(Map.entry("Multiplicity", Collections.singleton(createText(cardinality(getTarget())))));
 		}
-		properties.add(Map.entry("Multiplicity", Collections.singleton(createText(cardinality(getTarget())))));
 		return properties;
 	}
 

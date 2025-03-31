@@ -232,6 +232,15 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		return parent.getNavigation();
 	}
 	
+	/**
+	 * Override to put attributes, reference, and operations actions to another parent action collection, e.g. children.
+	 * @param parent
+	 * @return
+	 */
+	protected EList<? super Action> getMembersCollection(Action membersAction) {
+		return membersAction.getAnonymous();
+	}	
+	
 	protected int compareStructuralFeatureEntries(Entry<EReferenceConnection, Collection<Label>> a, Entry<EReferenceConnection, Collection<Label>>b) {
 		EStructuralFeature af = (EStructuralFeature) a.getKey().getTarget().get();
 		EStructuralFeature bf = (EStructuralFeature) b.getKey().getTarget().get();
@@ -253,11 +262,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		for (Label tLabel: labels) {
 			if (tLabel instanceof Action) {
 				Action attributesAction = getAttributesAction((Action) tLabel);
-				EList<EObject> tChildren = attributesAction.getChildren();
+				EList<? super Action> membersCollection = getTarget().getEAttributes().isEmpty() ? attributesAction.getAnonymous() : getMembersCollection(attributesAction);
 				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet().stream().sorted(this::compareStructuralFeatureEntries).toList()) {
 					for (Label childLabel: re.getValue()) {
 						if (childLabel instanceof Action) { // && !((Action) childLabel).getContent().isEmpty()) {
-							tChildren.add((Action) childLabel);
+							membersCollection.add((Action) childLabel);
 						}
 					}
 				}
@@ -339,11 +348,11 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		for (Label tLabel: labels) {
 			if (tLabel instanceof Action) {
 				Action referencesAction = getReferencesAction((Action) tLabel);
-				EList<EObject> tChildren = referencesAction.getChildren();
+				EList<? super Action> membersCollection = getTarget().getEReferences().isEmpty() ? referencesAction.getAnonymous() : getMembersCollection(referencesAction);
 				for (Entry<EReferenceConnection, Collection<Label>> re: outgoingLabels.entrySet().stream().sorted(this::compareStructuralFeatureEntries).toList()) {
 					for (Label childLabel: re.getValue()) {
 						if (childLabel instanceof Action) { // && !((Action) childLabel).getContent().isEmpty()) {
-							tChildren.add((Action) childLabel);
+							membersCollection.add((Action) childLabel);
 						}
 					}
 				}
