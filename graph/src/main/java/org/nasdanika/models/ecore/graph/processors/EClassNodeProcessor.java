@@ -843,18 +843,26 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		}
 	}
 	
+	protected void addDiagramAction(Action action, Action diagramAction) {
+		action.getNavigation().add(diagramAction);
+	}
+	
+	protected void addGraphsLabel(Action action, Label graphsLabel) {
+		action.getNavigation().add(graphsLabel);
+	}
+	
 	protected void generateDiagramAndGraphActions(Collection<Label> labels, ProgressMonitor progressMonitor) {
 		for (Label label: labels) {
 			if (label instanceof Action) {
 				Action action = (Action) label;
 				Action diagramAction = createDiagramAction(progressMonitor);
 				if (diagramAction != null) {
-					action.getNavigation().add(diagramAction);
+					addDiagramAction(action, diagramAction);
 				}
 				
 				Label graphsLabel = createGraphsLabel(progressMonitor);
 				if (graphsLabel != null) {
-					action.getNavigation().add(graphsLabel);
+					addGraphsLabel(diagramAction, graphsLabel);
 				}
 			}
 		}

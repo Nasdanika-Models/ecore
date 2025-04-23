@@ -92,8 +92,9 @@ public class EModelElementNodeProcessor<T extends EModelElement> extends EObject
 				}
 				if (Util.isBlank(label.getTooltip())) {
 					String modelDoc = EcoreUtil.getDocumentation(modelElement);
-					if (!Util.isBlank(modelDoc))
-					label.setTooltip(modelDoc);
+					if (!Util.isBlank(modelDoc)) {
+//						label.setTooltip(modelDoc);
+					}
 				}
 				if (Util.isBlank(label.getText())) {
 					label.setText(NcoreUtil.getNasdanikaAnnotationDetail(modelElement, "label", null));

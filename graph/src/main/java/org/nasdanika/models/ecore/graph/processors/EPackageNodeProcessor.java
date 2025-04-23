@@ -241,7 +241,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 					action.getNavigation().add(graphsLabel);
 				}
 			}
-		}
+		}				
 	}
 		
 	private Map<String, WidgetFactory> eClassifierWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
@@ -419,6 +419,38 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		forceLayout(graph);
 		return graph;
 	}
+		
+	protected void generateDrawioDiagram(
+			Function<EPackage, org.nasdanika.drawio.Layer> layerProvider,
+			boolean withDependencies, 
+			boolean withSubpackages, 
+			ProgressMonitor progressMonitor) {
+		
+		Map<EClassifier, CompletableFuture<org.nasdanika.drawio.Node>> nodeMap = new HashMap<>();
+		Function<EClassifier, CompletableFuture<org.nasdanika.drawio.Node>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletionStage<org.nasdanika.drawio.Node>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
+
+		Selector<org.nasdanika.drawio.Node> eClassifierNodeSelector = (widgetFactory, sBase, pm) -> {
+			return ((EClassifierNodeProcessor<?>) widgetFactory).generateDrawioDiagramNode(
+					sBase, 
+					nodeCompletionStageProvider, 
+					layerProvider,
+					progressMonitor);
+		};
+		
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
+		for (WidgetFactory pcwf: getEClassifierWidgetFactories(withSubpackages, progressMonitor)) {
+			for (WidgetFactory cwf: withDependencies(pcwf, withDependencies ? 1 : 0, traversed::add, progressMonitor)) {
+				EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+				CompletableFuture<org.nasdanika.drawio.Node> eccf = nodeProvider.apply(eClassifier);
+				if (!eccf.isDone()) {
+					org.nasdanika.drawio.Node ecn = cwf.select(eClassifierNodeSelector, getUri(), progressMonitor);
+					eccf.complete(ecn);
+				}
+			}
+		}
+	}	
 	
 	public Collection<WidgetFactory> getEClassifierWidgetFactories(boolean recursive, ProgressMonitor progressMonitor) {
 		Collection<WidgetFactory> ret = new HashSet<>(getEClassifierWidgetFactories().values());

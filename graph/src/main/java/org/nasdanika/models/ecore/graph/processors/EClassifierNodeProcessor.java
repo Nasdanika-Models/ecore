@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
+import org.nasdanika.common.Util;
 import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.IncomingEndpoint;
@@ -248,6 +249,93 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		
 		return graphNode;
 	}
+	
+	/**
+	 * Generates a Drawio diagram node 
+	 * @param base
+	 * @param nodeProvider Used for wiring of nodes when both nodes to be wired are created.
+	 * @return
+	 */
+	public org.nasdanika.drawio.Node generateDrawioDiagramNode(
+			URI base, 
+			Function<EClassifier, CompletionStage<org.nasdanika.drawio.Node>> nodeProvider,
+			Function<EPackage, org.nasdanika.drawio.Layer> layerProvider,
+			ProgressMonitor progressMonitor) {		
+		
+		org.nasdanika.drawio.Layer layer = layerProvider.apply(getTarget().getEPackage());
+		
+		org.nasdanika.drawio.Node diagramNode = layer.createNode();
+//		diagramNode.setProperty("semantic-uuid", getTarget().getName() + "@" + getTarget().getEPackage().getNsURI());
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			Label label = (Label) link;
+			String tooltip = label.getTooltip();
+			if (!Util.isBlank(tooltip)) {
+				diagramNode.setTooltip(tooltip);
+			}
+		}
+		
+		// Simple initial layout in a grid
+		EList<EClassifier> eClassifiers = getTarget().getEPackage().getEClassifiers();
+		int idx = eClassifiers.indexOf(getTarget());
+		int width = getDiagramNodeWidth();
+		int height = getDiagramNodeHeight();
+		int gutter = getDiagramGutter();
+		int rowSize = (int) Math.sqrt((eClassifiers.size() * (height + gutter))/(width + gutter)) ;
+		int row = idx / rowSize;
+		int col = idx - row * rowSize;
+		
+		diagramNode.getGeometry().setBounds(col * (width + gutter), row * (height + gutter), width, height);
+
+		if (link instanceof org.nasdanika.models.app.Link) {
+			diagramNode.setLink(((org.nasdanika.models.app.Link) link).getLocation());
+		}
+		diagramNode.setLabel(getTarget().getName());
+				
+		Collection<EClassifierNodeProcessor<?>> dependencies = getEClassifierNodeProcessors(1, traversed::add, progressMonitor);
+		for (EClassifierNodeProcessor<?> dep: dependencies) {
+			if (dep != this) {
+				nodeProvider.apply((EClassifier) dep.getTarget()).thenAccept(targetNode -> {
+					createDrawioConnection(layer, dep, diagramNode, targetNode);
+				});
+			}
+		}
+		
+		return diagramNode;
+	}
+	
+	/**
+	 * Override to customize connection creation
+	 * @param layer
+	 * @param dependency
+	 * @param diagramNode
+	 * @param targetNode
+	 */
+	protected void createDrawioConnection(
+			org.nasdanika.drawio.Layer layer,
+			EClassifierNodeProcessor<?> dependency,
+			org.nasdanika.drawio.Node diagramNode,
+			org.nasdanika.drawio.Node targetNode) {
+		layer.createConnection(diagramNode, targetNode);
+	}
+	
+	/**
+	 * Space between diagram nodes
+	 * @return
+	 */
+	protected int getDiagramGutter() {
+		return 20;
+	}
+
+	protected int getDiagramNodeHeight() {
+		return 40;
+	}
+
+	protected int getDiagramNodeWidth() {
+		return 150;
+	}	
 
 	/**
 	 * Returns self. EClassNodeProcessor overrides to return also dependency classifiers from features, operations, and supertypes.
