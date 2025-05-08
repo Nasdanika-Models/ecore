@@ -330,11 +330,11 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	}
 
 	protected int getDiagramNodeHeight() {
-		return 40;
+		return 30;
 	}
 
 	protected int getDiagramNodeWidth() {
-		return 150;
+		return 120;
 	}	
 
 	/**
