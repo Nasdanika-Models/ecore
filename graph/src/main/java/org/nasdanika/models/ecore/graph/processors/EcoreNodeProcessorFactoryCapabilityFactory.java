@@ -3,6 +3,7 @@ package org.nasdanika.models.ecore.graph.processors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 import org.nasdanika.capability.CapabilityFactory;
@@ -46,7 +47,7 @@ public class EcoreNodeProcessorFactoryCapabilityFactory implements CapabilityFac
 		Collection<Object> targets = new ArrayList<>();
 		
 		for (CapabilityProvider<Object> tcp: targetCapabilityProviders) {
-			tcp.getPublisher().subscribe(targets::add);
+			tcp.getPublisher().filter(Objects::nonNull).collectList().block().forEach(targets::add);
 		}
 		
 		if (!targets.isEmpty()) {
