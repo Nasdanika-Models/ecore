@@ -40,6 +40,7 @@ import org.nasdanika.diagram.plantuml.clazz.DiagramElement;
 import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
+import org.nasdanika.html.forcegraph3d.ForceGraph3D;
 import org.nasdanika.models.app.Action;
 import org.nasdanika.models.app.AppFactory;
 import org.nasdanika.models.app.Label;
@@ -47,11 +48,31 @@ import org.nasdanika.models.app.gen.DynamicTableBuilder;
 import org.nasdanika.models.app.graph.WidgetFactory;
 import org.nasdanika.models.app.graph.emf.EObjectNodeProcessor;
 import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
+import org.nasdanika.models.echarts.graph.Graph;
 import org.nasdanika.models.echarts.graph.GraphFactory;
 import org.nasdanika.models.echarts.graph.Item;
+import org.nasdanika.models.echarts.graph.util.GraphUtil;
 
 public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> {
 	
+	private static final String ON_NODE_DRAG_END = """
+	node => {
+	          node.fx = node.x;
+	          node.fy = node.y;
+	          node.fz = node.z;
+	        }					
+	""";
+
+	private static final String NODE_THREE_OBJECT = """
+	node => {
+	        const nodeEl = document.createElement('div');
+	        nodeEl.textContent = node.name;
+	        nodeEl.style.color = node.color;
+	        nodeEl.className = 'node-label';
+	        return new CSS2DObject(nodeEl);
+	      }					
+	""";
+
 	public EPackageNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
 			Context context,
@@ -314,7 +335,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	
 	final static String GRAPH_TEMPLATE = 
 			"""
-			<div id="graph-container-${graphContainerId}" class="row" style="height:80vh;width:100%">
+			<div id="graph-container-${graphContainerId}" class="row" style="height:70vh;width:100%">
 			</div>
 			<script type="text/javascript">
 				$(document).ready(function() {
@@ -355,6 +376,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		children.add(createDefaultGraphAction(progressMonitor));
 		children.add(createCircularGraphAction(progressMonitor));
 		children.add(createForceGraphAction(progressMonitor));
+		children.add(createForceGraph3DAction(progressMonitor));
 		
 		// With dependencies & sub-packages separator
 		
@@ -365,6 +387,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		children.add(createDefaultGraphActionWithDependenciesAndSubpackages(progressMonitor));
 		children.add(createCircularGraphActionWithDependenciesAndSubpackages(progressMonitor));
 		children.add(createForceGraphActionWithDependenciesAndSubpackages(progressMonitor));
+		children.add(createForceGraph3DActionWithDependenciesAndSubpackages(progressMonitor));
 		
 		graphAction.setDecorator(
 				createHelpDecorator(
@@ -603,6 +626,52 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 		
 		return graphAction;		
 	}
+		
+	protected Action createForceGraph3DAction(ProgressMonitor progressMonitor) {
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Force Graph 3D");
+		graphAction.setLocation("force-layout-graph-3d.html");
+		
+		Graph graph = generateGraph(false, false, progressMonitor);
+		
+		ForceGraph3D forceGraph3D = GraphUtil.asForceGraph3D(graph);
+		String forceGraphContainerId = "force-graph-" + GRAPH_CONTAINER_COUNTER.incrementAndGet();
+		forceGraph3D
+			.elementId(forceGraphContainerId)
+			.nodeAutoColorBy("'group'")
+			.nodeVal("'size'")
+			.linkDirectionalArrowLength(2.5)
+			.linkDirectionalArrowRelPos(1)
+			.addExtraRederer("new CSS2DRenderer()")
+			.onNodeClick(ON_NODE_CLICK)
+			.nodeThreeObject(NODE_THREE_OBJECT)
+			.nodeThreeObjectExtend(true)
+			.onNodeDragEnd(ON_NODE_DRAG_END);
+			    
+		String graphHTML = Context
+				.singleton("graph", forceGraph3D.produce(4))
+				.compose(Context.singleton("graphContainerId", forceGraphContainerId))
+				.interpolateToString(GRAPH_3D_TEMPLATE);
+		addContent(graphAction, graphHTML);
+	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A live force-layout graph of package classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						"""
+						Hover mouse over nodes elements to display tooltips. 
+						Double-click on nodes to navigate go documentation. 
+						Left click - rotate.
+						Mouse wheel - zoom.
+						Right click - pan.
+						Drag to rearrange.
+						""",  
+						null));
+		
+		return graphAction;		
+	}	
 	
 	// With dependencies and sub-packages
 	
@@ -735,6 +804,85 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 						Hover mouse over nodes elements to display tooltips. 
 						Double-click on nodes to navigate go documentation. 
 						Drag to rearrange, nodes will not stay in place once released.
+						""",  
+						null));
+		
+		return graphAction;		
+	}
+		
+	final static String GRAPH_3D_TEMPLATE = 
+			"""
+			<div id="${graphContainerId}" class="row" style="height:70vh;width:100%">
+			</div>
+			<script type="module">
+				import { CSS2DRenderer, CSS2DObject } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
+				
+				${graph}
+			</script>
+			""";
+	
+	private static final String ON_NODE_CLICK = 
+			"""
+		    (node, event) => {
+		        if (node.lastClick) {
+			        if (event.timeStamp - node.lastClick < 500) {
+						if (Array.isArray(node.value) && node.value.length > 0) {
+							if (node.value[0].link) {
+								window.open(node.value[0].link, "_self");
+							} else if (node.value[0].externalLink) {
+								window.open(node.value[0].externalLink);
+							}
+						}		
+						delete node.lastClick;
+					} else {
+						node.lastClick = event.timeStamp;
+					}
+				} else {
+					node.lastClick = event.timeStamp;
+				}
+		    }			
+			""";
+		
+	protected Action createForceGraph3DActionWithDependenciesAndSubpackages(ProgressMonitor progressMonitor) {
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Force Graph 3D");
+		graphAction.setLocation("force-layout-graph-3d-with-dependencies-and-subpackages.html");
+		
+		Graph graph = generateGraph(true, true, progressMonitor);
+		
+		ForceGraph3D forceGraph3D = GraphUtil.asForceGraph3D(graph);
+		String forceGraphContainerId = "force-graph" + GRAPH_CONTAINER_COUNTER.incrementAndGet();
+		forceGraph3D
+			.elementId(forceGraphContainerId)
+			.nodeAutoColorBy("'group'")
+			.nodeVal("'size'")
+			.linkDirectionalArrowLength(2.5)
+			.linkDirectionalArrowRelPos(1)
+			.addExtraRederer("new CSS2DRenderer()")
+			.onNodeClick(ON_NODE_CLICK)
+			.nodeThreeObject(NODE_THREE_OBJECT)
+			.nodeThreeObjectExtend(true)
+			.onNodeDragEnd(ON_NODE_DRAG_END);
+			    
+		String graphHTML = Context
+				.singleton("graph", forceGraph3D.produce(4))
+				.compose(Context.singleton("graphContainerId", forceGraphContainerId))
+				.interpolateToString(GRAPH_3D_TEMPLATE);
+		addContent(graphAction, graphHTML);
+	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A live force-layout graph of package classifiers showing relationships between them", 
+						null, 
+						null, 
+						null, 
+						"""
+						Hover mouse over nodes elements to display tooltips. 
+						Double-click on nodes to navigate go documentation. 
+						Left click - rotate.
+						Mouse wheel - zoom.
+						Right click - pan.
+						Drag to rearrange.
 						""",  
 						null));
 		

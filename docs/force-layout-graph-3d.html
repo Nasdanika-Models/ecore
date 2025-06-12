@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="EN">
+  <head>
+    <title>Force Graph 3D</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/cerulean/bootstrap.min.css" id="nsd-bootstrap-theme-stylesheet"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Nasdanika-Models/html-app@master/gen/web-resources/css/app.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jstree@3.3.11/dist/themes/default/style.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.3.1/build/styles/default.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/html-app@master/gen/web-resources/js/common.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/html-app@master/gen/web-resources/js/dark-head.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstree@3.3.11/dist/jstree.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.3.1/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/html-app@master/gen/web-resources/js/components/table.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/components/table.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/3d-force-graph"></script><!-- Node text styling -->      
+<style>
+  .node-label {
+        font-size: 12px;
+        padding: 1px 4px;
+        border-radius: 4px;
+        background-color: rgba(0,0,0,0.5);
+        user-select: none;
+      }               
+</style>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->      
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9BRJVLK8CC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9BRJVLK8CC');
+</script>    
+</head>
+  <body>
+    <div tabindex="-1" id="nsd_c8n" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">Hover mouse over nodes elements to display tooltips.
+Double-click on nodes to navigate go documentation.
+Left click - rotate.
+Mouse wheel - zoom.
+Right click - pan.
+Drag to rearrange.
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid nsd-app-container">
+      <div class="row">
+        <div class="col nsd-app-header">
+          <a href="https://github.com/Nasdanika-Models" data-nsd-label-uuid="d216ff9a-66ca-444a-80a1-4523a0bd4ba2" class="nsd-app-header-title">
+            <img src="https://docs.nasdanika.org/images/nasdanika-logo.png" class="nsd-app-label-icon"/>Nasdanika Models</a>
+          <ul class="nav nsd-app-header-navs">
+            <li class="nav-item">
+              <a href="search.html" data-nsd-label-uuid="0a17363c-ec2a-4074-adaf-3b796550a559" class="nav-link"><span class="fas fa-search nsd-app-label-icon"></span>Search</a>
+            </li>
+            <li class="nav-item">
+              <a href="glossary.html" data-nsd-label-uuid="a8424b25-8b3b-4c44-9258-4949c00079a1" class="nav-link"><span class="fas fa-book nsd-app-label-icon"></span>Glossary</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col nsd-app-navbar">
+          <ul class="navbar navbar-light navbar-expand-lg">
+            <a href="index.html" data-nsd-label-uuid="c627a507-be49-4ff4-9054-d67efde97c0c" class="navbar-brand">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EPackage.gif" class="nsd-app-label-icon"/>ecore</a>
+            <button type="button" data-toggle="collapse" data-target="#nsd_c75" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="nsd_c75" class="collapse navbar-collapse">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                  <a href="classifiers.html" data-nsd-label-uuid="9bc73aba-05a6-48e3-90d1-ed950aed764f" class="nav-link">Classifiers</a>
+                </li>
+                <li class="nav-item">
+                  <a href="diagram.html" data-nsd-label-uuid="35fc4dcd-aeda-4832-80ac-f5d98aa81118" class="nav-link"><span class="fas fa-project-diagram nsd-app-label-icon"></span>Diagram</a>
+                </li>
+                <li class="nav-item">
+                  <li data-nsd-label-uuid="1674d791-cf3f-4754-8bb6-b216746fa0c5" class="dropdown">
+                    <a role="button" data-toggle="dropdown" class="nav-link dropdown-toggle">
+                      <img src="https://img.icons8.com/external-dreamstale-lineal-dreamstale/16/external-diagram-seo-media-dreamstale-lineal-dreamstale.png" class="nsd-app-label-icon"/>Graphs</a>
+                    <div class="dropdown-menu">
+                      <a href="default-graph.html" data-nsd-label-uuid="eb66875d-f22f-436c-9008-f81716aedfbb" class="dropdown-item">Default Graph</a>
+                      <a href="circular-layout-graph.html" data-nsd-label-uuid="0e1387da-8c8f-47fc-9491-8dd1f2c695c7" class="dropdown-item">Circular Graph</a>
+                      <a href="force-layout-graph.html" data-nsd-label-uuid="f467e053-68f0-4fbe-8720-efe2a44b9eaf" class="dropdown-item">Force Graph</a><span data-nsd-label-uuid="d75aac44-c7af-4c3f-8885-b4bdfc3a17c3" class="active dropdown-item">Force Graph 3D</span>
+                      <div title="With dependencies and sub-packages" class="dropdown-divider"></div>
+                      <a href="default-graph-with-dependencies-and-subpackages.html" data-nsd-label-uuid="e46408fe-e65a-4b81-9595-367d8437ad75" class="dropdown-item">Default Graph</a>
+                      <a href="circular-layout-graph-with-dependencies-and-subpackages.html" data-nsd-label-uuid="8993dc0a-9871-4cb0-bb65-0a0851fac71a" class="dropdown-item">Circular Graph</a>
+                      <a href="force-layout-graph-with-dependencies-and-subpackages.html" data-nsd-label-uuid="d92fde4d-c5a1-4887-9ff6-bdd6f48e5ca7" class="dropdown-item">Force Graph</a>
+                      <a href="force-layout-graph-3d-with-dependencies-and-subpackages.html" data-nsd-label-uuid="4c4eeaea-d6cb-419c-882b-d86a7fda8e8d" class="dropdown-item">Force Graph 3D</a>
+                    </div>
+                  </li>
+                </li>
+              </ul>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="row nsd-app-content-row">
+        <div class="col nsd-app-navigation-panel">
+          <div class="list-group list-group-flush">
+            <a href="references/eClassifiers/EAnnotation/index.html" data-nsd-label-uuid="2e0c93fb-a0a9-471f-8cec-30473c370142" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EAnnotation</a>
+            <a href="references/eClassifiers/EAttribute/index.html" data-nsd-label-uuid="017a0b36-79f1-471d-97db-79967e42e973" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EAttribute</a>
+            <a href="references/eClassifiers/EBigDecimal/index.html" data-nsd-label-uuid="6f94d4cf-ed8c-4171-b209-8b27cb52c260" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EBigDecimal</a>
+            <a href="references/eClassifiers/EBigInteger/index.html" data-nsd-label-uuid="03e41568-26fc-490d-85f8-8fe9435e59b9" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EBigInteger</a>
+            <a href="references/eClassifiers/EBoolean/index.html" data-nsd-label-uuid="e786f158-de42-491a-a9f0-330b3771459a" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EBoolean</a>
+            <a href="references/eClassifiers/EBooleanObject/index.html" data-nsd-label-uuid="ccb1a252-82cc-4e75-8604-608ca9a070c4" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EBooleanObject</a>
+            <a href="references/eClassifiers/EByte/index.html" data-nsd-label-uuid="d492286f-fe1a-4be6-abf9-5f1191f53d2c" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EByte</a>
+            <a href="references/eClassifiers/EByteArray/index.html" data-nsd-label-uuid="5d49ceab-2ccc-47ff-a2f4-370761c6e1e1" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EByteArray</a>
+            <a href="references/eClassifiers/EByteObject/index.html" data-nsd-label-uuid="cc8bdd36-98b0-4849-8537-a260eb2164ee" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EByteObject</a>
+            <a href="references/eClassifiers/EChar/index.html" data-nsd-label-uuid="af969451-d862-496a-bbe9-f425da06d2e7" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EChar</a>
+            <a href="references/eClassifiers/ECharacterObject/index.html" data-nsd-label-uuid="ae0f3f6d-5630-4e04-b1a4-b7578e35c77d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>ECharacterObject</a>
+            <a href="references/eClassifiers/EClass/index.html" data-nsd-label-uuid="df02b9f6-0d98-4bf1-96e3-8a5d59bfe1a6" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EClass</a>
+            <a href="references/eClassifiers/EClassifier/index.html" data-nsd-label-uuid="79fd8fd8-fc1f-4300-999c-6213ade0f917" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/><i>EClassifier</i></a>
+            <a href="references/eClassifiers/EDataType/index.html" data-nsd-label-uuid="72b316d7-f32b-41f9-b636-a3a6fe0c0d81" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EDataType</a>
+            <a href="references/eClassifiers/EDate/index.html" data-nsd-label-uuid="a9e8098f-0dad-4b9a-9ac7-566c40317015" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EDate</a>
+            <a href="references/eClassifiers/EDiagnosticChain/index.html" data-nsd-label-uuid="ecd3fbd1-2286-41a8-8fbf-4d9c608d817e" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EDiagnosticChain</a>
+            <a href="references/eClassifiers/EDouble/index.html" data-nsd-label-uuid="039ac511-a1cb-4905-93ad-d6127a39121d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EDouble</a>
+            <a href="references/eClassifiers/EDoubleObject/index.html" data-nsd-label-uuid="31dd5d9f-c2fd-4f8b-8cec-c0891a3dfbe2" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EDoubleObject</a>
+            <a href="references/eClassifiers/EEList/index.html" data-nsd-label-uuid="44f4ac0d-6d7f-4317-87e1-1b817b581c77" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EEList</a>
+            <a href="references/eClassifiers/EEnum/index.html" data-nsd-label-uuid="4c9f8af5-5162-4641-8bf4-09c0058db6de" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EEnum</a>
+            <a href="references/eClassifiers/EEnumLiteral/index.html" data-nsd-label-uuid="80dde338-8108-4281-b0a8-ba1265eb9684" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EEnumLiteral</a>
+            <a href="references/eClassifiers/EEnumerator/index.html" data-nsd-label-uuid="f890373f-1a9c-4153-8e16-b58b99740f90" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EEnumerator</a>
+            <a href="references/eClassifiers/EFactory/index.html" data-nsd-label-uuid="a7cf1d88-7034-4dbf-b026-bd739d85d8fc" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EFactory</a>
+            <a href="references/eClassifiers/EFeatureMap/index.html" data-nsd-label-uuid="b1fa8edf-7a55-43c8-bda5-c8fe554bb4f8" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EFeatureMap</a>
+            <a href="references/eClassifiers/EFeatureMapEntry/index.html" data-nsd-label-uuid="35e9a5d4-632d-4d43-87fa-7a08ec495d56" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EFeatureMapEntry</a>
+            <a href="references/eClassifiers/EFloat/index.html" data-nsd-label-uuid="ce29dce4-870c-4be3-ba7b-2064ace64f45" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EFloat</a>
+            <a href="references/eClassifiers/EFloatObject/index.html" data-nsd-label-uuid="ba9b2dd5-c733-4bf7-96cd-2115871ef8da" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EFloatObject</a>
+            <a href="references/eClassifiers/EGenericType/index.html" data-nsd-label-uuid="4616c8e7-05ab-4a26-8383-dacbfc2401d6" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EGenericType</a>
+            <a href="references/eClassifiers/EInt/index.html" data-nsd-label-uuid="c19924c0-fb7f-4705-91b9-3f3f2c7d1575" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EInt</a>
+            <a href="references/eClassifiers/EIntegerObject/index.html" data-nsd-label-uuid="79e79a23-80cd-4b4c-a73c-1addd5189ccb" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EIntegerObject</a>
+            <a href="references/eClassifiers/EInvocationTargetException/index.html" data-nsd-label-uuid="072bf775-d93d-41bb-86cc-4675baa89d77" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EInvocationTargetException</a>
+            <a href="references/eClassifiers/EJavaClass/index.html" data-nsd-label-uuid="4d17612d-376b-4073-8167-b3c45a734e68" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EJavaClass</a>
+            <a href="references/eClassifiers/EJavaObject/index.html" data-nsd-label-uuid="7ed23b98-0253-47c8-9ad8-dd4386df21dd" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EJavaObject</a>
+            <a href="references/eClassifiers/ELong/index.html" data-nsd-label-uuid="24ba4e09-f8df-4911-8d4c-52c179b4679f" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>ELong</a>
+            <a href="references/eClassifiers/ELongObject/index.html" data-nsd-label-uuid="77def5dd-26b7-4ff0-8e30-8356f9b56762" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>ELongObject</a>
+            <a href="references/eClassifiers/EMap/index.html" data-nsd-label-uuid="0151940c-10a4-42a4-8317-83fb1e93e8f3" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EMap</a>
+            <a href="references/eClassifiers/EModelElement/index.html" data-nsd-label-uuid="0ffd7dd0-faa8-4a12-a783-f58a95220bb0" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/><i>EModelElement</i></a>
+            <a href="references/eClassifiers/ENamedElement/index.html" data-nsd-label-uuid="599a1dfd-70b8-4739-816e-115ea1e4ca16" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/><i>ENamedElement</i></a>
+            <a href="references/eClassifiers/EObject/index.html" data-nsd-label-uuid="2b5a5276-7080-49c7-9e3f-27fcef620fa9" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EObject</a>
+            <a href="references/eClassifiers/EOperation/index.html" data-nsd-label-uuid="68ade7e5-2448-4807-985d-09439c35df44" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EOperation</a>
+            <a href="references/eClassifiers/EPackage/index.html" data-nsd-label-uuid="cda47fb9-3ed7-4436-930e-75bb331e9486" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EPackage</a>
+            <a href="references/eClassifiers/EParameter/index.html" data-nsd-label-uuid="d3a324ae-9cc9-4e2f-a267-f5ae3cc1fa2d" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EParameter</a>
+            <a href="references/eClassifiers/EReference/index.html" data-nsd-label-uuid="fa4fa201-4fbd-4c90-b031-ac8dcbd34e70" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EReference</a>
+            <a href="references/eClassifiers/EResource/index.html" data-nsd-label-uuid="38ae3894-0d57-4346-893f-cf2cd4bea4d2" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EResource</a>
+            <a href="references/eClassifiers/EResourceSet/index.html" data-nsd-label-uuid="de59d3d4-33ba-4849-acc6-db4879b450be" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EResourceSet</a>
+            <a href="references/eClassifiers/EShort/index.html" data-nsd-label-uuid="0f7020b1-82f9-4db4-9a2b-33f4065b1801" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EShort</a>
+            <a href="references/eClassifiers/EShortObject/index.html" data-nsd-label-uuid="2a917896-e8e8-40ca-8e38-badd2de0f1c9" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EShortObject</a>
+            <a href="references/eClassifiers/EString/index.html" data-nsd-label-uuid="34551aab-d705-455a-a818-04ed4d4bc261" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>EString</a>
+            <a href="references/eClassifiers/EStringToStringMapEntry/index.html" data-nsd-label-uuid="ffcf2c83-05d9-48ec-a77d-7088ce0b28ac" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>EStringToStringMapEntry</a>
+            <a href="references/eClassifiers/EStructuralFeature/index.html" data-nsd-label-uuid="ae1dc1cc-f88e-4243-a365-70ea3bb8a191" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/><i>EStructuralFeature</i></a>
+            <a href="references/eClassifiers/ETreeIterator/index.html" data-nsd-label-uuid="2123ac97-e7ef-4bda-8734-32f33159db7b" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EDataType.gif" class="nsd-app-label-icon"/>ETreeIterator</a>
+            <a href="references/eClassifiers/ETypeParameter/index.html" data-nsd-label-uuid="4b8e57aa-06ad-4871-a6c5-161a75211edb" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/>ETypeParameter</a>
+            <a href="references/eClassifiers/ETypedElement/index.html" data-nsd-label-uuid="0c177472-79dc-41cc-b099-8fe149cabda2" class="list-group-item list-group-action">
+              <img src="https://cdn.jsdelivr.net/gh/Nasdanika-Models/ecore@master/graph/web-resources/icons/EClass.gif" class="nsd-app-label-icon"/><i>ETypedElement</i></a>
+          </div>
+        </div>
+        <div data-nsd-label-uuid="d75aac44-c7af-4c3f-8885-b4bdfc3a17c3" data-nsd-action-uris="uuid:d75aac44-c7af-4c3f-8885-b4bdfc3a17c3" class="col nsd-app-content-panel">
+          <div class="container-fluid">
+            <div class="row nsd-app-content-panel-breadcrumb-row">
+              <div class="col">
+                <nav aria-label="breadcrumb" class="nsd-app-content-panel-breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><span data-nsd-label-uuid="1674d791-cf3f-4754-8bb6-b216746fa0c5"><img src="https://img.icons8.com/external-dreamstale-lineal-dreamstale/16/external-diagram-seo-media-dreamstale-lineal-dreamstale.png" class="nsd-app-label-icon"/>Graphs</span>
+                    </li>
+                    <li class="breadcrumb-item active"><span data-nsd-label-uuid="d75aac44-c7af-4c3f-8885-b4bdfc3a17c3">Force Graph 3D</span>
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+            </div>
+            <div class="row nsd-app-content-panel-title-and-items-row">
+              <div class="col-auto">
+                <H1><span data-nsd-label-uuid="d75aac44-c7af-4c3f-8885-b4bdfc3a17c3" class="nsd-app-content-panel-title">Force Graph 3D<a data-toggle="modal" data-target="#nsd_c8n" href="#" title="A live force-layout graph of package classifiers showing relationships between them" style="vertical-align:super;font-size:x-small;margin-left:0.2em"><span class="far fa-question-circle nsd-app-label-icon"></span></a></span>
+                </H1>
+              </div>
+            </div>
+            <div class="row nsd-app-content-panel-content-row">
+              <div class="col">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col"><div id="force-graph-64" class="row" style="height:70vh;width:100%">
+</div>
+<script type="module">
+	import { CSS2DRenderer, CSS2DObject } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
+
+	        new ForceGraph3D(
+                document.getElementById('force-graph-64'), 
+                {
+                        extraRenderers: [
+                                new CSS2DRenderer()
+                        ]
+                })
+                .graphData({
+          "nodes": [
+            {
+              "name": "EMap",
+              "id": "EMap@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EMap/index.html"}]
+            },
+            {
+              "name": "EByteObject",
+              "id": "EByteObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EByteObject/index.html"}]
+            },
+            {
+              "name": "EDoubleObject",
+              "id": "EDoubleObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EDoubleObject/index.html"}]
+            },
+            {
+              "name": "EByteArray",
+              "id": "EByteArray@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EByteArray/index.html"}]
+            },
+            {
+              "name": "EAttribute",
+              "id": "EAttribute@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EAttribute/index.html"}]
+            },
+            {
+              "name": "EEnum",
+              "id": "EEnum@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EEnum/index.html"}]
+            },
+            {
+              "name": "EStructuralFeature",
+              "id": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EStructuralFeature/index.html"}]
+            },
+            {
+              "name": "EEnumerator",
+              "id": "EEnumerator@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EEnumerator/index.html"}]
+            },
+            {
+              "name": "EObject",
+              "id": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EObject/index.html"}]
+            },
+            {
+              "name": "ECharacterObject",
+              "id": "ECharacterObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ECharacterObject/index.html"}]
+            },
+            {
+              "name": "ETreeIterator",
+              "id": "ETreeIterator@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ETreeIterator/index.html"}]
+            },
+            {
+              "name": "ENamedElement",
+              "id": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ENamedElement/index.html"}]
+            },
+            {
+              "name": "EBooleanObject",
+              "id": "EBooleanObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EBooleanObject/index.html"}]
+            },
+            {
+              "name": "EBoolean",
+              "id": "EBoolean@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EBoolean/index.html"}]
+            },
+            {
+              "name": "ELongObject",
+              "id": "ELongObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ELongObject/index.html"}]
+            },
+            {
+              "name": "EGenericType",
+              "id": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EGenericType/index.html"}]
+            },
+            {
+              "name": "EAnnotation",
+              "id": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EAnnotation/index.html"}]
+            },
+            {
+              "name": "EChar",
+              "id": "EChar@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EChar/index.html"}]
+            },
+            {
+              "name": "EResource",
+              "id": "EResource@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EResource/index.html"}]
+            },
+            {
+              "name": "EDataType",
+              "id": "EDataType@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EDataType/index.html"}]
+            },
+            {
+              "name": "EInt",
+              "id": "EInt@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EInt/index.html"}]
+            },
+            {
+              "name": "EResourceSet",
+              "id": "EResourceSet@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EResourceSet/index.html"}]
+            },
+            {
+              "name": "EFloat",
+              "id": "EFloat@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EFloat/index.html"}]
+            },
+            {
+              "name": "EDouble",
+              "id": "EDouble@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EDouble/index.html"}]
+            },
+            {
+              "name": "EFactory",
+              "id": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EFactory/index.html"}]
+            },
+            {
+              "name": "EEList",
+              "id": "EEList@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EEList/index.html"}]
+            },
+            {
+              "name": "EJavaClass",
+              "id": "EJavaClass@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EJavaClass/index.html"}]
+            },
+            {
+              "name": "EClass",
+              "id": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EClass/index.html"}]
+            },
+            {
+              "name": "EBigDecimal",
+              "id": "EBigDecimal@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EBigDecimal/index.html"}]
+            },
+            {
+              "name": "EDiagnosticChain",
+              "id": "EDiagnosticChain@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EDiagnosticChain/index.html"}]
+            },
+            {
+              "name": "EEnumLiteral",
+              "id": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EEnumLiteral/index.html"}]
+            },
+            {
+              "name": "EDate",
+              "id": "EDate@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EDate/index.html"}]
+            },
+            {
+              "name": "ELong",
+              "id": "ELong@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ELong/index.html"}]
+            },
+            {
+              "name": "EIntegerObject",
+              "id": "EIntegerObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EIntegerObject/index.html"}]
+            },
+            {
+              "name": "EOperation",
+              "id": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EOperation/index.html"}]
+            },
+            {
+              "name": "EReference",
+              "id": "EReference@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EReference/index.html"}]
+            },
+            {
+              "name": "EModelElement",
+              "id": "EModelElement@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EModelElement/index.html"}]
+            },
+            {
+              "name": "EShort",
+              "id": "EShort@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EShort/index.html"}]
+            },
+            {
+              "name": "EFeatureMap",
+              "id": "EFeatureMap@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EFeatureMap/index.html"}]
+            },
+            {
+              "name": "EPackage",
+              "id": "EPackage@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EPackage/index.html"}]
+            },
+            {
+              "name": "EClassifier",
+              "id": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EClassifier/index.html"}]
+            },
+            {
+              "name": "EFeatureMapEntry",
+              "id": "EFeatureMapEntry@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EFeatureMapEntry/index.html"}]
+            },
+            {
+              "name": "ETypeParameter",
+              "id": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ETypeParameter/index.html"}]
+            },
+            {
+              "name": "EFloatObject",
+              "id": "EFloatObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EFloatObject/index.html"}]
+            },
+            {
+              "name": "EParameter",
+              "id": "EParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EParameter/index.html"}]
+            },
+            {
+              "name": "EShortObject",
+              "id": "EShortObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EShortObject/index.html"}]
+            },
+            {
+              "name": "ETypedElement",
+              "id": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/ETypedElement/index.html"}]
+            },
+            {
+              "name": "EString",
+              "id": "EString@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EString/index.html"}]
+            },
+            {
+              "name": "EByte",
+              "id": "EByte@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EByte/index.html"}]
+            },
+            {
+              "name": "EBigInteger",
+              "id": "EBigInteger@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EBigInteger/index.html"}]
+            },
+            {
+              "name": "EStringToStringMapEntry",
+              "id": "EStringToStringMapEntry@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EStringToStringMapEntry/index.html"}]
+            },
+            {
+              "name": "EInvocationTargetException",
+              "id": "EInvocationTargetException@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EInvocationTargetException/index.html"}]
+            },
+            {
+              "name": "EJavaObject",
+              "id": "EJavaObject@http://www.eclipse.org/emf/2002/Ecore",
+              "value": [{"externalLink": "references/eClassifiers/EJavaObject/index.html"}]
+            }
+          ],
+          "links": [
+            {
+              "source": "EAttribute@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAttribute@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAttribute@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EDataType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAttribute@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAttribute@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EReference@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnum@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EDataType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnum@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnum@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAttribute@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInt@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EReference@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETreeIterator@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EResource@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EEList@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EReference@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInvocationTargetException@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EObject@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EModelElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EPackage@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EGenericType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EModelElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EStringToStringMapEntry@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EDataType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EEnum@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EDataType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EDataType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAttribute@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EDataType@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EDataType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EModelElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EPackage@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EFactory@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EGenericType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInt@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAttribute@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EReference@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClass@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EEnumerator@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInt@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EEnum@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EEnumLiteral@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EGenericType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInt@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EParameter@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EOperation@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EReference@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EReference@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EReference@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EReference@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAttribute@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EModelElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EModelElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EModelElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EFactory@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EModelElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EPackage@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EPackage@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EFactory@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EPackage@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EPackage@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInt@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EGenericType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EPackage@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EDataType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaClass@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EClassifier@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EJavaObject@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EGenericType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypeParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EParameter@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EGenericType@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EInt@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "ENamedElement@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EStructuralFeature@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EBoolean@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EClassifier@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EOperation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "ETypedElement@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EParameter@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStringToStringMapEntry@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EAnnotation@http://www.eclipse.org/emf/2002/Ecore"
+            },
+            {
+              "source": "EStringToStringMapEntry@http://www.eclipse.org/emf/2002/Ecore",
+              "target": "EString@http://www.eclipse.org/emf/2002/Ecore"
+            }
+          ]
+        })
+                .nodeAutoColorBy('group')
+                .nodeVal('size')
+                .linkDirectionalArrowLength(2.5)
+                .linkDirectionalArrowRelPos(1)
+                .onNodeClick((node, event) => {
+       if (node.lastClick) {
+        if (event.timeStamp - node.lastClick < 500) {
+			if (Array.isArray(node.value) && node.value.length > 0) {
+				if (node.value[0].link) {
+					window.open(node.value[0].link, "_self");
+				} else if (node.value[0].externalLink) {
+					window.open(node.value[0].externalLink);
+				}
+			}
+			delete node.lastClick;
+		} else {
+			node.lastClick = event.timeStamp;
+		}
+	} else {
+		node.lastClick = event.timeStamp;
+	}
+     })
+                .nodeThreeObject(node => {
+        const nodeEl = document.createElement('div');
+        nodeEl.textContent = node.name;
+        nodeEl.style.color = node.color;
+        nodeEl.className = 'node-label';
+        return new CSS2DObject(nodeEl);
+      })
+                .nodeThreeObjectExtend(true)
+                .onNodeDragEnd(node => {
+          node.fx = node.x;
+          node.fy = node.y;
+          node.fz = node.z;
+        })
+</script>
+</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col nsd-app-footer">
+          <ul class="nav nsd-app-footer-navs">
+            <li class="nav-item">
+              <a href="https://github.com/Nasdanika-Models/ecore" data-nsd-label-uuid="81dc5e9a-6d7e-4164-81d5-88605509093a" class="nav-link"><span class="fab fa-github nsd-app-label-icon"></span>Sources</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
