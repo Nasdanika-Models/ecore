@@ -38,6 +38,7 @@ import org.nasdanika.models.app.graph.emf.OutgoingReferenceBuilder;
 import org.nasdanika.models.echarts.graph.GraphFactory;
 import org.nasdanika.models.echarts.graph.Link;
 import org.nasdanika.ncore.NcoreFactory;
+import org.nasdanika.ncore.util.NcoreUtil;
 
 public abstract class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> implements EClassifierNodeProcessorProvider {
 
@@ -185,6 +186,15 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		GraphFactory graphFactory = org.nasdanika.models.echarts.graph.GraphFactory.eINSTANCE;
 		org.nasdanika.models.echarts.graph.Node graphNode = graphFactory.createNode();
 		graphNode.setId(getTarget().getName() + "@" + getTarget().getEPackage().getNsURI());
+		
+		String graphNodeSize = NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), "graph-node-size");
+		if (!Util.isBlank(graphNodeSize)) {
+			try {				
+				graphNode.getSymbolSize().add(Double.parseDouble(graphNodeSize));				
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}		
 		
 		org.nasdanika.ncore.Map vMap = NcoreFactory.eINSTANCE.createMap();
 		
