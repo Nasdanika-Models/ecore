@@ -10,17 +10,20 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.json.JSONObject;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Util;
@@ -329,6 +332,108 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 			org.nasdanika.drawio.Node diagramNode,
 			org.nasdanika.drawio.Node targetNode) {
 		layer.createConnection(diagramNode, targetNode);
+	}
+	
+	/**
+	 * Generates a Drawio diagram node 
+	 * @param base
+	 * @param nodeProvider Used for wiring of nodes when both nodes to be wired are created.
+	 * @return
+	 */
+	public JSONObject generate3DNode(
+			URI base, 
+			Function<EClassifier, CompletionStage<JSONObject>> nodeProvider,
+			Consumer<JSONObject> linkConsumer,
+			ProgressMonitor progressMonitor) {		
+		
+		JSONObject node = new JSONObject();
+		String nodeId = getTarget().getName() + "@" + getTarget().getEPackage().getNsURI();
+		node.put("id", nodeId);
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
+		String graphNodeSize = NcoreUtil.getNasdanikaAnnotationDetail(getTarget(), "graph-node-size");
+		if (Util.isBlank(graphNodeSize)) {
+			if (getTarget() instanceof EClass) {
+				node.put("size", (6 + ((EClass) getTarget()).getEAttributes().size()) / 2);
+			}
+		} else {
+			node.put("size", graphNodeSize);				
+		}		
+		
+		Object link = createLink(base, progressMonitor);
+		if (link instanceof Label) {
+			Label label = (Label) link;
+			node.put("description", label.getTooltip());
+			String icon = label.getIcon();
+			if (icon != null && icon.contains("/")) { // URL
+				node.put("image", icon);
+			}
+		}
+		
+		if (link instanceof org.nasdanika.models.app.Link) {
+			JSONObject vMap = new JSONObject();
+			vMap.put("externalLink", ((org.nasdanika.models.app.Link) link).getLocation());
+			node.put("value", vMap);
+		}
+		
+		node.put("name", getTarget().getName());		
+		node.put("group", getTarget().getEPackage().getNsURI());
+		
+		Collection<EClassifierNodeProcessor<?>> dependencies = getEClassifierNodeProcessors(1, traversed::add, progressMonitor);
+		for (EClassifierNodeProcessor<?> dep: dependencies) {
+			if (dep != this) {
+				nodeProvider.apply((EClassifier) dep.getTarget()).thenAccept(targetNode -> {
+					create3DLinks(dep, node, targetNode, linkConsumer);
+				});
+			}
+		}
+		
+		return node;
+	}
+	
+	/**
+	 * Override to customize connection creation
+	 * @param dependency
+	 * @param sourceNode
+	 * @param targetNode
+	 */
+	protected void create3DLinks(
+			EClassifierNodeProcessor<?> dependency,
+			JSONObject sourceNode,
+			JSONObject targetNode,
+			Consumer<JSONObject> linkConsumer) {
+				
+		if (getTarget() instanceof EClass) {
+			EClassifier targetEClassifier = dependency.getTarget();
+			
+			EClass eClass = (EClass) getTarget();
+			
+			// Supertype
+			if (eClass.getESuperTypes().contains(targetEClassifier)) {
+				JSONObject link = new JSONObject();
+				link.put("source", sourceNode.getString("id"));
+				link.put("target", targetNode.getString("id"));
+				link.put("group", "inheritance");
+				linkConsumer.accept(link);
+			}
+			
+			// Reference
+			for (EReference ref: eClass.getEReferences()) {
+				if (ref.getEType() == targetEClassifier) {
+					JSONObject link = new JSONObject();
+					link.put("source", sourceNode.getString("id"));
+					link.put("target", targetNode.getString("id"));
+					link.put("group", "reference");
+					link.put("name", ref.getName());
+					linkConsumer.accept(link);
+				}
+			}
+		} else {
+			JSONObject link = new JSONObject();
+			link.put("source", sourceNode.getString("id"));
+			link.put("target", targetNode.getString("id"));
+			linkConsumer.accept(link);
+		}		
 	}
 	
 	/**
