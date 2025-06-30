@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypedElement;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -373,7 +374,9 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		if (link instanceof org.nasdanika.models.app.Link) {
 			JSONObject vMap = new JSONObject();
 			vMap.put("externalLink", ((org.nasdanika.models.app.Link) link).getLocation());
-			node.put("value", vMap);
+			JSONArray jValue = new JSONArray();
+			jValue.put(vMap);
+			node.put("value", jValue);
 		}
 		
 		node.put("name", getTarget().getName());		
