@@ -967,8 +967,8 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			<div id="${graphContainerId}" class="row" style="height:70vh;width:100%">
 			</div>
 			<script type="module">
-				import { CSS2DRenderer, CSS2DObject } from 'https://esm.sh/three/examples/jsm/renderers/CSS2DRenderer.js';
-				import SpriteText from "https://esm.sh/three-spritetext";
+				import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+				import SpriteText from "https://cdn.jsdelivr.net/npm/three-spritetext@1.10.0/dist/three-spritetext.mjs";
 				
 				${graph}
 			</script>
