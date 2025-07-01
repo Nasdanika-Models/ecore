@@ -37,11 +37,13 @@ import org.icepear.echarts.charts.graph.GraphForce;
 import org.icepear.echarts.charts.graph.GraphSeries;
 import org.icepear.echarts.components.series.SeriesLabel;
 import org.icepear.echarts.render.Engine;
+import org.json.JSONObject;
 import org.nasdanika.common.Consumer;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.DiagramGenerator;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.common.Supplier;
+import org.nasdanika.common.Util;
 import org.nasdanika.diagram.plantuml.Link;
 import org.nasdanika.diagram.plantuml.clazz.Aggregation;
 import org.nasdanika.diagram.plantuml.clazz.Association;
@@ -62,6 +64,8 @@ import org.nasdanika.graph.emf.EReferenceConnection;
 import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.graph.processor.OutgoingEndpoint;
 import org.nasdanika.html.TagName;
+import org.nasdanika.html.forcegraph3d.ForceGraph3D;
+import org.nasdanika.html.forcegraph3d.ForceGraph3DFactory;
 import org.nasdanika.models.app.Action;
 import org.nasdanika.models.app.AppFactory;
 import org.nasdanika.models.app.Label;
@@ -862,7 +866,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 				
 				Label graphsLabel = createGraphsLabel(progressMonitor);
 				if (graphsLabel != null) {
-					addGraphsLabel(diagramAction, graphsLabel);
+					addGraphsLabel(action, graphsLabel);
 				}
 			}
 		}
@@ -1291,6 +1295,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		graphAction.getChildren().add(createDefaultGraphAction(progressMonitor));
 		graphAction.getChildren().add(createCircularGraphAction(progressMonitor));
 		graphAction.getChildren().add(createForceGraphAction(progressMonitor));
+		graphAction.getChildren().add(createForceGraph3DAction(progressMonitor));
 	    
 		graphAction.setDecorator(
 				createHelpDecorator(
@@ -1473,5 +1478,117 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	    
 		return graphAction;
 	}
+		
+	protected ForceGraph3D generate3DGraph(
+			boolean withDependencies, 
+			boolean withSubpackages, 
+			ProgressMonitor progressMonitor) {
+		
+		ForceGraph3D forceGraph3D = ForceGraph3DFactory.INSTANCE.create();
+		List<JSONObject> links = new ArrayList<>();
+		
+		Map<EClassifier, CompletableFuture<JSONObject>> nodeMap = new HashMap<>();
+		Function<EClassifier, CompletableFuture<JSONObject>> nodeProvider = k -> nodeMap.computeIfAbsent(k, kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletionStage<JSONObject>> nodeCompletionStageProvider = k -> nodeProvider.apply(k);
+	
+		Selector<JSONObject> eClassifierNodeSelector = (widgetFactory, sBase, pm) -> {
+			JSONObject node = ((EClassifierNodeProcessor<?>) widgetFactory).generate3DNode(
+					sBase, 
+					nodeCompletionStageProvider, 
+					link -> {
+						links.add(link);
+						forceGraph3D.addLink(link);
+					},
+					progressMonitor);
+			forceGraph3D.addNode(node);
+			return node;
+		};
+		
+		Set<WidgetFactory> traversed = new HashSet<>();
+		
+		for (WidgetFactory cwf: getEClassifierNodeProcessors(1, traversed::add, progressMonitor)) {
+			EClassifier eClassifier = (EClassifier) cwf.select(EObjectNodeProcessor.TARGET_SELECTOR, progressMonitor); 
+			CompletableFuture<JSONObject> eccf = nodeProvider.apply(eClassifier);
+			if (!eccf.isDone()) {
+				JSONObject ecn = cwf.select(eClassifierNodeSelector, getUri(), progressMonitor);
+				eccf.complete(ecn);
+			}
+		}
+		
+		// Curvatures and rotations
+		for (Entry<String, List<JSONObject>> lse: Util.groupBy(links, l -> l.getString(EPackageNodeProcessor.SOURCE_KEY)).entrySet()) {
+			for (Entry<String, List<JSONObject>> lte: Util.groupBy(lse.getValue(), l -> l.getString(EPackageNodeProcessor.TARGET_KEY)).entrySet()) {
+				long incomingLinksCount = links
+					.stream()
+					.filter(l -> l.getString(EPackageNodeProcessor.TARGET_KEY).equals(lse.getKey()) && l.getString(EPackageNodeProcessor.SOURCE_KEY).equals(lte.getKey()))
+					.count();
+				
+				List<JSONObject> outgoingLinks = lte.getValue();
+				double totalLinkCount = outgoingLinks.size() + incomingLinksCount; 
+				for (JSONObject link: outgoingLinks) {
+					if (outgoingLinks.size() > 1 || incomingLinksCount > 1) {
+						link.put(EPackageNodeProcessor.CURVATURE_KEY, 0.2);
+						link.put(EPackageNodeProcessor.ROTATION_KEY, Math.PI * 2 * lte.getValue().indexOf(link) / totalLinkCount);
+					} else {
+						link.put(EPackageNodeProcessor.CURVATURE_KEY, 0.0);
+						link.put(EPackageNodeProcessor.ROTATION_KEY, 0.0);			
+					}
+				}
+			}
+			
+		}		
+		
+		return forceGraph3D;
+	}			
+	
+	protected Action createForceGraph3DAction(ProgressMonitor progressMonitor) {
+		Action graphAction = AppFactory.eINSTANCE.createAction();
+		graphAction.setText("Force Graph 3D");
+		graphAction.setLocation("force-layout-graph-3d.html");
+		
+		ForceGraph3D forceGraph3D = generate3DGraph(false, false, progressMonitor);
+		String forceGraphContainerId = "force-graph-" + EPackageNodeProcessor.GRAPH_CONTAINER_COUNTER.incrementAndGet();
+		forceGraph3D
+			.elementId(forceGraphContainerId)
+			.nodeAutoColorBy("'group'")
+			.nodeVal("'size'")
+			.linkDirectionalArrowLength(2.5)
+			.linkDirectionalArrowRelPos(1)
+			.linkCurvature("'curvature'")
+			.linkCurveRotation("'rotation'")	
+			.linkAutoColorBy("'group'")
+			.addExtraRederer("new CSS2DRenderer()")
+			.onNodeClick(EPackageNodeProcessor.ON_NODE_CLICK)
+			.nodeThreeObject(EPackageNodeProcessor.NODE_THREE_OBJECT)
+			.nodeThreeObjectExtend(true)
+			.linkThreeObject(EPackageNodeProcessor.LINK_THREE_OBJECT)
+			.linkPositionUpdate(EPackageNodeProcessor.LINK_POSITION_UPDATE)
+			.linkThreeObjectExtend(true)
+			.onNodeDragEnd(EPackageNodeProcessor.ON_NODE_DRAG_END);
+			    
+		String graphHTML = Context
+				.singleton("graph", forceGraph3D.produce(4))
+				.compose(Context.singleton("graphContainerId", forceGraphContainerId))
+				.interpolateToString(EPackageNodeProcessor.GRAPH_3D_TEMPLATE);
+		addContent(graphAction, graphHTML);
+	    
+		graphAction.setDecorator(
+				createHelpDecorator(
+						"A live force-layout graph of package classifiers showing detailed relationships between them", 
+						null, 
+						null, 
+						null, 
+						"""
+						Hover mouse over nodes elements to display tooltips. 
+						Double-click on nodes to navigate go documentation. 
+						Left click - rotate.
+						Mouse wheel - zoom.
+						Right click - pan.
+						Drag to rearrange.
+						""",  
+						null));
+		
+		return graphAction;		
+	}		
 
 }

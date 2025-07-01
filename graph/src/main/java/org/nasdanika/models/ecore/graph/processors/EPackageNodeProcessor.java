@@ -59,12 +59,12 @@ import org.nasdanika.models.echarts.graph.util.GraphUtil;
 
 public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> {
 	
-	private static final String TARGET_KEY = "target";
-	private static final String SOURCE_KEY = "source";
-	private static final String ROTATION_KEY = "rotation";
-	private static final String CURVATURE_KEY = "curvature";
+	static final String TARGET_KEY = "target";
+	static final String SOURCE_KEY = "source";
+	static final String ROTATION_KEY = "rotation";
+	static final String CURVATURE_KEY = "curvature";
 
-	private static final String ON_NODE_DRAG_END = """
+	static final String ON_NODE_DRAG_END = """
 	node => {
 	          node.fx = node.x;
 	          node.fy = node.y;
@@ -72,7 +72,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	        }					
 	""";
 
-	private static final String NODE_THREE_OBJECT = """
+	static final String NODE_THREE_OBJECT = """
 	node => {
 	        const nodeEl = document.createElement('div');
 	        nodeEl.textContent = node.name;
@@ -82,7 +82,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	      }					
 	""";
 
-	private static final String LINK_THREE_OBJECT = """
+	static final String LINK_THREE_OBJECT = """
 	link => {				
           // extend link with text sprite
           if (link.name && !link.curvature) {
@@ -94,7 +94,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
         }					
 	""";
 	
-	private static final String LINK_POSITION_UPDATE = """
+	static final String LINK_POSITION_UPDATE = """
 	(sprite, { start, end }) => {
 			if (sprite) {
 	          const pos = Object.assign(...['x', 'y', 'z'].map(c => ({
@@ -974,7 +974,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 			</script>
 			""";
 	
-	private static final String ON_NODE_CLICK = 
+	static final String ON_NODE_CLICK = 
 			"""
 		    (node, event) => {
 		        if (node.lastClick) {
