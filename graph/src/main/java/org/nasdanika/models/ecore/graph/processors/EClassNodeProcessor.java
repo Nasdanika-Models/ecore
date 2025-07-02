@@ -886,7 +886,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		eAttributeWidgetFactories.put(((EAttribute) connection.getTarget().get()).getName(), eAttributeWidgetFactory);
 	}	
 	
-	private Map<String,WidgetFactory> eReferenceWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
+	protected Map<String,WidgetFactory> eReferenceWidgetFactories = Collections.synchronizedMap(new TreeMap<>());
 	
 	@OutgoingEndpoint("reference.name == 'eReferences'")
 	public final void setEReferenceEndpoint(EReferenceConnection connection, WidgetFactory eReferenceWidgetFactory) {

@@ -312,7 +312,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		for (EClassifierNodeProcessor<?> dep: dependencies) {
 			if (dep != this) {
 				nodeProvider.apply((EClassifier) dep.getTarget()).thenAccept(targetNode -> {
-					createDrawioConnection(layer, dep, diagramNode, targetNode);
+					createDrawioConnection(base, layer, dep, diagramNode, targetNode);
 				});
 			}
 		}
@@ -328,6 +328,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	 * @param targetNode
 	 */
 	protected void createDrawioConnection(
+			URI base,
 			org.nasdanika.drawio.Layer layer,
 			EClassifierNodeProcessor<?> dependency,
 			org.nasdanika.drawio.Node diagramNode,
