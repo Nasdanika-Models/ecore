@@ -298,7 +298,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 		int height = getDiagramNodeHeight();
 		int gutter = getDiagramGutter();
 		int rowSize = (int) Math.sqrt((eClassifiers.size() * (height + gutter))/(width + gutter)) ;
-		int row = idx / rowSize;
+		int row = rowSize == 0 ? 0 : idx / rowSize;
 		int col = idx - row * rowSize;
 		
 		diagramNode.getGeometry().setBounds(col * (width + gutter), row * (height + gutter), width, height);
