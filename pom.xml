@@ -2,15 +2,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.nasdanika.models.ecore</groupId>
-	<version>2025.7.0</version>
+	<version>2025.10.0</version>
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 	<name>Nasdanika Models Ecore Parent</name>
 	<description>Documentation generation for ECore models including the Ecore model itself</description>
 
 	<properties>
-		<core.version>2025.7.0</core.version>
-		<html.version>2025.7.0</html.version>
+		<core.version>2025.10.0</core.version>
+		<html.version>2025.10.0</html.version>
 		<jacoco.version>0.8.12</jacoco.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
@@ -43,14 +43,7 @@
 		        <plugin>
 		            <groupId>org.apache.maven.plugins</groupId>
 		            <artifactId>maven-surefire-plugin</artifactId>
-		            <version>3.5.3</version>
-		            <dependencies>
-		                <dependency>
-		                    <groupId>org.junit.jupiter</groupId>
-		                    <artifactId>junit-jupiter-engine</artifactId>
-		                    <version>5.12.1</version>
-		                </dependency>
-		            </dependencies>
+		            <version>3.5.4</version>
 		        </plugin>
 		        <plugin>
 		            <groupId>org.apache.maven.plugins</groupId>
@@ -60,7 +53,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.13.0</version>
+				<version>3.14.0</version>
 				<configuration>
 					<source>21</source>
 					<target>21</target>
@@ -82,7 +75,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.11.2</version>
+				<version>3.12.0</version>
 			
 				<executions>
 					<execution>
@@ -125,13 +118,13 @@
 		<dependency>
 		    <groupId>org.junit.jupiter</groupId>
 		    <artifactId>junit-jupiter-api</artifactId>
-		    <version>5.12.1</version>
+		    <version>6.0.0</version>
 		    <scope>test</scope>
 		</dependency>		
 		<dependency>
 		    <groupId>org.junit.jupiter</groupId>
 		    <artifactId>junit-jupiter-engine</artifactId>
-		    <version>5.12.1</version>
+		    <version>6.0.0</version>
 		    <scope>test</scope>
 		</dependency>		
 	</dependencies>
@@ -167,7 +160,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>3.2.7</version>
+						<version>3.2.8</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -181,7 +174,7 @@
 					<plugin>					
 						<groupId>org.sonatype.central</groupId>
 						<artifactId>central-publishing-maven-plugin</artifactId>
-						<version>0.8.0</version>
+						<version>0.9.0</version>
 						<extensions>true</extensions>
 						<configuration>
 							<publishingServerId>central</publishingServerId>

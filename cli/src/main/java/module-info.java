@@ -8,7 +8,7 @@ module org.nasdanika.models.ecore.cli {
 	requires transitive org.nasdanika.models.app.cli;		
 	requires org.nasdanika.models.ecore.graph;
 	
-	opens org.nasdanika.models.ecore.cli to info.picocli;
+	opens org.nasdanika.models.ecore.cli to info.picocli, org.nasdanika.cli;
 	
 	provides CapabilityFactory with	EcoreHtmlAppGeneratorCommandFactory;
 
