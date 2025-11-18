@@ -46,7 +46,7 @@ public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extend
 	public ETypedElementNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
-			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
+			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
 	

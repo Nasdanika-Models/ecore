@@ -19,6 +19,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypedElement;
@@ -49,7 +50,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	public EClassifierNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
-			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
+			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
 		

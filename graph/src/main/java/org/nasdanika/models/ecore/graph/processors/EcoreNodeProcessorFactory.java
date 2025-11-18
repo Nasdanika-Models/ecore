@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -66,8 +65,8 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 	private Consumer<Diagnostic> diagnosticConsumer;
 	private java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider;
 	
-	protected java.util.function.Function<ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory> config) {
-		return progressMonitor -> {
+	protected java.util.function.BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory> config) {
+		return (eObject, progressMonitor) -> {
 			if (prototypeProvider != null) {
 				for (URI identifier: NcoreUtil.getIdentifiers(((EObjectNode) config.getElement()).get())) {
 					Label prototype = prototypeProvider.apply(identifier, progressMonitor);
@@ -101,6 +100,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 	}
 	
 	protected Action loadActionPrototype(
+			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			String spec,
 			String specRef, 
 			URI base, 
@@ -195,7 +195,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 		};
 	}
 	
-	protected Function<ProgressMonitor, Action> getPrototypeProvider(
+	protected java.util.function.BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			URI baseURI,
 			String actionPrototypeSpec,
@@ -204,15 +204,16 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 			ProgressMonitor progressMonitor) {
 		
 		Action actionPrototype = loadActionPrototype(
+				config,
 				actionPrototypeSpec,
 				actionPrototypeRef,
 				baseURI, 
 				progressMonitor);
 		
-		return pm -> {
+		return (eObj, pm) -> {
 			Action ret;
 			if (actionPrototype == null) {
-				ret = EcoreNodeProcessorFactory.this.getPrototypeProvider(config).apply(pm);
+				ret = EcoreNodeProcessorFactory.this.getPrototypeProvider(config).apply(eObj, pm);
 			} else {
 				ret = EcoreUtil.copy(actionPrototype);
 				ret.setUuid(UUID.randomUUID().toString());

@@ -16,7 +16,7 @@ public class EcoreDocProcessorFactory {
 	}
 	
 //	@EPackageNodeProcessorFactory(nsURI = EcorePackage.eNS_URI)
-//	public EPackageNodeProcessor createEPackageProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {		
+//	public EPackageNodeProcessor createEPackageProcessor(NodeProcessorConfig<Object, WidgetFactory, WidgetFactory, Registry<URI>> config, java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {		
 //		return new EPackageNodeProcessor(config, context, prototypeProvider);
 //	}		
 

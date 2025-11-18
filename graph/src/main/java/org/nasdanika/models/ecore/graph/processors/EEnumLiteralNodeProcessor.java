@@ -2,6 +2,7 @@ package org.nasdanika.models.ecore.graph.processors;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EEnumLiteral;
+import org.eclipse.emf.ecore.EObject;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.Link;
@@ -16,7 +17,7 @@ public class EEnumLiteralNodeProcessor extends EModelElementNodeProcessor<EEnumL
 	public EEnumLiteralNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
-			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
+			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
 

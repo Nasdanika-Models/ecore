@@ -3,6 +3,7 @@ package org.nasdanika.models.ecore.graph.processors;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.nasdanika.common.Context;
@@ -20,7 +21,7 @@ public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeatu
 	public EStructuralFeatureNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
-			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
+			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
 	

@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EObject;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.diagram.plantuml.clazz.DataType;
@@ -20,7 +21,7 @@ public class EDataTypeNodeProcessor<T extends EDataType> extends EClassifierNode
 	public EDataTypeNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
-			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
+			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
 	

@@ -1,5 +1,6 @@
 package org.nasdanika.models.ecore.graph.processors;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.ProgressMonitor;
@@ -25,7 +26,7 @@ public class EReferenceNodeProcessor extends EStructuralFeatureNodeProcessor<ERe
 	public EReferenceNodeProcessor(
 			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
 			Context context,
-			java.util.function.Function<ProgressMonitor, Action> prototypeProvider) {
+			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
 	}	
 
