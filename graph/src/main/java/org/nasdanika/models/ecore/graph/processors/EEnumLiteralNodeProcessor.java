@@ -15,7 +15,7 @@ import org.nasdanika.models.app.graph.WidgetFactory;
 public class EEnumLiteralNodeProcessor extends EModelElementNodeProcessor<EEnumLiteral> {
 
 	public EEnumLiteralNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config,
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

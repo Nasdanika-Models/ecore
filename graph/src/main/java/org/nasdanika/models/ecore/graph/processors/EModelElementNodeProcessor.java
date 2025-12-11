@@ -44,7 +44,7 @@ import org.nasdanika.ncore.util.NcoreUtil;
 public class EModelElementNodeProcessor<T extends EModelElement> extends EObjectNodeProcessor<T> {
 	
 	public EModelElementNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config, 
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

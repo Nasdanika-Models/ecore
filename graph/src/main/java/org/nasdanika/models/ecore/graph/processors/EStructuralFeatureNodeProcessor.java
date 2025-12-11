@@ -19,7 +19,7 @@ import org.nasdanika.models.app.graph.WidgetFactory;
 public abstract class EStructuralFeatureNodeProcessor<T extends EStructuralFeature> extends ETypedElementNodeProcessor<T> {
 
 	public EStructuralFeatureNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config,
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

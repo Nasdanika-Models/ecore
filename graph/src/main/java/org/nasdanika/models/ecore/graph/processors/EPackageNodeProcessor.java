@@ -108,7 +108,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	""";	
 
 	public EPackageNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config, 
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config, 
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
@@ -480,7 +480,7 @@ public class EPackageNodeProcessor extends ENamedElementNodeProcessor<EPackage> 
 	}
 		
 	protected void generateDrawioDiagram(
-			Function<EPackage, org.nasdanika.drawio.Layer> layerProvider,
+			Function<EPackage, org.nasdanika.drawio.Layer<?>> layerProvider,
 			boolean withDependencies, 
 			boolean withSubpackages, 
 			ProgressMonitor progressMonitor) {

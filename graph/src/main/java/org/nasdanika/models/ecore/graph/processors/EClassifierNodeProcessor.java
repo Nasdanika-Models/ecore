@@ -48,7 +48,7 @@ import org.nasdanika.ncore.util.NcoreUtil;
 public abstract class EClassifierNodeProcessor<T extends EClassifier> extends ENamedElementNodeProcessor<T> implements EClassifierNodeProcessorProvider {
 
 	public EClassifierNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config,
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
@@ -274,10 +274,10 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	public org.nasdanika.drawio.Node generateDrawioDiagramNode(
 			URI base, 
 			Function<EClassifier, CompletionStage<org.nasdanika.drawio.Node>> nodeProvider,
-			Function<EPackage, org.nasdanika.drawio.Layer> layerProvider,
+			Function<EPackage, org.nasdanika.drawio.Layer<?>> layerProvider,
 			ProgressMonitor progressMonitor) {		
 		
-		org.nasdanika.drawio.Layer layer = layerProvider.apply(getTarget().getEPackage());
+		org.nasdanika.drawio.Layer<?> layer = layerProvider.apply(getTarget().getEPackage());
 		
 		org.nasdanika.drawio.Node diagramNode = layer.createNode();
 //		diagramNode.setProperty("semantic-uuid", getTarget().getName() + "@" + getTarget().getEPackage().getNsURI());
@@ -330,7 +330,7 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 	 */
 	protected void createDrawioConnection(
 			URI base,
-			org.nasdanika.drawio.Layer layer,
+			org.nasdanika.drawio.Layer<?> layer,
 			EClassifierNodeProcessor<?> dependency,
 			org.nasdanika.drawio.Node diagramNode,
 			org.nasdanika.drawio.Node targetNode) {

@@ -44,7 +44,7 @@ import org.nasdanika.ncore.util.NcoreUtil;
 public abstract class ETypedElementNodeProcessor<T extends ETypedElement> extends ENamedElementNodeProcessor<T> implements FeatureWidgetFactory, EClassifierNodeProcessorProvider {
 
 	public ETypedElementNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config,
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

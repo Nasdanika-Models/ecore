@@ -19,7 +19,7 @@ import org.nasdanika.models.app.graph.WidgetFactory;
 public class EParameterNodeProcessor extends ETypedElementNodeProcessor<EParameter> {
 
 	public EParameterNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config,
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);

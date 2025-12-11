@@ -104,7 +104,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 	}
 
 	public EClassNodeProcessor(
-			NodeProcessorConfig<WidgetFactory, WidgetFactory> config,
+			NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config,
 			Context context,
 			java.util.function.BiFunction<EObject, ProgressMonitor, Action> prototypeProvider) {
 		super(config, context, prototypeProvider);
