@@ -344,7 +344,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 		Node node = config.getElement();
 		if (node instanceof EObjectNode) {
 			EObject target = ((EObjectNode) node).get();
-			if (target instanceof EClass && ((EClass) target).isAbstract()) {
+			if (target instanceof EClass && ((EClass) target).isAbstract() && !Util.isBlank(label)) {
 				label = "<i>" + label + "</i>";
 			}
 		}
