@@ -39,7 +39,7 @@ public @interface EPackageNodeProcessorFactory {
 	// Selector
 	
 	/**
-	 * {@link EPackage} namespace URI. Required on a class. On a method is inherited from the class.
+	 * {@link EPackage} namespace URI. Matches if equals or blank. On a method is inherited from the class.
 	 * @return
 	 */
 	String nsURI() default "";
