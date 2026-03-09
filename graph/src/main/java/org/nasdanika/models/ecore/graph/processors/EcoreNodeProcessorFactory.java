@@ -1,6 +1,7 @@
 package org.nasdanika.models.ecore.graph.processors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -80,6 +81,33 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 	}
 	
 	protected List<AnnotatedElementRecord> annotatedElementRecords = new ArrayList<>();
+	
+	protected String getTargetNsURI(Object target) {
+		String nsURI = null;
+		EPackageNodeProcessorFactory pnfa = target.getClass().getAnnotation(EPackageNodeProcessorFactory.class);
+		if (pnfa != null) {
+			nsURI = pnfa.nsURI();					
+		}		
+		EClassifierNodeProcessorFactory cnfa = target.getClass().getAnnotation(EClassifierNodeProcessorFactory.class);		
+		if (cnfa == null) {
+			return nsURI;
+		}
+		String cnfaNsURI = cnfa.nsURI();
+		return Util.isBlank(cnfaNsURI) ? nsURI : cnfaNsURI;
+	}
+	
+	protected int compareTargets(Object a, Object b) {
+		String nsURIA = getTargetNsURI(a);
+		String nsURIB = getTargetNsURI(b);
+		if (Util.isBlank(nsURIA)) {
+			return Util.isBlank(nsURIB) ? 0 : 1;
+		} 
+		if (Util.isBlank(nsURIB)) {
+			return -1;
+		} 
+		
+		return nsURIA.compareTo(nsURIB);
+	}
 
 	/**
 	 * 
@@ -94,8 +122,9 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 		this.context = context;
 		this.prototypeProvider = prototypeProvider;
 		this.diagnosticConsumer = diagnosticConsumer;
-		for (Object target: targets) {
-			getAnnotatedElementRecords(target, Collections.emptyList()).forEach(annotatedElementRecords::add);
+		for (Object target: Arrays.stream(targets).sorted(this::compareTargets).toList()) {
+			getAnnotatedElementRecords(target, Collections.emptyList())	
+				.forEach(annotatedElementRecords::add);
 		}
 	}
 	
@@ -157,7 +186,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 					ePackage = ((EEnumLiteral) eObj).getEEnum().getEPackage();					
 				}
 								
-				if (ePackage == null || !pnfa.nsURI().equals(ePackage.getNsURI())) {
+				if (ePackage == null || !(Util.isBlank(pnfa.nsURI()) || pnfa.nsURI().equals(ePackage.getNsURI()))) {
 					return false;
 				}
 			}

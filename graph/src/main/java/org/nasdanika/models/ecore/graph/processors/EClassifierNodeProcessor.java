@@ -318,6 +318,9 @@ public abstract class EClassifierNodeProcessor<T extends EClassifier> extends EN
 			}
 		}
 		
+		// Self connection
+		createDrawioConnection(base, layer, this, diagramNode, diagramNode);		
+		
 		return diagramNode;
 	}
 	
