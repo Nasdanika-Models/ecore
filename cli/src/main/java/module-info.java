@@ -8,6 +8,7 @@ module org.nasdanika.models.ecore.cli {
 
 	requires transitive org.nasdanika.models.app.cli;		
 	requires transitive org.nasdanika.models.ecore.graph;
+	requires org.nasdanika.common;
 	
 	opens org.nasdanika.models.ecore.cli to info.picocli, org.nasdanika.cli;
 	

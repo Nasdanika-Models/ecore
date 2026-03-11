@@ -1,8 +1,7 @@
 package org.nasdanika.models.ecore.cli;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -15,6 +14,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.URIConverter;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.NasdanikaException;
 import org.nasdanika.common.ProgressMonitor;
@@ -45,13 +45,20 @@ import org.nasdanika.models.ecore.graph.processors.EPackageNodeProcessorFactory;
 public class EcoreGenProcessorsFactory {
 
 	private Context context;
-	private Path diagramPath;
 	private double layoutHeight;
 	private double layoutWidth;
+	private URI diagramURI;
+	private URIConverter uriConverter;
 	
-	
-	public EcoreGenProcessorsFactory(Path diagramPath, double layoutWidth, double layoutHeight, Context context) {
-		this.diagramPath = diagramPath;
+	public EcoreGenProcessorsFactory(
+			URI diagramURI, 
+			URIConverter uriConverter,
+			double layoutWidth, 
+			double layoutHeight, 
+			Context context) {
+		
+		this.diagramURI = diagramURI;
+		this.uriConverter = uriConverter;
 		this.layoutWidth = layoutWidth;
 		this.layoutHeight = layoutHeight;
 		this.context = context;		
@@ -81,7 +88,7 @@ public class EcoreGenProcessorsFactory {
 				super.generateDiagramAndGraphActions(labels, progressMonitor);
 				
 				// TODO - choice of ELK layout and layout parameters.
-				if (diagramPath != null) {
+				if (diagramURI != null && uriConverter != null) {
 					try {
 						Document document = Document.create(false, null);
 						Page page = document.createPage();
@@ -98,8 +105,10 @@ public class EcoreGenProcessorsFactory {
 							progressMonitor);
 						
 						org.nasdanika.drawio.Util.forceLayout(root, layoutWidth, layoutHeight);
-													
-						Files.writeString(diagramPath, document.save(null));
+						
+						try (Writer writer = new OutputStreamWriter(uriConverter.createOutputStream(diagramURI))) {
+							writer.write(document.save(null));
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 						throw new NasdanikaException(e);
@@ -108,7 +117,7 @@ public class EcoreGenProcessorsFactory {
 			}			
 			
 		};
-	}	
+	}
 	
 	@EClassifierNodeProcessorFactory
 	public EClassifierNodeProcessor<?> createEClassifierProcessor(
@@ -127,11 +136,6 @@ public class EcoreGenProcessorsFactory {
 					super.configureLabel(source, label, progressMonitor);
 					if (labelConfigurator != null) {
 						labelConfigurator.accept(label, progressMonitor);
-						
-						if (label instanceof Action && docDir != null) {
-							Action action = (Action) label;
-							// TODO - load doc 
-						}
 					}
 				}	
 				
@@ -215,11 +219,6 @@ public class EcoreGenProcessorsFactory {
 					if (labelConfigurator != null) {
 						labelConfigurator.accept(label, progressMonitor);
 					}
-					
-					if (label instanceof Action && docDir != null) {
-						Action action = (Action) label;
-						// TODO - load doc 
-					}
 				}	
 				
 			};
@@ -233,59 +232,9 @@ public class EcoreGenProcessorsFactory {
 				if (labelConfigurator != null) {
 					labelConfigurator.accept(label, progressMonitor);
 				}
-				
-				if (label instanceof Action && docDir != null) {
-					Action action = (Action) label;
-					// TODO - load doc 
-				}
 			}	
 			
 		};		
 	}	
-	
-	private File docDir;
-	
-//	protected Action getAction(URI uri) {
-//		URI relative = uri.deresolve(BASE_URI);
-//		if (relative.isRelative()) {
-//			relative = relative.appendFileExtension("md");
-//	        Path base = Paths.get(docDir.getPath());
-//	        Path fullPath = base.resolve(relative.toString());
-//
-//	        try {
-//				Files.createDirectories(fullPath.getParent());
-//				File file = fullPath.toFile();
-//				if (!file.isFile()) {
-//					Files.writeString(fullPath, "");
-//				} else {
-//					String documentation = Files.readString(fullPath);
-//					if (!Util.isBlank(documentation)) {
-//						Action ret = AppFactory.eINSTANCE.createAction();
-//						Markdown markdown = ContentFactory.eINSTANCE.createMarkdown();
-//						Interpolator interpolator = ContentFactory.eINSTANCE.createInterpolator();
-//						Text text = ContentFactory.eINSTANCE.createText();
-//						text.setContent(documentation);
-//						interpolator.setSource(text);
-//						markdown.setSource(interpolator);
-//						markdown.setStyle(true);
-//						
-//						org.nasdanika.ncore.Marker marker = MarkerFactory.INSTANCE.createMarker(fullPath.toString(), null);
-//						markdown.getMarkers().add(marker); 
-//						ret.getContent().add(markdown);
-//						
-//						return ret;
-//					}
-//				}
-//				
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//		return null;						
-//	}
-	
-	// TODO - attribute and reference processors with documentation support and links to Ecore docs.
-	
 	
 }
