@@ -6,10 +6,12 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -179,9 +181,14 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements EObjectSup
 				}
 			});
 		}
+		
+		Map<EObject,URI> tmpURIs = new HashMap<>();
+		for (EObject eObj: ecoreObjects) {
+			tmpURIs.put(eObj, URI.createURI("tmp://" + UUID.randomUUID() + "/" + UUID.randomUUID() + "/"));
+		}
 				
 		Function<? super EObject, URI> uriResolver = eObj -> {
-			return references.get(eObj); // TODO	
+			return tmpURIs.computeIfAbsent(eObj, references::get);
 		};
 				
 		EcoreHtmlAppGenerator eCoreHtmlAppGenerator = new EcoreHtmlAppGenerator(
