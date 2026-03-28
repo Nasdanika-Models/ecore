@@ -33,6 +33,7 @@ import org.nasdanika.cli.ParentCommands;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.DefaultConverter;
 import org.nasdanika.common.Diagnostic;
+import org.nasdanika.common.EModelElementSupplier;
 import org.nasdanika.common.EObjectSupplier;
 import org.nasdanika.common.MutableContext;
 import org.nasdanika.common.ProgressMonitor;
@@ -45,6 +46,7 @@ import org.nasdanika.exec.content.Text;
 import org.nasdanika.models.app.Action;
 import org.nasdanika.models.app.AppFactory;
 import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.util.LabelSupplier;
 import org.nasdanika.models.ecore.graph.processors.EcoreHtmlAppGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreNodeProcessorFactory;
 
@@ -59,10 +61,10 @@ import picocli.CommandLine.ParentCommand;
 		},
 		versionProvider = ModuleVersionProvider.class,		
 		mixinStandardHelpOptions = true,
-		name = "ecore-doc")
-@ParentCommands(EObjectSupplier.class)
+		name = "doc")
+@ParentCommands(EModelElementSupplier.class)
 //@Description()
-public class EcoreDocGeneratorCommand extends CommandGroup implements EObjectSupplier<EObject> {
+public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSupplier {
 		
 	private static final URI README_MD_URI = URI.createURI("readme.md");
 
@@ -81,6 +83,14 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements EObjectSup
 			names = "--diagram", 
 			description = "Diagram file to generate")	
 	private File diagramFile;
+		
+	@Option(
+			names = "--root-location", 
+			description = {
+				"Root action location",
+				"Defaults to ${base-uri}index.html"
+			})	
+	private String rootLocation;	
 	
 	@Option(
 			names = "--doc-stubs", 
@@ -111,7 +121,7 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements EObjectSup
 	private double layoutHeight;	
 
 	@Override
-	public Collection<EObject> getEObjects(ProgressMonitor progressMonitor) {
+	public Collection<Label> getEObjects(ProgressMonitor progressMonitor) {
 		Collection<EObject> ecoreObjects = eObjectSupplier.getEObjects(progressMonitor);
 		URIConverter uriConverter = ecoreObjects
 			.stream()
@@ -198,11 +208,18 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements EObjectSup
 				ecoreNodeProcessorFactory);
 		
 		Map<EObject, Collection<Label>> labelMap = eCoreHtmlAppGenerator.generateHtmlAppModel(diagnosticConsumer, progressMonitor);
+		if (!Util.isBlank(rootLocation)) {
+			labelMap
+				.values()
+				.stream()
+				.filter(Action.class::isInstance)
+				.map(Action.class::cast)				
+				.forEach(a -> a.setLocation(rootLocation));
+		}
 		return labelMap
 				.values()
 				.stream()
 				.flatMap(Collection::stream)
-				.map(EObject.class::cast)
 				.toList();
 	}
 	
