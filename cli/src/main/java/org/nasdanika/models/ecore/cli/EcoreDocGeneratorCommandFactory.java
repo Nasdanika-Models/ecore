@@ -1,9 +1,11 @@
 package org.nasdanika.models.ecore.cli;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.nasdanika.capability.ServiceCapabilityFactory;
+import org.nasdanika.capability.emf.ResourceSetRequirement;
 import org.nasdanika.cli.SubCommandCapabilityFactory;
 import org.nasdanika.common.ProgressMonitor;
 import org.nasdanika.models.app.util.LabelSupplier;
@@ -31,8 +33,10 @@ public class EcoreDocGeneratorCommandFactory extends SubCommandCapabilityFactory
 				return null;
 			}
 		}
-			
-		return CompletableFuture.completedStage(new EcoreDocGeneratorCommand(loader.getCapabilityLoader()));
+		
+		Requirement<ResourceSetRequirement, ResourceSet> resourceSetRequirement = ServiceCapabilityFactory.createRequirement(ResourceSet.class);		
+		CompletionStage<ResourceSet> resourceSetCS = loader.loadOne(resourceSetRequirement, progressMonitor);		
+		return resourceSetCS.thenApply(rs -> new EcoreDocGeneratorCommand(loader.getCapabilityLoader(), rs)); 		
 	}
 
 }

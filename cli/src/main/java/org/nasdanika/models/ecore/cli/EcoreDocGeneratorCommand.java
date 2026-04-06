@@ -4,14 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -43,12 +42,15 @@ import org.nasdanika.exec.content.ContentFactory;
 import org.nasdanika.exec.content.Interpolator;
 import org.nasdanika.exec.content.Markdown;
 import org.nasdanika.exec.content.Text;
+import org.nasdanika.graph.processor.NodeProcessorConfig;
 import org.nasdanika.models.app.Action;
 import org.nasdanika.models.app.AppFactory;
 import org.nasdanika.models.app.Label;
+import org.nasdanika.models.app.graph.WidgetFactory;
 import org.nasdanika.models.app.util.LabelSupplier;
 import org.nasdanika.models.ecore.graph.processors.EcoreHtmlAppGenerator;
 import org.nasdanika.models.ecore.graph.processors.EcoreNodeProcessorFactory;
+import org.nasdanika.ncore.util.NcoreUtil;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -67,13 +69,12 @@ import picocli.CommandLine.ParentCommand;
 public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSupplier {
 		
 	private static final URI README_MD_URI = URI.createURI("readme.md");
+	
+	private ResourceSet resourceSet;
 
-	public EcoreDocGeneratorCommand() {
-		super();
-	}
-
-	public EcoreDocGeneratorCommand(CapabilityLoader capabilityLoader) {
+	public EcoreDocGeneratorCommand(CapabilityLoader capabilityLoader, ResourceSet resourceSet) {
 		super(capabilityLoader);
+		this.resourceSet = resourceSet;
 	}
 		
 	@ParentCommand
@@ -131,26 +132,10 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 			.filter(Objects::nonNull)
 			.map(ResourceSet::getURIConverter)
 			.findAny()
-			.orElse(null);
-		
-		URI baseURI = ecoreObjects
-				.stream()
-				.filter(EPackage.class::isInstance)
-				.map(EPackage.class::cast)
-				.map(EPackage::getNsURI)
-				.filter(Objects::nonNull)
-				.sorted((a,b) -> Integer.compare(a.length(), b.length()))
-				.findFirst()
-				.map(URI::createURI)
-				.orElse(null);		
-		
+			.orElse(resourceSet.getURIConverter());
+				
 		MutableContext context = Context.EMPTY_CONTEXT.fork();
 		Consumer<Diagnostic> diagnosticConsumer = d -> d.dump(System.out, 0);
-		List<Function<URI,Action>> actionProviders = new ArrayList<>();		
-
-		if (uriConverter != null && docDir != null && baseURI != null) {
-			actionProviders.add(uri -> getAction(uri, baseURI, uriConverter));
-		}
 		
 		EcoreGenProcessorsFactory ecoreGenProcessorFactory = new EcoreGenProcessorsFactory(
 				diagramFile == null ? null : URI.createFileURI(diagramFile.getAbsolutePath()),
@@ -161,17 +146,16 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 		
 		EcoreNodeProcessorFactory ecoreNodeProcessorFactory = new EcoreNodeProcessorFactory(
 				context, 
-				(uri, pm) -> {
-					for (Function<URI, Action> ap: actionProviders) {
-						Action prototype = ap.apply(uri);
-						if (prototype != null) {
-							return prototype;
-						}
-					}
-					return null;
-				},
+				null,
 				diagnosticConsumer,
-				ecoreGenProcessorFactory);
+				ecoreGenProcessorFactory) {
+			
+			@Override
+			protected BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config) {
+				return (eObj,pm) -> getAction(eObj, uriConverter);
+			}
+			
+		};
 		
 		Predicate<ResourceSetContributor> contributorPredicate = contributor -> contributor instanceof EPackageResourceSetContributor;		
 		Requirement<Predicate<ResourceSetContributor>, ResourceSetContributor> contributorRequirement = ServiceCapabilityFactory.createRequirement(
@@ -222,36 +206,23 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 				.flatMap(Collection::stream)
 				.toList();
 	}
-	
-	protected Action getAction(URI uri, URI baseURI, URIConverter uriConverter) {
-		if (uri == null) {
+		
+	protected Action getAction(EObject eObj, URIConverter uriConverter) {
+		if (docDir == null) {
 			return null;
 		}
-		
-		if (uri.equals(baseURI)) {
-			return getAction(null, uriConverter);
-		}
-		
-		URI relative = uri.deresolve(baseURI.appendSegment(""), true, true, true);
-		return getAction(relative.appendSegment(""), uriConverter);
-	}
-	
-	protected Action getAction(URI relativeDocURI, URIConverter uriConverter) {
 		URI docDirURI = URI.createFileURI(docDir.getAbsolutePath()).appendSegment("");
-		if (relativeDocURI == null) {
+		String path = NcoreUtil.path(eObj);
+		if (path == null) {
 			return getDocAction(README_MD_URI.resolve(docDirURI), uriConverter);
-		}
+		}		
 		
-		if (relativeDocURI.isRelative()) {
-			URI actionBaseURI = relativeDocURI.resolve(docDirURI);
-			return getDocAction(README_MD_URI.resolve(actionBaseURI), uriConverter);
-		}
-		
-		return null;		
+		URI actionBaseURI = URI.createURI(path).appendSegment("").resolve(docDirURI);
+		return getDocAction(README_MD_URI.resolve(actionBaseURI), uriConverter);
 	} 
 	
 	protected Action getDocAction(URI docURI, URIConverter uriConverter) {
-		if (uriConverter.exists(docURI, null)) {		
+		if (uriConverter != null && uriConverter.exists(docURI, null)) {		
 			try {
 				String documentation = DefaultConverter.INSTANCE.toString(uriConverter.createInputStream(docURI));
 				if (Util.isBlank(documentation)) {

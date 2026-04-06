@@ -69,7 +69,8 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 	protected java.util.function.BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config) {
 		return (eObject, progressMonitor) -> {
 			if (prototypeProvider != null) {
-				for (URI identifier: NcoreUtil.getIdentifiers(((EObjectNode) config.getElement()).get())) {
+				List<URI> identifiers = NcoreUtil.getIdentifiers(eObject);
+				for (URI identifier: identifiers) {
 					Label prototype = prototypeProvider.apply(identifier, progressMonitor);
 					if (prototype instanceof Action) {
 						return (Action) prototype;
