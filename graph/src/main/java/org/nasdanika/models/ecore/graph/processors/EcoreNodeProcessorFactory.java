@@ -67,6 +67,10 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 	private java.util.function.BiFunction<URI, ProgressMonitor, Label> prototypeProvider;
 	
 	protected java.util.function.BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config) {
+		return getPrototypeProvider(config, null);
+	}
+	
+	protected java.util.function.BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config, String documentation) {
 		return (eObject, progressMonitor) -> {
 			if (prototypeProvider != null) {
 				List<URI> identifiers = NcoreUtil.getIdentifiers(eObject);
@@ -243,7 +247,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 		return (eObj, pm) -> {
 			Action ret;
 			if (actionPrototype == null) {
-				ret = EcoreNodeProcessorFactory.this.getPrototypeProvider(config).apply(eObj, pm);
+				ret = EcoreNodeProcessorFactory.this.getPrototypeProvider(config, documentation).apply(eObj, pm);
 			} else {
 				ret = EcoreUtil.copy(actionPrototype);
 				ret.setUuid(UUID.randomUUID().toString());
@@ -256,7 +260,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 				}
 			}
 			
-			if (!Util.isBlank(documentation)) {
+			if (!shallAddDocumentation(ret, documentation)) {
 				Markdown markdown = ContentFactory.eINSTANCE.createMarkdown();
 				Interpolator interpolator = ContentFactory.eINSTANCE.createInterpolator();
 				Text text = ContentFactory.eINSTANCE.createText();
@@ -275,6 +279,10 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 			
 			return ret;
 		};
+	}
+	
+	protected boolean shallAddDocumentation(Action action, String documentation) {
+		return !Util.isBlank(documentation);
 	}
 	
 	protected BiConsumer<Label, ProgressMonitor> getLabelConfigurator(

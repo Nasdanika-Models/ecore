@@ -120,6 +120,17 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 				},
 			defaultValue = "800")	
 	private double layoutHeight;	
+		
+	@Option(
+		names = "--model-doc",
+		description = {
+			"What todo with the model documentation when",
+			"documentation resource is available and not empty",
+			"Valid values: ${COMPLETION-CANDIDATES}",
+			"Default value: ${DEFAULT-VALUE}"
+		})
+	protected ModelDocAction modelDocAction = ModelDocAction.PREPEND;	
+	
 
 	@Override
 	public Collection<Label> getEObjects(ProgressMonitor progressMonitor) {
@@ -151,8 +162,13 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 				ecoreGenProcessorFactory) {
 			
 			@Override
-			protected BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config) {
-				return (eObj,pm) -> getAction(eObj, uriConverter);
+			protected BiFunction<EObject, ProgressMonitor, Action> getPrototypeProvider(NodeProcessorConfig<WidgetFactory, WidgetFactory, Object> config, String documentation) {
+				return (eObj,pm) -> getAction(eObj, documentation, uriConverter);
+			}
+			
+			@Override
+			protected boolean shallAddDocumentation(Action action, String documentation) {
+				return false;
 			}
 			
 		};
@@ -207,40 +223,45 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 				.toList();
 	}
 		
-	protected Action getAction(EObject eObj, URIConverter uriConverter) {
+	protected Action getAction(EObject eObj, String modelDoc, URIConverter uriConverter) {
 		if (docDir == null) {
 			return null;
 		}
 		URI docDirURI = URI.createFileURI(docDir.getAbsolutePath()).appendSegment("");
 		String path = NcoreUtil.path(eObj);
 		if (path == null) {
-			return getDocAction(README_MD_URI.resolve(docDirURI), uriConverter);
+			return getDocAction(eObj, README_MD_URI.resolve(docDirURI), modelDoc, uriConverter);
 		}		
 		
 		URI actionBaseURI = URI.createURI(path).appendSegment("").resolve(docDirURI);
-		return getDocAction(README_MD_URI.resolve(actionBaseURI), uriConverter);
+		return getDocAction(eObj, README_MD_URI.resolve(actionBaseURI), modelDoc, uriConverter);
 	} 
 	
-	protected Action getDocAction(URI docURI, URIConverter uriConverter) {
+	protected Action getDocAction(EObject eObj, URI docURI, String modelDoc, URIConverter uriConverter) {
 		if (uriConverter != null && uriConverter.exists(docURI, null)) {		
 			try {
 				String documentation = DefaultConverter.INSTANCE.toString(uriConverter.createInputStream(docURI));
-				if (Util.isBlank(documentation)) {
-					return null;
+				if (!Util.isBlank(documentation)) {
+					if (Util.isBlank(modelDoc)) {
+						return createDocAction(documentation, docURI);
+					}
+					
+					String finalDocumentation = switch (modelDocAction) {
+					case APPEND:
+						yield documentation + System.lineSeparator() + modelDoc;
+					case IGNORE:
+						yield documentation;
+					case INTERPOLATE:
+						yield Util.interpolate(documentation, Map.of("model-doc", modelDoc)::get);
+					case REPLACE:
+						yield modelDoc;
+					case PREPEND:
+					default:
+						yield modelDoc + System.lineSeparator() + documentation;
+					};					
+					
+					return createDocAction(finalDocumentation, docURI);
 				}
-				Markdown markdown = ContentFactory.eINSTANCE.createMarkdown();
-				Interpolator interpolator = ContentFactory.eINSTANCE.createInterpolator();
-				Text text = ContentFactory.eINSTANCE.createText();
-				text.setContent(documentation);
-				interpolator.setSource(text);
-				markdown.setSource(interpolator);
-				markdown.setStyle(true);
-				
-				org.nasdanika.ncore.Marker marker = MarkerFactory.INSTANCE.createMarker(docURI.toString(), null);
-				markdown.getMarkers().add(marker); 
-				Action ret = AppFactory.eINSTANCE.createAction();
-				ret.getContent().add(markdown);
-				return ret;
 			} catch (IOException e) {
 				return createErrorAction("Error reading documentation from " + docURI + ": " + e);
 			}
@@ -250,10 +271,28 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 				return null;
 			} catch (IOException e) {
 				return createErrorAction("Error creating documentation stub at " + docURI + ": " + e);
-			}				
+			}							
 		}
+
+		return Util.isBlank(modelDoc) ? null : createDocAction(modelDoc, eObj.eResource() != null ? eObj.eResource().getURI() : null);
+	}
+
+	protected Action createDocAction(String documentation, URI docURI) {
+		Markdown markdown = ContentFactory.eINSTANCE.createMarkdown();
+		Interpolator interpolator = ContentFactory.eINSTANCE.createInterpolator();
+		Text text = ContentFactory.eINSTANCE.createText();
+		text.setContent(documentation);
+		interpolator.setSource(text);
+		markdown.setSource(interpolator);
+		markdown.setStyle(true);
 		
-		return null;
+		if (docURI != null) {		
+			org.nasdanika.ncore.Marker marker = MarkerFactory.INSTANCE.createMarker(docURI.toString(), null);
+			markdown.getMarkers().add(marker); 
+		}
+		Action ret = AppFactory.eINSTANCE.createAction();
+		ret.getContent().add(markdown);
+		return ret;
 	} 
 
 	protected Action createErrorAction(String errorMessage) {
