@@ -1,0 +1,5 @@
+
+```drawio-resource
+ecore.drawio
+```
+
