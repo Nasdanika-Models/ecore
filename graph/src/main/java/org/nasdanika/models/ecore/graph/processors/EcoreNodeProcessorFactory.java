@@ -76,8 +76,8 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 				List<URI> identifiers = NcoreUtil.getIdentifiers(eObject);
 				for (URI identifier: identifiers) {
 					Label prototype = prototypeProvider.apply(identifier, progressMonitor);
-					if (prototype instanceof Action) {
-						return (Action) prototype;
+					if (prototype instanceof Action action) {
+						return action;
 					}				
 				}			
 			}
@@ -260,7 +260,7 @@ public class EcoreNodeProcessorFactory extends Reflector implements EStructuralF
 				}
 			}
 			
-			if (!shallAddDocumentation(ret, documentation)) {
+			if (shallAddDocumentation(ret, documentation)) {
 				Markdown markdown = ContentFactory.eINSTANCE.createMarkdown();
 				Interpolator interpolator = ContentFactory.eINSTANCE.createInterpolator();
 				Text text = ContentFactory.eINSTANCE.createText();

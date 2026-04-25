@@ -31,6 +31,7 @@ import org.nasdanika.cli.CommandGroup;
 import org.nasdanika.cli.ParentCommands;
 import org.nasdanika.common.Context;
 import org.nasdanika.common.DefaultConverter;
+import org.nasdanika.common.Description;
 import org.nasdanika.common.Diagnostic;
 import org.nasdanika.common.EModelElementSupplier;
 import org.nasdanika.common.EObjectSupplier;
@@ -65,7 +66,7 @@ import picocli.CommandLine.ParentCommand;
 		mixinStandardHelpOptions = true,
 		name = "doc")
 @ParentCommands(EModelElementSupplier.class)
-//@Description()
+@Description(icon = "https://docs.nasdanika.org/images/user-guide.svg")
 public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSupplier {
 		
 	private static final URI README_MD_URI = URI.createURI("readme.md");
@@ -225,7 +226,7 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 		
 	protected Action getAction(EObject eObj, String modelDoc, URIConverter uriConverter) {
 		if (docDir == null) {
-			return null;
+			return AppFactory.eINSTANCE.createAction();
 		}
 		URI docDirURI = URI.createFileURI(docDir.getAbsolutePath()).appendSegment("");
 		String path = NcoreUtil.path(eObj);
@@ -268,7 +269,7 @@ public class EcoreDocGeneratorCommand extends CommandGroup implements LabelSuppl
 		} else if (docStubs) {				
 			try (Writer writer = new OutputStreamWriter(uriConverter.createOutputStream(docURI))) {
 				writer.write("");
-				return null;
+				return AppFactory.eINSTANCE.createAction();
 			} catch (IOException e) {
 				return createErrorAction("Error creating documentation stub at " + docURI + ": " + e);
 			}							
