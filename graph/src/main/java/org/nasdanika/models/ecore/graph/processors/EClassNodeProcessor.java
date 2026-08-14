@@ -924,6 +924,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		CompletionStage<DiagramElement> thisTypeCompletedStage = CompletableFuture.completedStage(type);
 		
 		Function<EClassifier, CompletionStage<DiagramElement>> dep = ec -> {
+			if (ec == null) {
+				return CompletableFuture.completedStage(null);
+			}
 			if (ec.getEPackage().getNsURI().equals(getTarget().getEPackage().getNsURI()) && ec.getName().equals(getTarget().getName())) {
 				return thisTypeCompletedStage;
 			}
@@ -947,22 +950,24 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			EGenericType sgt = (EGenericType) swf.select(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 			EClassifier st = sgt.getEClassifier();
 			dep.apply(st).thenAccept(stde -> {
-				type.getSuperTypes().remove(superType);
-				
-				boolean isSuperInterface = ((EClass) st).isInterface();				
-				boolean isClass = !getTarget().isInterface();
-				
-				Relation superTypeRelation = isSuperInterface && isClass ? new Implementation(type, stde) : new Generalization(type, stde);
-				
-				if (superTypeRelation instanceof Generalization) {
-					if (isFirstGeneralization[0]) {
-						isFirstGeneralization[0] = false;
-					} else {
-						superTypeRelation.getColors().add("808080");
+				if (stde != null) {
+					type.getSuperTypes().remove(superType);
+					
+					boolean isSuperInterface = ((EClass) st).isInterface();				
+					boolean isClass = !getTarget().isInterface();
+					
+					Relation superTypeRelation = isSuperInterface && isClass ? new Implementation(type, stde) : new Generalization(type, stde);
+					
+					if (superTypeRelation instanceof Generalization) {
+						if (isFirstGeneralization[0]) {
+							isFirstGeneralization[0] = false;
+						} else {
+							superTypeRelation.getColors().add("808080");
+						}
 					}
+					
+					// TODO - generic type parameters bindings if any
 				}
-				
-				// TODO - generic type parameters bindings if any
 			});
 		}
 				
@@ -983,6 +988,9 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 			
 			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, base, progressMonitor);
 			EClass refType = eRef.getEReferenceType();
+			if (refType == null) {
+				continue; // Happens in Xcore referencing another Xcore model that is not loaded. 				
+			}
 			dep.apply(refType).thenAccept(rtde -> {
 				type.getReferences().remove(ref);
 				
@@ -1112,7 +1120,7 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 
 		record EClassifierKey(String nsURI, String name) {}
 		Map<EClassifierKey, CompletableFuture<DiagramElement>> diagramElementsMap = new HashMap<>();
-		Function<EClassifier, CompletableFuture<DiagramElement>> diagramElementProvider = k -> diagramElementsMap.computeIfAbsent(new EClassifierKey(k.getEPackage().getNsURI(), k.getName()), kk -> new CompletableFuture<>());
+		Function<EClassifier, CompletableFuture<DiagramElement>> diagramElementProvider = k -> k == null ? null : diagramElementsMap.computeIfAbsent(new EClassifierKey(k.getEPackage().getNsURI(), k.getName()), kk -> new CompletableFuture<>());
 		Function<EClassifier, CompletionStage<DiagramElement>> diagramElementCompletionStageProvider = k -> diagramElementProvider.apply(k);
 		
 		org.nasdanika.diagram.plantuml.clazz.Type thisType = generateDiagramElement(getUri(), diagramElementCompletionStageProvider, progressMonitor);		
@@ -1165,7 +1173,10 @@ public class EClassNodeProcessor extends EClassifierNodeProcessor<EClass> {
 		for (WidgetFactory rwf: eReferenceWidgetFactories.values()) {
 			EReference eRef = (EReference) rwf.select(EObjectNodeProcessor.TARGET_SELECTOR, getUri(), progressMonitor); 
 			EClass refClass = eRef.getEReferenceType();
-			CompletableFuture<DiagramElement> rccf = diagramElementProvider.apply(refClass);
+			if (refClass == null) {
+				continue; // Happens in Xcore referencing another Xcore model that is not loaded. 				
+			}
+			CompletableFuture<DiagramElement> rccf = diagramElementProvider.apply(refClass);			
 			if (!rccf.isDone()) {
 				DiagramElement rtde = rwf.select(referenceTypeDiagramElementSelector, getUri(), progressMonitor);
 				classDiagram.getDiagramElements().add(rtde);
