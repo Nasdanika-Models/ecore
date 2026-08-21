@@ -1,7 +1,7 @@
 app.Action:
   icon: https://docs.nasdanika.org/images/nasdanika-logo.png
   text: Nasdanika Models
-  location: https://github.com/Nasdanika-Models 
+  location: https://nasdanika.com/models.html 
   children:
     - app.ActionReference: "target/action-models/ecore.xmi#/"
     - app.Action:

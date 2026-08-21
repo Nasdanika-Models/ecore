@@ -61,6 +61,7 @@ public class EcoreDocProcessorFactory {
                     app-action:
                       content:
                         content-markdown:
+                          style: true
                           source:
                             content-resource:
                               location: ecore.md
